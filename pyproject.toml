@@ -10,7 +10,7 @@ readme = "README.md"
 keywords = ["kiota", "openAPI", "Microsoft", "Graph"]
 classifiers = [
     "Development Status :: Preview",
-    "Programming Language :: Python"
+    "Programming Language :: Python",
     "License :: OSI Approved :: MIT License",
 ]
 requires-python = ">=3.6"
