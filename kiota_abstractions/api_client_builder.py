@@ -1,4 +1,5 @@
 from typing import Callable
+
 from .serialization import (
     ParseNodeFactory,
     ParseNodeFactoryRegistry,
@@ -9,7 +10,7 @@ from .serialization import (
 from .store import BackingStoreParseNodeFactory, BackingStoreSerializationWriterProxyFactory
 
 
-def register_default_serializer(factory_class: Callable[[],SerializationWriterFactory]) -> None:
+def register_default_serializer(factory_class: Callable[[], SerializationWriterFactory]) -> None:
     """Registers the default serializer to the registry.
 
     Args:
