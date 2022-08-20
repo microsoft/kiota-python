@@ -7,23 +7,14 @@ name = "kiota-abstractions"
 authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
 license = {file = "LICENSE"}
 readme = "README.md"
-keywords = ["kiota", "openAPI", "Microsoft", "Graph"]
-classifiers = [
-    "Development Status :: Preview",
-    "Programming Language :: Python",
-    "License :: OSI Approved :: MIT License",
-]
-requires-python = ">=3.6"
+classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
 
 [project.urls]
-homepage = "https://github.com/microsoft/kiota#readme"
-repository = "https://github.com/microsoft/kiota-abstractions-python"
-documentation = "https://microsoft.github.io/kiota/"
-
+Home = "https://github.com/microsoft/kiota#readme"
 
 [tool.flit.module]
-name = "kiota_abstractions"
+name = "kiota"
 
 dependencies = [
     "uritemplate ==4.1.1",
@@ -31,7 +22,7 @@ dependencies = [
 
 [mypy]
 warn_unused_configs = true
-files = "kiota.abstractions"
+files = "kiota_abstractions"
 ignore_missing_imports = true
 
 [tool.yapf]
