@@ -58,4 +58,4 @@ jobs:
         env:
           FLIT_INDEX_URL: https://upload.pypi.org/legacy/
           FLIT_USERNAME: __token__
-          FLIT_PASSWORD: ${{ secrets.pypi_prod }}
+          FLIT_PASSWORD: ${{ secrets. PYPI_API_TOKEN }}
