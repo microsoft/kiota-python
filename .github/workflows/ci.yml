@@ -3,7 +3,7 @@ name: Python abstractions
 on:
   workflow_dispatch:
   push:
-    branches: [ main, dev ]
+    branches: [ main ]
   pull_request:
     branches: [ main, dev ]
 
@@ -37,3 +37,26 @@ jobs:
       - name: Static type checking with Mypy
         run: |
           pipenv run mypy kiota_abstractions
+
+  publish:
+    name: Publish distribution to PyPI
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    environment: pypi_prod
+    needs: [build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install flit
+        run: |
+          pip install flit
+      - name: Publish the distibution to PyPI
+        run: flit publish
+        env:
+          FLIT_INDEX_URL: https://upload.pypi.org/legacy/
+          FLIT_USERNAME: __token__
+          FLIT_PASSWORD: ${{ secrets. PYPI_API_TOKEN }}
