@@ -9,8 +9,13 @@ license = {file = "LICENSE"}
 readme = "README.md"
 keywords = ["kiota", "openAPI", "Microsoft", "Graph"]
 classifiers = [
-    "Development Status :: Preview",
-    "Programming Language :: Python",
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
 ]
 dynamic = ["version", "description"]
@@ -24,7 +29,7 @@ documentation = "https://microsoft.github.io/kiota/"
 name = "kiota_abstractions"
 
 dependencies = [
-    "uritemplate ==4.1.1",
+    "uritemplate >=4.1.1",
 ]
 
 [mypy]
