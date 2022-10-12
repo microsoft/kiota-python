@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .parsable import Parsable
-from .parse_node import ParseNode, U
+from .parse_node import ParseNode
 
 
 class ParsableFactory(Parsable):
@@ -9,7 +9,7 @@ class ParsableFactory(Parsable):
     """
 
     @staticmethod
-    def create_from_discriminator_value(parse_node: Optional[ParseNode]) -> U:
+    def create_from_discriminator_value(parse_node: Optional[ParseNode]) -> Parsable:
         """Create a new parsable object from the given serialized data.
 
         Args:

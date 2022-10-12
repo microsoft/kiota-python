@@ -156,7 +156,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_object_value(self, factory: ParsableFactory) -> U:
+    def get_object_value(self, factory: ParsableFactory) -> Parsable:
         """Gets the model object value of the node
         Args:
             factory (ParsableFactory): The factory to use to create the model object.
