@@ -1,6 +1,8 @@
 from dataclasses import fields
+from datetime import date, datetime, time, timedelta
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, TypeVar, Union
+from uuid import UUID
 
 from uritemplate import URITemplate
 
@@ -141,7 +143,48 @@ class RequestInformation(Generic[QueryParams]):
         else:
             writer.writer = writer.write_object_value(None, values)
 
-        self._set_content_and_content_type(writer, content_type)
+        self._set_content_and_content_type_header(writer, content_type)
+
+    def set_content_from_scalar(
+        self, request_adapter: Optional['RequestAdapter'], content_type: Optional[str],
+        values: Union[T, List[T]]
+    ) -> None:
+        """Sets the request body from a scalar value with the specified content type.
+
+        Args:
+            request_adapter (Optional[RequestAdapter]): The adapter service to get the serialization
+            writer from.
+            content_type (Optional[str]): the content type to set.
+            values (Union[T, List[T]]): the scalar values to serialize
+        """
+        writer = self._get_serialization_writer(request_adapter, content_type, values)
+
+        if isinstance(values, list):
+            writer.writer = writer.write_collection_of_primitive_values(None, values)
+        else:
+            value_type = type(values)
+            if value_type == bool:
+                writer.write_bool_value(None, values)
+            elif value_type == str:
+                writer.write_str_value(None, values)
+            elif value_type == int:
+                writer.write_int_value(None, values)
+            elif value_type == float:
+                writer.write_float_value(None, values)
+            elif value_type == UUID:
+                writer.write_uuid_value(None, values)
+            elif value_type == datetime:
+                writer.write_datetime_value(None, values)
+            elif value_type == timedelta:
+                writer.write_timedelta_value(None, values)
+            elif value_type == date:
+                writer.write_date_value(None, values)
+            elif value_type == time:
+                writer.write_time_value(None, values)
+            else:
+                raise Exception(f"Encountered an unknown type during serialization {value_type}")
+
+        self._set_content_and_content_type_header(writer, content_type)
 
     def set_stream_content(self, value: BytesIO) -> None:
         """Sets the request body to be a binary stream.
@@ -182,7 +225,7 @@ class RequestInformation(Generic[QueryParams]):
         return request_adapter.get_serialization_writer_factory(
         ).get_serialization_writer(content_type)
 
-    def _set_content_and_content_type(
+    def _set_content_and_content_type_header(
         self, writer: SerializationWriter, content_type: Optional[str]
     ):
         if content_type:
