@@ -53,7 +53,7 @@ class ParseNodeProxyFactory(ParseNodeFactory):
         def before_callback(value):
             if self._on_before:
                 self._on_before(value)
-            if original_before:
+            if callable(original_before):
                 original_before(value)
 
         node.set_on_before_assign_field_values(before_callback)
@@ -61,7 +61,7 @@ class ParseNodeProxyFactory(ParseNodeFactory):
         def after_callback(value):
             if self._on_after:
                 self._on_after(value)
-            if original_after:
+            if callable(original_after):
                 original_after(value)
 
         node.set_on_after_assign_field_values(after_callback)
