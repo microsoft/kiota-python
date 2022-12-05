@@ -2,7 +2,7 @@ import importlib.util
 import sys
 
 
-def lazy_import(name: str):
+def lazy_import(name):
     """Lazily imports a python module given its absolute path
 
     Args:
