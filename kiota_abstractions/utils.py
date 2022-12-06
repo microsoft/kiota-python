@@ -4,7 +4,7 @@ import sys
 
 def lazy_import(name):
     """Lazily imports a python module given its absolute path.
-    
+
     Note: This a utility method for use in Kiota generated code only and not
     meant for application outside of that scenario.
 
