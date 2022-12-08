@@ -17,6 +17,10 @@ def lazy_import(name):
     if not name or not isinstance(name, str):
         raise ValueError("Module name must be a valid string")
 
+    if name in sys.modules:
+        module = sys.modules[name]
+        return module
+
     spec = importlib.util.find_spec(name)
 
     if not spec:
