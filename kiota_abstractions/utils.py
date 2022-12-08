@@ -20,7 +20,7 @@ def lazy_import(name):
     if name in sys.modules:
         module = sys.modules[name]
         return module
-    
+
     spec = importlib.util.find_spec(name)
 
     if not spec:
