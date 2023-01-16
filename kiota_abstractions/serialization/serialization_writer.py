@@ -18,7 +18,8 @@ class SerializationWriter(ABC):
     """
 
     @abstractmethod
-    def write_str_value(self, key: Optional[str], value: Optional[str]) -> None:
+    def write_str_value(self, key: Optional[str],
+                        value: Optional[str]) -> None:
         """Writes the specified string value to the stream with an optional given key.
 
         Args:
@@ -28,7 +29,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_bool_value(self, key: Optional[str], value: Optional[bool]) -> None:
+    def write_bool_value(self, key: Optional[str],
+                         value: Optional[bool]) -> None:
         """Writes the specified boolean value to the stream with an optional given key.
 
         Args:
@@ -38,7 +40,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_int_value(self, key: Optional[str], value: Optional[int]) -> None:
+    def write_int_value(self, key: Optional[str],
+                        value: Optional[int]) -> None:
         """Writes the specified integer value to the stream with an optional given key.
 
         Args:
@@ -48,7 +51,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_float_value(self, key: Optional[str], value: Optional[float]) -> None:
+    def write_float_value(self, key: Optional[str],
+                          value: Optional[float]) -> None:
         """Writes the specified float value to the stream with an optional given key.
 
         Args:
@@ -58,7 +62,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_uuid_value(self, key: Optional[str], value: Optional[UUID]) -> None:
+    def write_uuid_value(self, key: Optional[str],
+                         value: Optional[UUID]) -> None:
         """Writes the specified uuid value to the stream with an optional given key.
 
         Args:
@@ -68,7 +73,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_datetime_value(self, key: Optional[str], value: Optional[datetime]) -> None:
+    def write_datetime_value(self, key: Optional[str],
+                             value: Optional[datetime]) -> None:
         """Writes the specified datetime offset value to the stream with an optional given key.
 
         Args:
@@ -78,7 +84,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_timedelta_value(self, key: Optional[str], value: Optional[timedelta]) -> None:
+    def write_timedelta_value(self, key: Optional[str],
+                              value: Optional[timedelta]) -> None:
         """Writes the specified timedelta value to the stream with an optional given key.
 
         Args:
@@ -88,7 +95,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_date_value(self, key: Optional[str], value: Optional[date]) -> None:
+    def write_date_value(self, key: Optional[str],
+                         value: Optional[date]) -> None:
         """Writes the specified date value to the stream with an optional given key.
 
         Args:
@@ -98,7 +106,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_time_value(self, key: Optional[str], value: Optional[time]) -> None:
+    def write_time_value(self, key: Optional[str],
+                         value: Optional[time]) -> None:
         """Writes the specified time value to the stream with an optional given key.
 
         Args:
@@ -109,8 +118,7 @@ class SerializationWriter(ABC):
 
     @abstractmethod
     def write_collection_of_primitive_values(
-        self, key: Optional[str], values: Optional[List[T]]
-    ) -> None:
+            self, key: Optional[str], values: Optional[List[T]]) -> None:
         """Writes the specified collection of primitive values to the stream with an optional
         given key.
 
@@ -121,9 +129,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_collection_of_object_values(
-        self, key: Optional[str], values: Optional[List[U]]
-    ) -> None:
+    def write_collection_of_object_values(self, key: Optional[str],
+                                          values: Optional[List[U]]) -> None:
         """Writes the specified collection of model objects to the stream with an optional
         given key.
 
@@ -134,9 +141,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_collection_of_enum_values(
-        self, key: Optional[str], values: Optional[List[Enum]]
-    ) -> None:
+    def write_collection_of_enum_values(self, key: Optional[str],
+                                        values: Optional[List[Enum]]) -> None:
         """Writes the specified collection of enum values to the stream with an optional given key.
 
         Args:
@@ -167,7 +173,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_enum_value(self, key: Optional[str], value: Optional[Enum]) -> None:
+    def write_enum_value(self, key: Optional[str],
+                         value: Optional[Enum]) -> None:
         """Writes the specified enum value to the stream with an optional given key.
 
         Args:
@@ -203,7 +210,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def get_on_before_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
+    def get_on_before_object_serialization(
+            self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called before the object gets serialized.
 
         Returns:
@@ -213,7 +221,8 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def get_on_after_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
+    def get_on_after_object_serialization(
+            self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called after the object gets serialized.
 
         Returns:
@@ -224,8 +233,7 @@ class SerializationWriter(ABC):
 
     @abstractmethod
     def get_on_start_object_serialization(
-        self
-    ) -> Optional[Callable[[Parsable, SerializationWriter], None]]:
+            self) -> Optional[Callable[[Parsable, SerializationWriter], None]]:
         """Gets the callback called right after the serialization process starts.
 
         Returns:
@@ -236,8 +244,7 @@ class SerializationWriter(ABC):
 
     @abstractmethod
     def set_on_before_object_serialization(
-        self, value: Optional[Callable[[Parsable], None]]
-    ) -> None:
+            self, value: Optional[Callable[[Parsable], None]]) -> None:
         """Sets the callback called before the objects gets serialized.
 
         Args:
@@ -248,8 +255,7 @@ class SerializationWriter(ABC):
 
     @abstractmethod
     def set_on_after_object_serialization(
-        self, value: Optional[Callable[[Parsable], None]]
-    ) -> None:
+            self, value: Optional[Callable[[Parsable], None]]) -> None:
         """Sets the callback called after the objects gets serialized.
 
         Args:
@@ -260,8 +266,8 @@ class SerializationWriter(ABC):
 
     @abstractmethod
     def set_on_start_object_serialization(
-        self, value: Optional[Callable[[Parsable, SerializationWriter], None]]
-    ) -> None:
+        self, value: Optional[Callable[[Parsable, SerializationWriter],
+                                       None]]) -> None:
         """Sets the callback called right after the serialization process starts.
 
         Args:

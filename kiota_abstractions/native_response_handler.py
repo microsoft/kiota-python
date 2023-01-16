@@ -11,5 +11,6 @@ class NativeResponseHandler:
     """
 
     @staticmethod
-    async def handle_response_async(response: NativeResponseType) -> NativeResponseType:
+    async def handle_response_async(
+            response: NativeResponseType) -> NativeResponseType:
         return response

@@ -24,6 +24,8 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
             request.headers = {}
 
         if not self.AUTHORIZATION_HEADER in request.headers:
-            token = await self.access_token_provider.get_authorization_token(request.url)
+            token = await self.access_token_provider.get_authorization_token(
+                request.url)
             if token:
-                request.add_request_headers({f'{self.AUTHORIZATION_HEADER}': f'Bearer {token}'})
+                request.add_request_headers(
+                    {f'{self.AUTHORIZATION_HEADER}': f'Bearer {token}'})
