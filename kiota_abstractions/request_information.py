@@ -1,7 +1,8 @@
 from dataclasses import fields
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, TypeVar, Union
+from typing import (TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple,
+                    TypeVar, Union)
 from uuid import UUID
 
 from uritemplate import URITemplate

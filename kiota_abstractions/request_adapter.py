@@ -4,7 +4,8 @@ from io import BytesIO
 from typing import Callable, Dict, List, Optional, TypeVar
 
 from .request_information import RequestInformation
-from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
+from .serialization import (Parsable, ParsableFactory,
+                            SerializationWriterFactory)
 from .store import BackingStoreFactory
 
 ResponseType = TypeVar("ResponseType", str, int, float, bool, datetime,

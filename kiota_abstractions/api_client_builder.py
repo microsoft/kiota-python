@@ -1,13 +1,11 @@
 from typing import Callable
 
-from .serialization import (
-    ParseNodeFactory,
-    ParseNodeFactoryRegistry,
-    SerializationWriterFactory,
-    SerializationWriterFactoryRegistry,
-    SerializationWriterProxyFactory,
-)
-from .store import BackingStoreParseNodeFactory, BackingStoreSerializationWriterProxyFactory
+from .serialization import (ParseNodeFactory, ParseNodeFactoryRegistry,
+                            SerializationWriterFactory,
+                            SerializationWriterFactoryRegistry,
+                            SerializationWriterProxyFactory)
+from .store import (BackingStoreParseNodeFactory,
+                    BackingStoreSerializationWriterProxyFactory)
 
 
 def register_default_serializer(

@@ -1,4 +1,5 @@
-from ..serialization import SerializationWriterFactory, SerializationWriterProxyFactory
+from ..serialization import (SerializationWriterFactory,
+                             SerializationWriterProxyFactory)
 from .backed_model import BackedModel
 
 
