@@ -23,4 +23,4 @@ class NativeResponseHandler(ResponseHandler):
     ) -> ModelType:
         self.value = response
         self.error_map = error_map
-        return cast(ModelType, None)
+        return self
