@@ -4,7 +4,6 @@ from io import BytesIO
 from typing import Callable, Dict, List, Optional, TypeVar
 
 from .request_information import RequestInformation
-from .response_handler import ResponseHandler
 from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
 from .store import BackingStoreFactory
 
@@ -30,8 +29,7 @@ class RequestAdapter(ABC):
 
     @abstractmethod
     async def send_async(
-        self, request_info: RequestInformation, type: ParsableFactory,
-        response_handler: Optional[ResponseHandler], error_map: Dict[str, Optional[ParsableFactory]]
+        self, request_info: RequestInformation, type: ParsableFactory, error_map: Dict[str, Optional[ParsableFactory]]
     ) -> Optional[ModelType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model.
@@ -39,8 +37,6 @@ class RequestAdapter(ABC):
         Args:
             request_info (RequestInformation): the request info to execute.
             type (ParsableFactory): the class of response model to deserialize the response into.
-            response_handler (Optional[ResponseHandler]): The response handler to use for the HTTP
-            request instead of the default handler.
             error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in case
             of a failed request.
 
@@ -54,7 +50,6 @@ class RequestAdapter(ABC):
         self,
         request_info: RequestInformation,
         type: ParsableFactory,
-        response_handler: Optional[ResponseHandler],
         error_map: Dict[str, Optional[ParsableFactory]],
     ) -> Optional[List[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
@@ -63,8 +58,6 @@ class RequestAdapter(ABC):
         Args:
             request_info (RequestInformation): the request info to execute.
             type (ParsableFactory): the class of response model to deserialize the response into.
-            response_handler (Optional[ResponseHandler]): The response handler to use for the
-            HTTP request instead of the default handler.
             error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
@@ -78,7 +71,6 @@ class RequestAdapter(ABC):
         self,
         request_info: RequestInformation,
         response_type: ResponseType,
-        response_handler: Optional[ResponseHandler],
         error_map: Dict[str, Optional[ParsableFactory]],
     ) -> Optional[List[ResponseType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
@@ -88,8 +80,6 @@ class RequestAdapter(ABC):
             request_info (RequestInformation): the request info to execute.
             response_type (ResponseType): the class of the response model to deserialize the
             response into.
-            response_handler (Optional[ResponseType]): The response handler to use for the HTTP
-            request instead of the default handler.
             error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
@@ -100,8 +90,7 @@ class RequestAdapter(ABC):
 
     @abstractmethod
     async def send_primitive_async(
-        self, request_info: RequestInformation, response_type: ResponseType,
-        response_handler: Optional[ResponseHandler], error_map: Dict[str, Optional[ParsableFactory]]
+        self, request_info: RequestInformation, response_type: ResponseType, error_map: Dict[str, Optional[ParsableFactory]]
     ) -> Optional[ResponseType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
@@ -110,8 +99,6 @@ class RequestAdapter(ABC):
             request_info (RequestInformation): the request info to execute.
             response_type (ResponseType): the class of the response model to deserialize the
             response into.
-            response_handler (Optional[ResponseHandler]): The response handler to use for the
-            HTTP request instead of the default handler.
             error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
@@ -122,7 +109,7 @@ class RequestAdapter(ABC):
 
     @abstractmethod
     async def send_no_response_content_async(
-        self, request_info: RequestInformation, response_handler: Optional[ResponseHandler],
+        self, request_info: RequestInformation,
         error_map: Dict[str, Optional[ParsableFactory]]
     ) -> None:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
@@ -130,8 +117,6 @@ class RequestAdapter(ABC):
 
         Args:
             request_info (RequestInformation):the request info to execute.
-            response_handler (Optional[ResponseHandler]): The response handler to use for the
-            HTTP request instead of the default handler.
             error_map (Dict[str, Optional[Optional[ParsableFactory]]): the error dict to use in
             case of a failed request.
         """
