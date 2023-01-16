@@ -9,6 +9,7 @@ ModelType = TypeVar("ModelType")
 class NativeResponseHandler:
     """Default response handler to access the native response object.
     """
+
     @staticmethod
-    async def handle_response_async(response: NativeResponseType) -> ModelType:
+    async def handle_response_async(response: NativeResponseType) -> NativeResponseType:
         return response

@@ -29,7 +29,8 @@ class RequestAdapter(ABC):
 
     @abstractmethod
     async def send_async(
-        self, request_info: RequestInformation, type: ParsableFactory, error_map: Dict[str, Optional[ParsableFactory]]
+        self, request_info: RequestInformation, type: ParsableFactory,
+        error_map: Dict[str, Optional[ParsableFactory]]
     ) -> Optional[ModelType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model.
@@ -90,7 +91,8 @@ class RequestAdapter(ABC):
 
     @abstractmethod
     async def send_primitive_async(
-        self, request_info: RequestInformation, response_type: ResponseType, error_map: Dict[str, Optional[ParsableFactory]]
+        self, request_info: RequestInformation, response_type: ResponseType,
+        error_map: Dict[str, Optional[ParsableFactory]]
     ) -> Optional[ResponseType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
@@ -109,8 +111,7 @@ class RequestAdapter(ABC):
 
     @abstractmethod
     async def send_no_response_content_async(
-        self, request_info: RequestInformation,
-        error_map: Dict[str, Optional[ParsableFactory]]
+        self, request_info: RequestInformation, error_map: Dict[str, Optional[ParsableFactory]]
     ) -> None:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
