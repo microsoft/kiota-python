@@ -1,7 +1,7 @@
-from typing import Any, Callable, Dict, Optional, TypeVar, cast
+from typing import Dict, Optional, TypeVar
 
 from .response_handler import ResponseHandler
-from .serialization import Parsable, ParsableFactory
+from .serialization import ParsableFactory
 
 NativeResponseType = TypeVar("NativeResponseType")
 ModelType = TypeVar("ModelType")
@@ -10,17 +10,18 @@ ModelType = TypeVar("ModelType")
 class NativeResponseHandler(ResponseHandler):
     """Default response handler to access the native response object.
     """
-    # Native response object as returned by the core service
-    value: Any
-
-    # The error mappings for the response to use when deserializing failed responses bodies.
-    # Where an error code like 401 applies specifically to that status code, a class code like
-    # 4XX applies to all status codes within the range if a specific error code is not present.
-    error_map: Dict[str, Optional[ParsableFactory]]
 
     async def handle_response_async(
-        self, response: NativeResponseType, error_map: Dict[str, Optional[ParsableFactory]]
-    ) -> ModelType:
-        self.value = response
-        self.error_map = error_map
-        return cast(ModelType, None)
+        self,
+        response: NativeResponseType,
+        error_map: Optional[Dict[str, Optional[ParsableFactory]]] = None
+    ) -> NativeResponseType:
+        """Callback method that is invoked when a response is received.
+        Args:
+            response (NativeResponseType): The type of the native response object.
+            error_map (Optional[Dict[str, Optional[ParsableFactory]]]): the error dict to use
+            in case of a failed request.
+        Returns:
+            Any: The native response object.
+        """
+        return response

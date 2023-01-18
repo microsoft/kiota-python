@@ -1,7 +1,8 @@
 from dataclasses import fields
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, TypeVar, Union
+from typing import (TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple,
+                    TypeVar, Union)
 from uuid import UUID
 
 from uritemplate import URITemplate
@@ -90,7 +91,8 @@ class RequestInformation(Generic[QueryParams]):
     def request_headers(self) -> Optional[Dict]:
         return self.headers
 
-    def add_request_headers(self, headers_to_add: Optional[Dict[str, str]]) -> None:
+    def add_request_headers(self, headers_to_add: Optional[Dict[str,
+                                                                str]]) -> None:
         """Adds headers to the request
         """
         if headers_to_add:
@@ -124,10 +126,10 @@ class RequestInformation(Generic[QueryParams]):
         for option in options:
             del self.__request_options[option.get_key()]
 
-    def set_content_from_parsable(
-        self, request_adapter: Optional['RequestAdapter'], content_type: Optional[str],
-        values: Union[T, List[T]]
-    ) -> None:
+    def set_content_from_parsable(self,
+                                  request_adapter: Optional['RequestAdapter'],
+                                  content_type: Optional[str],
+                                  values: Union[T, List[T]]) -> None:
         """Sets the request body from a model with the specified content type.
 
         Args:
@@ -136,19 +138,21 @@ class RequestInformation(Generic[QueryParams]):
             content_type (Optional[str]): the content type.
             values (Union[T, List[T]]): the models.
         """
-        writer = self._get_serialization_writer(request_adapter, content_type, values)
+        writer = self._get_serialization_writer(request_adapter, content_type,
+                                                values)
 
         if isinstance(values, list):
-            writer.writer = writer.write_collection_of_object_values(None, values)
+            writer.writer = writer.write_collection_of_object_values(
+                None, values)
         else:
             writer.writer = writer.write_object_value(None, values)
 
         self._set_content_and_content_type_header(writer, content_type)
 
-    def set_content_from_scalar(
-        self, request_adapter: Optional['RequestAdapter'], content_type: Optional[str],
-        values: Union[T, List[T]]
-    ) -> None:
+    def set_content_from_scalar(self,
+                                request_adapter: Optional['RequestAdapter'],
+                                content_type: Optional[str],
+                                values: Union[T, List[T]]) -> None:
         """Sets the request body from a scalar value with the specified content type.
 
         Args:
@@ -157,10 +161,12 @@ class RequestInformation(Generic[QueryParams]):
             content_type (Optional[str]): the content type to set.
             values (Union[T, List[T]]): the scalar values to serialize
         """
-        writer = self._get_serialization_writer(request_adapter, content_type, values)
+        writer = self._get_serialization_writer(request_adapter, content_type,
+                                                values)
 
         if isinstance(values, list):
-            writer.writer = writer.write_collection_of_primitive_values(None, values)
+            writer.writer = writer.write_collection_of_primitive_values(
+                None, values)
         else:
             value_type = type(values)
             if value_type == bool:
@@ -182,7 +188,9 @@ class RequestInformation(Generic[QueryParams]):
             elif value_type == time:
                 writer.write_time_value(None, values)
             else:
-                raise Exception(f"Encountered an unknown type during serialization {value_type}")
+                raise Exception(
+                    f"Encountered an unknown type during serialization {value_type}"
+                )
 
         self._set_content_and_content_type_header(writer, content_type)
 
@@ -195,20 +203,22 @@ class RequestInformation(Generic[QueryParams]):
         self.headers[self.CONTENT_TYPE_HEADER] = self.BINARY_CONTENT_TYPE
         self.content = value
 
-    def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParams]) -> None:
+    def set_query_string_parameters_from_raw_object(
+            self, q: Optional[QueryParams]) -> None:
         if q:
             for field in fields(q):
                 key = field.name
                 if hasattr(q, 'get_query_parameter'):
-                    serialization_key = q.get_query_parameter(key)  #type: ignore
+                    serialization_key = q.get_query_parameter(
+                        key)  #type: ignore
                     if serialization_key:
                         key = serialization_key
                 self.query_parameters[key] = getattr(q, field.name)
 
-    def _get_serialization_writer(
-        self, request_adapter: Optional['RequestAdapter'], content_type: Optional[str],
-        values: Union[T, List[T]]
-    ):
+    def _get_serialization_writer(self,
+                                  request_adapter: Optional['RequestAdapter'],
+                                  content_type: Optional[str],
+                                  values: Union[T, List[T]]):
         """_summary_
 
         Args:
@@ -225,9 +235,8 @@ class RequestInformation(Generic[QueryParams]):
         return request_adapter.get_serialization_writer_factory(
         ).get_serialization_writer(content_type)
 
-    def _set_content_and_content_type_header(
-        self, writer: SerializationWriter, content_type: Optional[str]
-    ):
+    def _set_content_and_content_type_header(self, writer: SerializationWriter,
+                                             content_type: Optional[str]):
         if content_type:
             self.headers[self.CONTENT_TYPE_HEADER] = content_type
         self.content = writer.get_serialized_content()

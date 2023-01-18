@@ -1,16 +1,15 @@
 from typing import Callable
 
-from .serialization import (
-    ParseNodeFactory,
-    ParseNodeFactoryRegistry,
-    SerializationWriterFactory,
-    SerializationWriterFactoryRegistry,
-    SerializationWriterProxyFactory,
-)
-from .store import BackingStoreParseNodeFactory, BackingStoreSerializationWriterProxyFactory
+from .serialization import (ParseNodeFactory, ParseNodeFactoryRegistry,
+                            SerializationWriterFactory,
+                            SerializationWriterFactoryRegistry,
+                            SerializationWriterProxyFactory)
+from .store import (BackingStoreParseNodeFactory,
+                    BackingStoreSerializationWriterProxyFactory)
 
 
-def register_default_serializer(factory_class: Callable[[], SerializationWriterFactory]) -> None:
+def register_default_serializer(
+        factory_class: Callable[[], SerializationWriterFactory]) -> None:
     """Registers the default serializer to the registry.
 
     Args:
@@ -21,7 +20,8 @@ def register_default_serializer(factory_class: Callable[[], SerializationWriterF
         serializer.get_valid_content_type()] = serializer
 
 
-def register_default_deserializer(factory_class: Callable[[], ParseNodeFactory]) -> None:
+def register_default_deserializer(
+        factory_class: Callable[[], ParseNodeFactory]) -> None:
     """Registers the default deserializer to the registry.
 
     Args:
@@ -33,8 +33,7 @@ def register_default_deserializer(factory_class: Callable[[], ParseNodeFactory])
 
 
 def enable_backing_store_for_serialization_writer_factory(
-    original: SerializationWriterFactory
-) -> SerializationWriterFactory:
+        original: SerializationWriterFactory) -> SerializationWriterFactory:
     """Enables the backing store on default serialization writers and the given serialization
     writer.
 
@@ -49,12 +48,14 @@ def enable_backing_store_for_serialization_writer_factory(
         enable_backing_store_for_serialization_registry(original)
     else:
         result = BackingStoreSerializationWriterProxyFactory(original)
-    enable_backing_store_for_serialization_registry(SerializationWriterFactoryRegistry())
+    enable_backing_store_for_serialization_registry(
+        SerializationWriterFactoryRegistry())
     enable_backing_store_for_parse_node_registry(ParseNodeFactoryRegistry())
     return result
 
 
-def enable_backing_store_for_parse_node_factory(original: ParseNodeFactory) -> ParseNodeFactory:
+def enable_backing_store_for_parse_node_factory(
+        original: ParseNodeFactory) -> ParseNodeFactory:
     """Enables the backing store on default parse node factories and the given parse node factory.
 
     Args:
@@ -72,18 +73,19 @@ def enable_backing_store_for_parse_node_factory(original: ParseNodeFactory) -> P
     return result
 
 
-def enable_backing_store_for_parse_node_registry(registry: ParseNodeFactoryRegistry) -> None:
+def enable_backing_store_for_parse_node_registry(
+        registry: ParseNodeFactoryRegistry) -> None:
     for key, val in registry.CONTENT_TYPE_ASSOCIATED_FACTORIES.items():
-        if not isinstance(val, (BackingStoreParseNodeFactory, ParseNodeFactoryRegistry)):
-            registry.CONTENT_TYPE_ASSOCIATED_FACTORIES[key] = BackingStoreParseNodeFactory(val)
+        if not isinstance(
+                val, (BackingStoreParseNodeFactory, ParseNodeFactoryRegistry)):
+            registry.CONTENT_TYPE_ASSOCIATED_FACTORIES[
+                key] = BackingStoreParseNodeFactory(val)
 
 
 def enable_backing_store_for_serialization_registry(
-    registry: SerializationWriterFactoryRegistry
-) -> None:
+        registry: SerializationWriterFactoryRegistry) -> None:
     for key, val in registry.CONTENT_TYPE_ASSOCIATED_FACTORIES.items():
-        if not isinstance(
-            val, (SerializationWriterProxyFactory, SerializationWriterFactoryRegistry)
-        ):
+        if not isinstance(val, (SerializationWriterProxyFactory,
+                                SerializationWriterFactoryRegistry)):
             registry.CONTENT_TYPE_ASSOCIATED_FACTORIES[
                 key] = BackingStoreSerializationWriterProxyFactory(val)

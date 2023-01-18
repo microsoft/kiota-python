@@ -10,7 +10,8 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
     """
 
     def __init__(
-        self, concrete: SerializationWriterFactory, on_before: Optional[Callable[[Parsable], None]],
+        self, concrete: SerializationWriterFactory,
+        on_before: Optional[Callable[[Parsable], None]],
         on_after: Optional[Callable[[Parsable], None]],
         on_start: Optional[Callable[[Parsable, SerializationWriter], None]]
     ) -> None:
@@ -38,7 +39,8 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
         """
         return self._concrete.get_valid_content_type()
 
-    def get_serialization_writer(self, content_type: str) -> SerializationWriter:
+    def get_serialization_writer(self,
+                                 content_type: str) -> SerializationWriter:
         """Creates a new SerializationWriter instance for the given content type.
 
         Args:
