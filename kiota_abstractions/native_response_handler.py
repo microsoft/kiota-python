@@ -1,16 +1,19 @@
-from typing import Any, Callable, Dict, Optional, TypeVar, cast
+from typing import Dict, Optional, TypeVar
 
-from .serialization import Parsable, ParsableFactory
+from .response_handler import ResponseHandler
+from .serialization import ParsableFactory
 
 NativeResponseType = TypeVar("NativeResponseType")
 ModelType = TypeVar("ModelType")
 
 
-class NativeResponseHandler:
+class NativeResponseHandler(ResponseHandler):
     """Default response handler to access the native response object.
     """
 
-    @staticmethod
     async def handle_response_async(
-            response: NativeResponseType) -> NativeResponseType:
+        self,
+        response: NativeResponseType,
+        error_map: Optional[Dict[str, Optional[ParsableFactory]]] = None
+    ) -> NativeResponseType:
         return response
