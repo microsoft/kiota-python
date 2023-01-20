@@ -13,8 +13,9 @@ class ResponseHandler(ABC):
 
     @abstractmethod
     async def handle_response_async(
-            self, response: NativeResponseType,
-            error_map: Optional[Dict[str, Optional[ParsableFactory]]]) -> Any:
+        self, response: NativeResponseType, error_map: Optional[Dict[str,
+                                                                     Optional[ParsableFactory]]]
+    ) -> Any:
         """Callback method that is invoked when a response is received.
         Args:
             response (NativeResponseType): The type of the native response object.

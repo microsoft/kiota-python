@@ -4,12 +4,10 @@ from io import BytesIO
 from typing import Callable, Dict, List, Optional, TypeVar
 
 from .request_information import RequestInformation
-from .serialization import (Parsable, ParsableFactory,
-                            SerializationWriterFactory)
+from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
 from .store import BackingStoreFactory
 
-ResponseType = TypeVar("ResponseType", str, int, float, bool, datetime,
-                       BytesIO)
+ResponseType = TypeVar("ResponseType", str, int, float, bool, datetime, BytesIO)
 ModelType = TypeVar("ModelType", bound=Parsable)
 
 
@@ -32,8 +30,8 @@ class RequestAdapter(ABC):
     @abstractmethod
     async def send_async(
         self, request_info: RequestInformation, type: ParsableFactory,
-        error_map: Dict[str,
-                        Optional[ParsableFactory]]) -> Optional[ModelType]:
+        error_map: Dict[str, Optional[ParsableFactory]]
+    ) -> Optional[ModelType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model.
 
@@ -94,8 +92,8 @@ class RequestAdapter(ABC):
     @abstractmethod
     async def send_primitive_async(
         self, request_info: RequestInformation, response_type: ResponseType,
-        error_map: Dict[str,
-                        Optional[ParsableFactory]]) -> Optional[ResponseType]:
+        error_map: Dict[str, Optional[ParsableFactory]]
+    ) -> Optional[ResponseType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
 
@@ -113,8 +111,8 @@ class RequestAdapter(ABC):
 
     @abstractmethod
     async def send_no_response_content_async(
-            self, request_info: RequestInformation,
-            error_map: Dict[str, Optional[ParsableFactory]]) -> None:
+        self, request_info: RequestInformation, error_map: Dict[str, Optional[ParsableFactory]]
+    ) -> None:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
 
@@ -126,9 +124,7 @@ class RequestAdapter(ABC):
         pass
 
     @abstractmethod
-    def enable_backing_store(
-            self,
-            backing_store_factory: Optional[BackingStoreFactory]) -> None:
+    def enable_backing_store(self, backing_store_factory: Optional[BackingStoreFactory]) -> None:
         """Enables the backing store proxies for the SerializationWriters and ParseNodes in use.
 
         Args:

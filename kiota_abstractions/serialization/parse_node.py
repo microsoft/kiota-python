@@ -128,8 +128,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_collection_of_object_values(self,
-                                        factory: ParsableFactory) -> List[U]:
+    def get_collection_of_object_values(self, factory: ParsableFactory) -> List[U]:
         """Gets the collection of model object values of the node
         Args:
             factory (ParsableFactory): The factory to use to create the model object.
@@ -185,8 +184,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_on_after_assign_field_values(
-            self) -> Optional[Callable[[Parsable], None]]:
+    def get_on_after_assign_field_values(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called before the node is deserialized.
 
         Returns:
@@ -195,8 +193,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def set_on_before_assign_field_values(
-            self, value: Callable[[Parsable], None]) -> None:
+    def set_on_before_assign_field_values(self, value: Callable[[Parsable], None]) -> None:
         """Sets the callback called before the node is deserialized.
 
         Args:
@@ -206,8 +203,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def set_on_after_assign_field_values(
-            self, value: Callable[[Parsable], None]) -> None:
+    def set_on_after_assign_field_values(self, value: Callable[[Parsable], None]) -> None:
         """Sets the callback called after the node is deserialized.
 
         Args:

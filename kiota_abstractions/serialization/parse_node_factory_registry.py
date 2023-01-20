@@ -31,24 +31,19 @@ class ParseNodeFactoryRegistry(ParseNodeFactory):
             "The registry supports multiple content types. Get the registered factory instead"
         )
 
-    def get_root_parse_node(self, content_type: str,
-                            content: BytesIO) -> ParseNode:
+    def get_root_parse_node(self, content_type: str, content: BytesIO) -> ParseNode:
         if not content_type:
             raise Exception("Content type cannot be null")
         if not content:
             raise Exception("Content cannot be null")
 
         vendor_specific_content_type = content_type.split(';')[0]
-        factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(
-            vendor_specific_content_type)
+        factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(vendor_specific_content_type)
         if factory:
-            return factory.get_root_parse_node(vendor_specific_content_type,
-                                               content)
+            return factory.get_root_parse_node(vendor_specific_content_type, content)
 
-        cleaned_content_type = re.sub(r'[^/]+\+', '',
-                                      vendor_specific_content_type)
-        factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(
-            cleaned_content_type)
+        cleaned_content_type = re.sub(r'[^/]+\+', '', vendor_specific_content_type)
+        factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(cleaned_content_type)
         if factory:
             return factory.get_root_parse_node(cleaned_content_type, content)
 

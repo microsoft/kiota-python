@@ -53,8 +53,9 @@ class BackingStore(ABC):
         pass
 
     @abstractmethod
-    def subscribe(self, callback: Callable[[str, Any, Any], None],
-                  subscription_id: Optional[str]) -> str:
+    def subscribe(
+        self, callback: Callable[[str, Any, Any], None], subscription_id: Optional[str]
+    ) -> str:
         """Creates a subscription to any data change happening.
 
         Args:

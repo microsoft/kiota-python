@@ -18,8 +18,7 @@ class ParseNodeFactory(ABC):
         pass
 
     @abstractmethod
-    def get_root_parse_node(self, content_type: str,
-                            content: BytesIO) -> ParseNode:
+    def get_root_parse_node(self, content_type: str, content: BytesIO) -> ParseNode:
         """Creates a ParseNode from the given binary stream and content type
 
         Args:

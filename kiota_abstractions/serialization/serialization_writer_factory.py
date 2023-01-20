@@ -16,8 +16,7 @@ class SerializationWriterFactory(ABC):
         """
 
     @abstractmethod
-    def get_serialization_writer(self,
-                                 content_type: str) -> SerializationWriter:
+    def get_serialization_writer(self, content_type: str) -> SerializationWriter:
         """Creates a new SerializationWriter instance for the given content type.
 
         Args:
