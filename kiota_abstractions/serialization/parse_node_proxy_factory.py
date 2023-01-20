@@ -10,9 +10,10 @@ class ParseNodeProxyFactory(ParseNodeFactory):
     """Proxy factory that allows the composition of before and after callbacks on existing factories
     """
 
-    def __init__(self, concrete: ParseNodeFactory,
-                 on_before: Callable[[Parsable], None],
-                 on_after: Callable[[Parsable], None]) -> None:
+    def __init__(
+        self, concrete: ParseNodeFactory, on_before: Callable[[Parsable], None],
+        on_after: Callable[[Parsable], None]
+    ) -> None:
         """Creates a new proxy factory that wraps the specified concrete factory while composing
         the before and after callbacks.
 
@@ -35,8 +36,7 @@ class ParseNodeProxyFactory(ParseNodeFactory):
         """
         return self._concrete.get_valid_content_type()
 
-    def get_root_parse_node(self, content_type: str,
-                            content: BytesIO) -> ParseNode:
+    def get_root_parse_node(self, content_type: str, content: BytesIO) -> ParseNode:
         """Create a parse node from the given stream and content type.
 
         Args:

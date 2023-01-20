@@ -31,8 +31,9 @@ class InMemoryBackingStore(BackingStore):
         """
         wrapper = self.__store.get(key)
 
-        if wrapper and (self.return_only_changed_values and wrapper[0]
-                        or not self.return_only_changed_values):
+        if wrapper and (
+            self.return_only_changed_values and wrapper[0] or not self.return_only_changed_values
+        ):
             return wrapper[1]
         return None
 
@@ -77,8 +78,9 @@ class InMemoryBackingStore(BackingStore):
                 keys.append(key)
         return keys
 
-    def subscribe(self, callback: Callable[[str, Any, Any], None],
-                  subscription_id: Optional[str]) -> str:
+    def subscribe(
+        self, callback: Callable[[str, Any, Any], None], subscription_id: Optional[str]
+    ) -> str:
         """dds a callback to subscribe to events in the store with the given subscription id
 
         Args:

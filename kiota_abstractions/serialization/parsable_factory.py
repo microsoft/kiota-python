@@ -11,8 +11,7 @@ class ParsableFactory(Parsable):
 
     @staticmethod
     @abstractmethod
-    def create_from_discriminator_value(
-            parse_node: Optional[ParseNode]) -> Parsable:
+    def create_from_discriminator_value(parse_node: Optional[ParseNode]) -> Parsable:
         """Create a new parsable object from the given serialized data.
 
         Args:
