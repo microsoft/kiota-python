@@ -1,13 +1,16 @@
+from typing import Optional
+
+
 class APIError(Exception):
     """The base class for all API errors."""
 
-    def __init__(self, status_code: int, message: str) -> None:
+    def __init__(self, message: str, status_code: Optional[int] = None) -> None:
         self._response_status_code = status_code
         self._message = message
         super().__init__(self._message)
 
     @property
-    def response_status_code(self) -> int:
+    def response_status_code(self) -> Optional[int]:
         """The HTTP status code of the response that caused the error."""
         return self._response_status_code
 
