@@ -45,7 +45,7 @@ class RequestInformation(Generic[QueryParams]):
         self.query_parameters: Dict[str, QueryParams] = {}
 
         # The Request Headers
-        self.headers: Dict[str, Set[str]] = {} # Use set to remove duplicates
+        self.headers: Dict[str, Set[str]] = {}  # Use set to remove duplicates
 
         # The Request Body
         self.content: Optional[BytesIO] = None

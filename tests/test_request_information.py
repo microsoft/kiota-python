@@ -43,11 +43,10 @@ def test_add_request_headers_value_list(mock_request_information):
     """
     mock_request_information.add_request_headers({"header1": ["value1", "value2"]})
     mock_request_information.add_request_headers({"header2": ["value3", "value4"]})
-    assert{"value1", "value2"} <= mock_request_information.headers["header1"]
+    assert {"value1", "value2"} <= mock_request_information.headers["header1"]
     assert {"value3", "value4"} <= mock_request_information.headers["header2"]
     mock_request_information.add_request_headers({"header1": ["value5", "value6"]})
     assert {"value1", "value2", "value5", "value6"} <= mock_request_information.headers["header1"]
-
 
 
 def test_add_request_headers_value_normalizes_cases(mock_request_information):
@@ -59,7 +58,6 @@ def test_add_request_headers_value_normalizes_cases(mock_request_information):
     assert {"value2"} <= mock_request_information.headers["header2"]
     mock_request_information.add_request_headers({"HEADER1": "value3"})
     assert {"value1", "value3"} <= mock_request_information.headers["header1"]
-    
 
 
 def test_request_headers(mock_request_information):
