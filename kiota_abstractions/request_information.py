@@ -1,7 +1,7 @@
 from dataclasses import fields
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
 from uritemplate import URITemplate
@@ -45,7 +45,7 @@ class RequestInformation(Generic[QueryParams]):
         self.query_parameters: Dict[str, QueryParams] = {}
 
         # The Request Headers
-        self.headers: Dict[str, str] = {}
+        self.headers: Dict[str, List[str]] = {}
 
         # The Request Body
         self.content: Optional[BytesIO] = None
@@ -88,14 +88,29 @@ class RequestInformation(Generic[QueryParams]):
 
     @property
     def request_headers(self) -> Optional[Dict]:
-        return self.headers
+        final = {}
+        for key, value in self.headers.items():
+            # Use set to remove duplicates
+            final[key] = ', '.join(list(set(value)))
+        return final
 
-    def add_request_headers(self, headers_to_add: Optional[Dict[str, str]]) -> None:
+    def add_request_headers(
+        self, headers_to_add: Optional[Dict[str, Union[str, List[str]]]]
+    ) -> None:
         """Adds headers to the request
         """
         if headers_to_add:
-            for key in headers_to_add:
-                self.headers[key.lower()] = headers_to_add[key]
+            for key, value in headers_to_add.items():
+                if key.lower() in self.headers:
+                    if isinstance(value, list):
+                        self.headers[key.lower()].extend(value)
+                    else:
+                        self.headers[key.lower()].append(value)
+                else:
+                    if isinstance(value, list):
+                        self.headers[key.lower()] = value
+                    else:
+                        self.headers[key.lower()] = [value]
 
     def remove_request_headers(self, key: str) -> None:
         """Removes a request header from the current request
@@ -192,7 +207,7 @@ class RequestInformation(Generic[QueryParams]):
         Args:
             value (BytesIO): the binary stream
         """
-        self.headers[self.CONTENT_TYPE_HEADER] = self.BINARY_CONTENT_TYPE
+        self.headers[self.CONTENT_TYPE_HEADER] = [self.BINARY_CONTENT_TYPE]
         self.content = value
 
     def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParams]) -> None:
@@ -229,5 +244,5 @@ class RequestInformation(Generic[QueryParams]):
         self, writer: SerializationWriter, content_type: Optional[str]
     ):
         if content_type:
-            self.headers[self.CONTENT_TYPE_HEADER] = content_type
+            self.headers[self.CONTENT_TYPE_HEADER] = [content_type]
         self.content = writer.get_serialized_content()
