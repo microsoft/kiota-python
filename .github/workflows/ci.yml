@@ -40,7 +40,7 @@ jobs:
 
   publish:
     name: Publish distribution to PyPI
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     environment: pypi_prod
     needs: [build]
