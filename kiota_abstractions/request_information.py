@@ -1,7 +1,7 @@
-from dataclasses import fields
+from dataclasses import dataclass, fields
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Set, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, TypeVar, Union
 from uuid import UUID
 
 from uritemplate import URITemplate
@@ -15,10 +15,14 @@ if TYPE_CHECKING:
 
 Url = str
 T = TypeVar("T", bound=Parsable)
-QueryParams = TypeVar('QueryParams')
 
 
-class RequestInformation(Generic[QueryParams]):
+@dataclass
+class QueryParams:
+    pass
+
+
+class RequestInformation():
     """This class represents an abstract HTTP request
     """
     RAW_URL_KEY = 'request-raw-url'
