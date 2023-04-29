@@ -1,4 +1,6 @@
 from typing import Dict
+
+
 class APIError(Exception):
     """The base class for all API errors."""
 
@@ -15,8 +17,8 @@ class APIError(Exception):
 
     @response_headers.setter
     def response_headers(self, value: Dict[str, str]) -> None:
-        self._response_status_code = value
-        
+        self._response_headers = value
+
     @property
     def response_status_code(self) -> int:
         """The HTTP status code of the response that caused the error."""
