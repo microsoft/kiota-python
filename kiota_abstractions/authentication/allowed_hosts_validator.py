@@ -49,15 +49,10 @@ class AllowedHostsValidator:
         """
         if not url:
             return False
-        if not self.allowed_hosts:
+        if not self.get_allowed_hosts():
             return True
-
         # Format: urlparse("scheme://netloc/path;parameters?query#fragment")
-        #Returns: ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
+        # Returns: ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
         #    query='query', fragment='fragment')
         o = urlparse(url)
-
-        if o.netloc:
-            return o.netloc.lower() in self.allowed_hosts
-
-        return False
+        return all([o.scheme, o.netloc])
