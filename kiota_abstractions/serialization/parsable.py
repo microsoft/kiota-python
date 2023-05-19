@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pydantic import BaseModel
 from typing import TYPE_CHECKING, Any, Callable, Dict, TypeVar
 
 T = TypeVar("T")
@@ -8,7 +9,7 @@ if TYPE_CHECKING:
     from .serialization_writer import SerializationWriter
 
 
-class Parsable(ABC):
+class Parsable(ABC, BaseModel):
     """
     Defines a serializable model object.
     """
