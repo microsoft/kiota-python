@@ -1,5 +1,7 @@
 from typing import Dict, Optional
+
 from pydantic.dataclasses import dataclass
+
 
 @dataclass
 class APIError(Exception):

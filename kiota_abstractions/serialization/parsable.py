@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from pydantic import BaseModel
 from typing import TYPE_CHECKING, Any, Callable, Dict, TypeVar
+
+from pydantic import BaseModel
 
 T = TypeVar("T")
 
