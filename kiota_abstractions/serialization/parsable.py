@@ -2,19 +2,19 @@ from dataclasses import asdict, dataclass
 from json import dumps
 from typing import TYPE_CHECKING, Any, Callable, Dict, Protocol, TypeVar
 
-
 T = TypeVar("T")
 
 if TYPE_CHECKING:
     from .parse_node import ParseNode
     from .serialization_writer import SerializationWriter
 
+
 @dataclass
 class Parsable(Protocol):
     """
     Defines a serializable model object.
     """
-    
+
     def to_dict(self):
         return asdict(self)
 
@@ -37,4 +37,3 @@ class Parsable(Protocol):
             writer (SerializationWriter): The writer to write to.
         """
         ...
-
