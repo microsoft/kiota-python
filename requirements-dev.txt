@@ -1,0 +1,4 @@
+-i https://pypi.org/simple
+
+uritemplate==4.1.1
+
