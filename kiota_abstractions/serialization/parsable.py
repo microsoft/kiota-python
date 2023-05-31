@@ -14,13 +14,6 @@ class Parsable(Protocol):
     """
     Defines a serializable model object.
     """
-
-    def to_dict(self):
-        return asdict(self)
-
-    def to_json(self):
-        return dumps(asdict(self), default=str)
-
     def get_field_deserializers(self) -> Dict[str, Callable[['ParseNode'], None]]:
         """Gets the deserialization information for this object.
 
