@@ -9,7 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+- Changed Parsable and APIError to dataclasses.
+
+## [0.5.1] - 2023-04-29
+
+### Added
+
 - Adds the response headers to the APIError class.
+
+### Changed
 
 ## [0.5.0] - 2023-02-07
 
