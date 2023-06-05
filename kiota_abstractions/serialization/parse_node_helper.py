@@ -17,16 +17,16 @@ class ParseNodeHelper:
         Returns:
             Dict[str, Callable[[ParseNode], None]]:
         """
+        if targets is None:
+            raise ValueError("targets cannot be None")
         if not targets:
-            raise ValueError(
-                f"Invalid value {targets} for targets. At least one target must be provided."
-            )
+            raise ValueError("At least one target must be provided.")
 
-        result = {}
+        merged_deserializers = {}
         for target in targets:
-            target_field_deserializers = target.get_field_deserializers()
-            for key, val in target_field_deserializers.items():
-                if key not in result:
-                    result[key] = val
+            if target is not None:
+                for key, val in target.get_field_deserializers().items():
+                    if key not in merged_deserializers:
+                        merged_deserializers[key] = val
 
-        return result
+        return merged_deserializers
