@@ -157,12 +157,16 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_object_value(self, key: Optional[str], value: U) -> None:
+    def write_object_value(
+        self, key: Optional[str], value: U, additional_values_to_merge: Optional[List[U]]
+    ) -> None:
         """Writes the specified model object to the stream with an optional given key.
 
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Parsable): The model object to be written.
+            additional_values_to_merge (List[Parsable]): The additional values to merge to the
+            main value when serializing an intersection wrapper.
         """
         pass
 
