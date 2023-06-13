@@ -8,7 +8,7 @@ class ParseNodeHelper:
     @staticmethod
     def merge_deserializers_for_intersection_wrapper(
         *targets: Parsable
-        ) -> Dict[str, Callable[[ParseNode], None]]:
+    ) -> Dict[str, Callable[[ParseNode], None]]:
         """Merges a collection of parsable field deserializers into a single collection.
 
         Args:

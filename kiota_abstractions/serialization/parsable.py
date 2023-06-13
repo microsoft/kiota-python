@@ -14,7 +14,7 @@ class Parsable(ABC):
     """
     Defines a serializable model object.
     """
-    
+
     @abstractmethod
     def get_field_deserializers(self) -> Dict[str, Callable[['ParseNode'], None]]:
         """Gets the deserialization information for this object.
