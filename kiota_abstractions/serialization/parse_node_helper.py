@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Tuple
 
 from . import Parsable, ParseNode
 
@@ -7,12 +7,12 @@ class ParseNodeHelper:
 
     @staticmethod
     def merge_deserializers_for_intersection_wrapper(
-        targets: List[Parsable]
-    ) -> Dict[str, Callable[[ParseNode], None]]:
+        *targets: Parsable
+        ) -> Dict[str, Callable[[ParseNode], None]]:
         """Merges a collection of parsable field deserializers into a single collection.
 
         Args:
-            targets (List[Parsable]):
+            targets (tuple[Parsable, ...]):
 
         Returns:
             Dict[str, Callable[[ParseNode], None]]:
