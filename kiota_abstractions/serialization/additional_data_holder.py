@@ -1,17 +1,10 @@
-from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from typing import Any, Dict
 
 
-class AdditionalDataHolder(ABC):
+@dataclass
+class AdditionalDataHolder:
     """Defines a contract for models that can hold additional data besides the described properties.
     """
-
-    @property
-    @abstractmethod
-    def additional_data(self) -> Dict[str, Any]:
-        """Stores the additional data for this object that did not belong to the properties.
-
-        Returns:
-            Dict[str, Any]: The additional data for this object
-        """
-        pass
+    # Stores the additional data for this object that did not belong to the properties.
+    additional_data: Dict[str, Any] = field(default_factory=dict)
