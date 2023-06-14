@@ -4,6 +4,7 @@ from .parsable_factory import ParsableFactory
 from .parse_node import ParseNode
 from .parse_node_factory import ParseNodeFactory
 from .parse_node_factory_registry import ParseNodeFactoryRegistry
+from .parse_node_helper import ParseNodeHelper
 from .parse_node_proxy_factory import ParseNodeProxyFactory
 from .serialization_writer import SerializationWriter
 from .serialization_writer_factory import SerializationWriterFactory
