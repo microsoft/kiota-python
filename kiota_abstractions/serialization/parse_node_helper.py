@@ -1,6 +1,7 @@
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple, TYPE_CHECKING
 
-from . import Parsable, ParseNode
+if TYPE_CHECKING:
+    from . import Parsable, ParseNode
 
 
 class ParseNodeHelper:
