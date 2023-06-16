@@ -1,4 +1,5 @@
-from typing import Callable, Dict, List, Tuple, TYPE_CHECKING
+from __future__ import annotations
+from typing import Callable, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from . import Parsable, ParseNode
