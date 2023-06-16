@@ -19,10 +19,8 @@ class ParseNodeHelper:
         Returns:
             Dict[str, Callable[[ParseNode], None]]:
         """
-        if targets is None:
-            raise ValueError("targets cannot be None")
         if not targets:
-            raise ValueError("At least one target must be provided.")
+            raise TypeError("targets cannot be null.")
 
         merged_deserializers = {}
         for target in targets:
