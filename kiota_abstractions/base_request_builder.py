@@ -13,9 +13,7 @@ class BaseRequestBuilder(ABC):
     """Base class for all request builders"""
 
     def __init__(
-        self,
-        request_adapter: RequestAdapter,
-        url_template: str,
+        self, request_adapter: RequestAdapter, url_template: str,
         path_parameters: Union[Dict[str, Any], str]
     ) -> None:
         """Initializes a new instance of the BaseRequestBuilder class."""
