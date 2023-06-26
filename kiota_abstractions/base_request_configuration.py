@@ -10,7 +10,7 @@ from .request_option import RequestOption
 
 
 @dataclass
-class RequestConfiguration:
+class BaseRequestConfiguration:
     """
     Configuration for the request such as headers, query parameters, and middleware options.
     """
