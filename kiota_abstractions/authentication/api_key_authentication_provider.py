@@ -2,11 +2,10 @@ from enum import Enum
 from typing import List
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from kiota_abstractions.authentication import (
-    AllowedHostsValidator,
-    AuthenticationProvider,
-)
 from kiota_abstractions.request_information import RequestInformation
+
+from .allowed_hosts_validator import AllowedHostsValidator
+from .authentication_provider import AuthenticationProvider
 
 
 class KeyLocation(Enum):
