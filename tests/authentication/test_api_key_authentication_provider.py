@@ -6,6 +6,8 @@ from kiota_abstractions.authentication import (
     AuthenticationProvider,
 )
 
+from kiota_abstractions.request_information import RequestInformation
+
 
 def test_initialization():
     provider = ApiKeyAuthenticationProvider(
@@ -36,3 +38,15 @@ def test_arguments():
         ApiKeyAuthenticationProvider(
             KeyLocation.Header, "test_key_string", "api_key", ""
         )
+
+
+@pytest.mark.asyncio
+async def test_query_parameter_location_authentication(mock_request_information):
+    provider = ApiKeyAuthenticationProvider(
+        KeyLocation.QueryParameter,
+        "test_key_string",
+        "api_key",
+        ["https://example.com"],
+    )
+    await provider.authenticate_request(mock_request_information)
+    assert mock_request_information.url == "https://example.com?api_key=test_key_string"
