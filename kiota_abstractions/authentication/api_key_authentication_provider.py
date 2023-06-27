@@ -2,7 +2,10 @@ from enum import Enum
 from typing import List
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from kiota_abstractions.authentication import AllowedHostsValidator, AuthenticationProvider
+from kiota_abstractions.authentication import (
+    AllowedHostsValidator,
+    AuthenticationProvider,
+)
 from kiota_abstractions.request_information import RequestInformation
 
 
@@ -28,12 +31,12 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
         allowed_hosts: List[str] = [],
     ) -> None:
         if not isinstance(key_location, KeyLocation):
-            raise ValueError(f"key_location can only be 'query_parameter' or 'header'")
+            err = "key_location can only be 'query_parameter' or 'header'"
+            raise ValueError(err)
 
         if not all([isinstance(api_key, str), api_key]):
-            raise ValueError(
-                f"api_key can only be a string but you supplied {api_key!r}"
-            )
+            err = f"api_key can only be a string but you supplied {api_key!r}"
+            raise ValueError(err)
 
         if not all([isinstance(parameter_name, str), parameter_name]):
             raise ValueError(
@@ -50,7 +53,7 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
         Ensures that the API key is placed in the correct location for a request.
         """
         if request is None:
-            raise ValueError(f"request can not be empty")
+            raise ValueError("request can not be empty")
 
         if not self.allowed_hosts_validator.is_url_host_valid(request.url):
             raise ValueError(f"{request.url!r} is not a valid URL")
