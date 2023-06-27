@@ -65,4 +65,3 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
             request.url = urlunparse(url_parts)
         elif self.key_location == KeyLocation.Header:
             request.add_request_headers({self.parameter_name: self.api_key})
-        return
