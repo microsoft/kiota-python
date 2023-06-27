@@ -50,3 +50,16 @@ async def test_query_parameter_location_authentication(mock_request_information)
     )
     await provider.authenticate_request(mock_request_information)
     assert mock_request_information.url == "https://example.com?api_key=test_key_string"
+
+
+@pytest.mark.asyncio
+async def test_header_location_authentication(mock_request_information):
+    provider = ApiKeyAuthenticationProvider(
+        KeyLocation.Header,
+        "test_key_string",
+        "api_key",
+        ["https://example.com"],
+    )
+    await provider.authenticate_request(mock_request_information)
+    assert "api_key" in mock_request_information.headers
+    assert mock_request_information.headers["api_key"] == {"test_key_string"}
