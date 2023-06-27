@@ -3,13 +3,12 @@
 # Licensed under the MIT License.
 # See License in the project root for license information.
 # ------------------------------------
-from abc import ABC
 from typing import Any, Dict, Union
 
 from .request_adapter import RequestAdapter
 
 
-class BaseRequestBuilder(ABC):
+class BaseRequestBuilder:
     """Base class for all request builders"""
 
     def __init__(
