@@ -23,6 +23,11 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
     Adds an API Key to the request.
     """
 
+    key_location: KeyLocation
+    api_key: str
+    parameter_name: str
+    allowed_hosts: List[str]
+
     def __init__(
         self,
         key_location: KeyLocation,
@@ -33,14 +38,14 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
         if not isinstance(key_location, KeyLocation):
             raise ValueError(f"key_location can only be 'query_parameter' or 'header'")
 
-        if not isinstance(self.api_key, str) and not self.api_key:
+        if not all([isinstance(api_key, str), api_key]):
             raise ValueError(
-                f"api_key can only be a string but you supplied {self.api_key!r}"
+                f"api_key can only be a string but you supplied {api_key!r}"
             )
 
-        if not isinstance(self.parameter_name, str) and not self.parameter_name:
+        if not all([isinstance(parameter_name, str), parameter_name]):
             raise ValueError(
-                f"parameter_name can only be a string but you supplied {self.parameter_name!r}"
+                f"parameter_name can only be a string but you supplied {parameter_name!r}"
             )
 
         self.key_location = key_location
