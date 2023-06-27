@@ -23,11 +23,6 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
     Adds an API Key to the request.
     """
 
-    key_location: KeyLocation
-    api_key: str
-    parameter_name: str
-    allowed_hosts: List[str]
-
     def __init__(
         self,
         key_location: KeyLocation,
