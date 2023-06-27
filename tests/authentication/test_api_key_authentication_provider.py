@@ -31,3 +31,8 @@ def test_arguments():
         ApiKeyAuthenticationProvider(
             KeyLocation.Header, "test_key_string", 123, ["example.com"]
         )
+    allowed_hosts_error = "^Allowed hosts must be a list of strings$"
+    with pytest.raises(TypeError, match=allowed_hosts_error):
+        ApiKeyAuthenticationProvider(
+            KeyLocation.Header, "test_key_string", "api_key", ""
+        )
