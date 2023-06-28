@@ -41,6 +41,9 @@ jobs:
       - name: Static type checking with Mypy
         run: |
           mypy kiota_abstractions
+      - name: Run the tests
+        run: |
+          pytest
 
   publish:
     name: Publish distribution to PyPI
