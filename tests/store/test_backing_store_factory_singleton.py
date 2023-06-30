@@ -19,7 +19,7 @@ class MockTestBackingStore(BackingStore, Generic[T]):
         self.init_complete = True
         self.return_only_changed_values = True
 
-    def get(self, key: str) -> Any | None:
+    def get(self, key: str) -> Any:
         return self.store.get(key, None)
 
     def set(self, key: str, value: Any) -> None:
