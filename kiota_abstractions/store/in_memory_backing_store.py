@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, TypeVar
 from uuid import uuid4
 
 from .backing_store import BackingStore
@@ -10,9 +10,8 @@ StoreEntry = Tuple[str, Any]
 T = TypeVar("T")
 
 
-class InMemoryBackingStore(BackingStore):
-    """In-memory implementation of the backing store. Allows for dirty tracking of changes.
-    """
+class InMemoryBackingStore(BackingStore, Generic[T]):
+    """In-memory implementation of the backing store. Allows for dirty tracking of changes."""
 
     __subscriptions: Dict[str, SubscriptionCallback] = {}
     __store: Dict[str, Tuple[bool, Any]] = {}
@@ -104,13 +103,11 @@ class InMemoryBackingStore(BackingStore):
         del self.__subscriptions[subscription_id]
 
     def clear(self) -> None:
-        """Clears the store
-        """
+        """Clears the store"""
         self.__store.clear()
 
     def get_is_initialization_completed(self) -> bool:
-        """Flag to show the initialization status of the store.
-        """
+        """Flag to show the initialization status of the store."""
         return self.__initialization_completed
 
     def set_is_initialization_completed(self, value: bool) -> None:
@@ -119,8 +116,7 @@ class InMemoryBackingStore(BackingStore):
             self.__store[key] = (not value, val[1])
 
     def get_return_only_changed_values(self) -> bool:
-        """Determines whether the backing store should only return changed values when queried.
-        """
+        """Determines whether the backing store should only return changed values when queried."""
         return self.return_only_changed_values
 
     def set_return_only_changed_values(self, value: bool) -> None:
