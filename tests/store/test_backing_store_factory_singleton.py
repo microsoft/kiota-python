@@ -35,7 +35,7 @@ class MockTestBackingStore(BackingStore, Generic[T]):
         return list(k for k, v in self.store if v is None)
 
     def subscribe(
-        self, callback: Callable[[str, Any, Any], None], subscription_id: str | None
+        self, callback: Callable[[str, Any, Any], None], subscription_id: str
     ) -> str:
         if subscription_id:
             self.subscriptions.update({subscription_id: callback})
