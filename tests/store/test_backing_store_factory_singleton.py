@@ -62,11 +62,6 @@ class MockTestBackingStoreFactory(BackingStoreFactory):
         return MockTestBackingStore()
 
 
-@pytest.fixture
-def inmemory_backing_store():
-    return InMemoryBackingStore()
-
-
 def test_backing_store_factory_default():
     bsf = BackingStoreFactorySingleton(backing_store_factory=None)
     assert isinstance(bsf.backing_store_factory, InMemoryBackingStoreFactory)
