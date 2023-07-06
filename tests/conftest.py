@@ -1,12 +1,19 @@
+from typing import Callable, List, Any, Tuple
 import pytest
 
 from kiota_abstractions.authentication.access_token_provider import AccessTokenProvider
-from kiota_abstractions.authentication.allowed_hosts_validator import AllowedHostsValidator
+from kiota_abstractions.authentication.allowed_hosts_validator import (
+    AllowedHostsValidator,
+)
 from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.store import (
+    BackingStore,
+    InMemoryBackingStore,
+    BackingStoreFactory,
+)
 
 
 class MockAccessTokenProvider(AccessTokenProvider):
-
     def __init__(self):
         self.token = None
 

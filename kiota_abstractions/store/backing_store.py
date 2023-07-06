@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Generic, List, Optional, Tuple, TypeVar
 
 T = TypeVar("T")
 
 
-class BackingStore(ABC):
+class BackingStore(ABC, Generic[T]):
     """Stores model information in a different location than the object properties.
     Implementations can provide dirty tracking capabilities, caching capabilities
     or integration with 3rd party stores
@@ -80,8 +80,7 @@ class BackingStore(ABC):
 
     @abstractmethod
     def clear(self) -> None:
-        """Clears the data stored in the backing store. Doesn't trigger any subscription.
-        """
+        """Clears the data stored in the backing store. Doesn't trigger any subscription."""
         pass
 
     @abstractmethod
@@ -95,7 +94,7 @@ class BackingStore(ABC):
         pass
 
     @abstractmethod
-    def set_is_initialization_completed(self, bool) -> None:
+    def set_is_initialization_completed(self, completed) -> None:
         """Sets whether the initialization of the object and/or the initial deserialization has been
         completed to track whether objects have changed.
         """
@@ -112,7 +111,7 @@ class BackingStore(ABC):
         pass
 
     @abstractmethod
-    def set_return_only_changed_values(self, bool) -> None:
+    def set_return_only_changed_values(self, changed) -> None:
         """Sets whether to return only values that have changed since the initialization of the
         object when calling the Get and Enumerate methods.
 

@@ -6,8 +6,6 @@ from kiota_abstractions.authentication import (
     AuthenticationProvider,
 )
 
-from kiota_abstractions.request_information import RequestInformation
-
 allowed_hosts = ["https://example.com"]
 
 

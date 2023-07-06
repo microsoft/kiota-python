@@ -1,4 +1,4 @@
-from .backed_model import BackingStore
+from .backed_model import BackedModel
 from .backing_store import BackingStore
 from .backing_store_factory import BackingStoreFactory
 from .backing_store_factory_singleton import BackingStoreFactorySingleton
