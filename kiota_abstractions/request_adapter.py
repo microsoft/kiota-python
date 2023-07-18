@@ -137,12 +137,12 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
 
     @abstractmethod
     async def convert_to_native_async(self, request_info: RequestInformation) -> RequestType:
-        """Translates the request information into a native HTTP object.
+        """Translates the request information object into a native HTTP client request object.
 
         Args:
-            request_info (RequestInformation): request object to b converted.
+            request_info (RequestInformation): request information object to be converted.
 
         Returns:
-            RequestType: the type of the native request.
+            RequestType: the natively typed HTTP request of the client.
         """
         pass
