@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from io import BytesIO
-from typing import Dict, List, Optional, TypeVar, Generic
+from typing import Dict, Generic, List, Optional, TypeVar
 
 from .request_information import RequestInformation
 from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
@@ -38,7 +38,8 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
 
         Args:
             request_info (RequestInformation): the request info to execute.
-            parsable_factory (ParsableFactory): the class of response model to deserialize the response into.
+            parsable_factory (ParsableFactory): the class of response model to
+                deserialize the response into.
             error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in case
             of a failed request.
 
@@ -59,7 +60,8 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
 
         Args:
             request_info (RequestInformation): the request info to execute.
-            parsable_factory (ParsableFactory): the class of response model to deserialize the response into.
+            parsable_factory (ParsableFactory): the class of response model to
+                deserialize the response into.
             error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
@@ -134,7 +136,7 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
         pass
 
     @abstractmethod
-    async def convert_to_native_async(self, request_info: RequestInformation)-> RequestType:
+    async def convert_to_native_async(self, request_info: RequestInformation) -> RequestType:
         """Translates the request information into a native HTTP object.
 
         Args:
