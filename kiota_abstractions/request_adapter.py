@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from io import BytesIO
-from typing import Callable, Dict, List, Optional, TypeVar
+from typing import Dict, List, Optional, TypeVar
 
 from .request_information import RequestInformation
 from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
@@ -9,6 +9,7 @@ from .store import BackingStoreFactory
 
 ResponseType = TypeVar("ResponseType", str, int, float, bool, datetime, BytesIO)
 ModelType = TypeVar("ModelType", bound=Parsable)
+RequestType = TypeVar("RequestType")
 
 
 class RequestAdapter(ABC):
@@ -129,5 +130,17 @@ class RequestAdapter(ABC):
 
         Args:
             backing_store_factory (Optional[BackingStoreFactory]): the backing store factory to use.
+        """
+        pass
+
+    @abstractmethod
+    async def convert_to_native_async(self, request_info: RequestInformation)-> RequestType:
+        """Translates the request information into a native HTTP object.
+
+        Args:
+            request_info (RequestInformation): request object to b converted.
+
+        Returns:
+            RequestType: the type of the native request.
         """
         pass
