@@ -1,9 +1,13 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from typing_extensions import Self
 
 from kiota_abstractions.store.backing_store_factory import BackingStoreFactory
-from kiota_abstractions.store.in_memory_backing_store_factory import (
-    InMemoryBackingStoreFactory,
-)
+from kiota_abstractions.store.in_memory_backing_store_factory import InMemoryBackingStoreFactory
 
 
 class BackingStoreFactorySingleton:
