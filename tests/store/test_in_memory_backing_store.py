@@ -4,6 +4,7 @@ from kiota_abstractions.store import InMemoryBackingStore
 
 from tests.conftest import MockEntity
 
+
 def test_prevents_adding_empty_keys():
     backing_store = InMemoryBackingStore()
     with pytest.raises(ValueError):
@@ -14,6 +15,7 @@ def test_sets_and_gets_value_from_backing_store():
     assert not backing_store.enumerate_()
     backing_store.set("name", "Samwel")
     assert backing_store.enumerate_() == [("name", "Samwel")]
+    assert backing_store.get("name") == "Samwel"
     
 def test_prevents_duplicates_in_store():
     backing_store = InMemoryBackingStore()
@@ -21,6 +23,27 @@ def test_prevents_duplicates_in_store():
     backing_store.set("name", "Samwel")
     backing_store.set("name", "Samwel 2")
     assert backing_store.enumerate_() == [("name", "Samwel 2")]
+    
+def test_clear_backing_store():
+    backing_store = InMemoryBackingStore()
+    backing_store.set("name", "Sam")
+    backing_store.clear()
+    backing_store.get("name") is None
+    assert not backing_store.enumerate_()
+    
+def test_return_only_changed_values():
+    backing_store = InMemoryBackingStore()
+    backing_store.return_only_changed_values = True
+    backing_store.is_initialization_completed = False
+    backing_store.set("name", "Samwel")
+    assert backing_store.get("name") is None
+    assert not backing_store.enumerate_()
+    
+    backing_store.is_initialization_completed = True
+    backing_store.return_only_changed_values = True
+    backing_store.set("name", "Bill")
+    assert backing_store.get("name") == "Bill"
+    assert backing_store.enumerate_() == [("name", "Bill")]
     
 def test_enumerates_values_changed_to_none_in_store():
     backing_store = InMemoryBackingStore()
@@ -38,8 +61,6 @@ def test_backing_store_embedded_in_model(mock_user):
     changed_values = dict(mock_user.backing_store.enumerate_())
     assert len(changed_values) == 1
     assert "business_phones" in changed_values
-    
-
     
 def tests_backing_store_embedded_in_model_with_additonal_data_values(mock_user):
     mock_user.business_phones = ["+1 234 567 891"]
@@ -98,7 +119,7 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model():
     assert len(changed_values) == 1
     assert  changed_values[0][0] == "manager" # Backingstore should detect manager property changed
     
-def test_backing_store_embedded_in_model_by_updating_nested_backed_model_returns_changed_nested_properties():
+def test_backing_store_embedded_in_model_by_updating_nested_backed_model_returns_all_changed_nested_properties():
     mock_user = MockEntity(
         id="84c747c1-d2c0-410d-ba50-fc23e0b4abbe",
         manager=MockEntity(id="2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af")
@@ -128,7 +149,7 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collect
     colleagues = mock_user.backing_store.get("colleagues")
     assert colleagues[0].id == "2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af"
     
-def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collection_property_returns_changed_nested_properties():
+def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collection_property_returns_all_changed_nested_properties():
     mock_user = MockEntity(
         id="84c747c1-d2c0-410d-ba50-fc23e0b4abbe",
         colleagues=[MockEntity(id="2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af")]
@@ -140,9 +161,9 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collect
     changed_values = mock_user.backing_store.enumerate_()
     assert len(changed_values) == 1
     assert  changed_values[0][0] == "colleagues" # Backingstore should detect manager property changed
-    nested_changed_values = mock_user.colleagues[0].backing_store.enumerate_()
-    assert len(nested_changed_values) == 1
-    assert nested_changed_values[0][0] == "business_phones"
+    nested_changed_values = dict(mock_user.colleagues[0].backing_store.enumerate_())
+    assert len(nested_changed_values) == 6
+    assert "business_phones" in nested_changed_values
     
 def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collection_property_with_extra_value_returns_changed_nested_properties():
     mock_user = MockEntity(
@@ -159,18 +180,20 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collect
     changed_values = mock_user.backing_store.enumerate_()
     assert len(changed_values) == 1
     assert  changed_values[0][0] == "colleagues" # Backingstore should detect manager property changed
-    nested_changed_values = mock_user.colleagues[0].backing_store.enumerate_()
-    assert len(nested_changed_values) == 1
-    assert nested_changed_values[0][0] == "business_phones"
-    assert nested_changed_values[0][1] == (["+1 234 567 891", "+9 876 543 219"], 2)
+    nested_changed_values = dict(mock_user.colleagues[0].backing_store.enumerate_())
+    assert len(nested_changed_values) == 6
+    assert "id" in nested_changed_values
+    assert "business_phones" in nested_changed_values
+    assert nested_changed_values["business_phones"] == (["+1 234 567 891", "+9 876 543 219"], 2)
     
 def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collection_property_with_extra_backed_model_returns_changed_nested_properties():
     mock_user = MockEntity(
         id="84c747c1-d2c0-410d-ba50-fc23e0b4abbe",
-        colleagues=[MockEntity(
-            id="2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af",
-            business_phones=["+1 234 567 891"]
-            )]
+        colleagues=[
+            MockEntity(
+                id="2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af",
+                business_phones=["+1 234 567 891"])
+        ]
     )
     mock_user.backing_store.is_initialization_completed = mock_user.colleagues[0].backing_store.is_initialization_completed = True
     mock_user.colleagues.append(MockEntity(id="2fe22fe5-1132-42cf-90f9-1dc17e325a74"))
@@ -178,13 +201,17 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collect
     mock_user.colleagues[0].backing_store.return_only_changed_values = True
     changed_values = mock_user.backing_store.enumerate_()
     assert len(changed_values) == 1
-    assert  changed_values[0][0] == "colleagues" # Backingstore should detect manager property changed
+    assert  changed_values[0][0] == "colleagues" # Backingstore should detect colleagues property changed
     colleagues = changed_values[0][1]
     assert len(colleagues) == 2
-    assert colleagues[0][0].id == "2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af"
+    assert colleagues[0][0].id ==  "2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af" # hasn't changed
     assert colleagues[0][1].id == "2fe22fe5-1132-42cf-90f9-1dc17e325a74"
-    nested_changed_values = mock_user.colleagues[0].backing_store.enumerate_()
-    assert len(nested_changed_values) == 0
+    nested_changed_values = dict(mock_user.colleagues[0].backing_store.enumerate_())
+    assert len(nested_changed_values) == 6
+    assert "id" in nested_changed_values
+    assert "business_phones" in nested_changed_values
+    assert nested_changed_values["business_phones"] == (["+1 234 567 891"], 1)
+    
         
         
     
