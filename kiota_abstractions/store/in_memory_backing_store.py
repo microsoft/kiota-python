@@ -95,21 +95,24 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             if isinstance(value, BackedModel) and value.backing_store:
                 # if its the first time adding a BackedModel property to the store, subscribe
                 # to its BackingStore and use the events to flag the property is "dirty"
+                value.backing_store.is_initialization_completed = False
                 value.backing_store.subscribe(
                     lambda prop_key, old_val, new_val: self.set(key, value)
                 )
-            if isinstance(value, list):
-                # if its a collection, subscribe to the collection's item BackingStores and use
-                # the events to flag the collection property is "dirty"
-                for item in value:
-                    if isinstance(item, BackedModel) and item.backing_store:
-                        item.backing_store.subscribe(
-                            lambda prop_key, old_val, new_val: self.set(key, value)
-                        )
+        if isinstance(value, list):
+            # if its a collection, subscribe to the collection's item BackingStores and use
+            # the events to flag the collection property is "dirty"
+            for item in value:
+                if isinstance(item, BackedModel) and item.backing_store:
+                    item.backing_store.is_initialization_completed = False
+                    item.backing_store.subscribe(
+                        lambda prop_key, old_val, new_val: self.set(key, value)
+                    )
 
         self.__store[key] = value_to_add
-        for sub in self.__subscriptions.values():
-            sub(key, old_value, value_to_add)
+        for sub in list(self.__subscriptions):
+            self.__subscriptions[sub](key, old_value, value_to_add)
+            # sub(key, old_value, value_to_add)
 
     def enumerate_(self) -> List[Tuple[str, Any]]:
         """Enumerate the values in the store based on the ReturnOnlyChangedValues configuration
@@ -122,7 +125,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
 
         # refresh the state of collection properties if they've changed in size.
         if self.return_only_changed_values:
-            for key, val in list(self.__store.items()):
+            for key, val in self.__store.items():
                 self._ensure_collection_size_is_consistent(key, val[1])
 
         keyval_pairs = list(self.__store.items())
