@@ -19,15 +19,12 @@ class BackedModel:
     backing_store: BackingStore
 
     def __setattr__(self, prop, val):
-        if not prop == "backing_store":
-            self.__backing_store.set(prop, val)
-            super().__setattr__(prop, self.__backing_store.get(prop))
-        super().__setattr__(prop, val)
+        if prop == "backing_store":
+            super().__setattr__(prop, val)
+        else:
+            self.backing_store.set(prop, val)
 
-    @property
-    def __backing_store(self):
-        return self.backing_store
-
-    @__backing_store.setter
-    def __backing_store(self, value):
-        self.backing_store = value
+    def __getattribute__(self, prop):
+        if prop == "backing_store":
+            return super().__getattribute__(prop)
+        return self.backing_store.get(prop)
