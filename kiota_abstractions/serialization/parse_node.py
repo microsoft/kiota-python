@@ -207,7 +207,7 @@ class ParseNode(ABC):
     @on_after_assign_field_values.setter
     @abstractmethod
     def on_after_assign_field_values(self, value: Callable[[Parsable], None]) -> None:
-        """Sets the callback after before the node is deserialized.
+        """Sets the callback called after the node is deserialized.
 
         Args:
             value (Callable[[Parsable], None]): the callback called before the node is
