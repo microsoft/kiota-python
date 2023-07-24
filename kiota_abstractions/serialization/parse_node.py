@@ -210,7 +210,7 @@ class ParseNode(ABC):
         """Sets the callback called after the node is deserialized.
 
         Args:
-            value (Callable[[Parsable], None]): the callback called before the node is
+            value (Callable[[Parsable], None]): the callback called after the node is
             deserialized.
         """
         pass
