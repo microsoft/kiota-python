@@ -21,17 +21,11 @@ class BackingStoreParseNodeFactory(ParseNodeProxyFactory):
         """
 
         def func1(x):
-            if isinstance(x, BackedModel):
-                backed_model = x
-                backing_store = backed_model.get_backing_store()
-                if backing_store:
-                    backing_store.set_is_initialization_completed(False)
+            if isinstance(x, BackedModel) and x.backing_store:
+                x.backing_store.is_initialization_completed = False
 
         def func2(x):
-            if isinstance(x, BackedModel):
-                backed_model = x
-                backing_store = backed_model.get_backing_store()
-                if backing_store:
-                    backing_store.set_is_initialization_completed(True)
+            if isinstance(x, BackedModel) and x.backing_store:
+                x.backing_store.set_is_initialization_completed(True)
 
         super().__init__(concrete, func1, func2)

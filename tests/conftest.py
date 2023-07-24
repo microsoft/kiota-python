@@ -1,3 +1,9 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable, List, Any, Tuple, Dict, Optional
