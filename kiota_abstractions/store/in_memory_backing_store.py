@@ -10,8 +10,6 @@ from uuid import uuid4
 from .backed_model import BackedModel
 from .backing_store import BackingStore
 
-# SubscriptionCallback = TypeVar('SubscriptionCallback', Callable[[str, Any, Any], None])
-
 T = TypeVar("T")
 
 
@@ -69,8 +67,8 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             result_value = result[1]
             if isinstance(result_value, tuple):
                 result_value = result_value[0]
-            if not self.return_only_changed_values or (
-                self.return_only_changed_values and self.__store[key][0]
+            if self.return_only_changed_values is False or (
+                self.return_only_changed_values is True and self.__store[key][0]
             ):
                 return result_value
             return None

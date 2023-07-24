@@ -20,12 +20,12 @@ class BackingStoreParseNodeFactory(ParseNodeProxyFactory):
         implementation ParseNodeFactory.
         """
 
-        def func1(x):
+        def on_before_deserialization(x):
             if isinstance(x, BackedModel) and x.backing_store:
                 x.backing_store.is_initialization_completed = False
 
-        def func2(x):
+        def on_after_deserialization(x):
             if isinstance(x, BackedModel) and x.backing_store:
                 x.backing_store.set_is_initialization_completed(True)
 
-        super().__init__(concrete, func1, func2)
+        super().__init__(concrete, on_before_deserialization, on_after_deserialization)
