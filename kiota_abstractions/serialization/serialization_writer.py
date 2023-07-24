@@ -206,8 +206,9 @@ class SerializationWriter(ABC):
         """
         pass
 
+    @property
     @abstractmethod
-    def get_on_before_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
+    def on_before_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called before the object gets serialized.
 
         Returns:
@@ -216,8 +217,20 @@ class SerializationWriter(ABC):
         """
         pass
 
+    @on_before_object_serialization.setter
     @abstractmethod
-    def get_on_after_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
+    def on_before_object_serialization(self, value: Optional[Callable[[Parsable], None]]) -> None:
+        """Sets the callback called before the objects gets serialized.
+
+        Args:
+            value (Optional[Callable[[Parsable], None]]): the callback called before the objects
+            gets serialized.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def on_after_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called after the object gets serialized.
 
         Returns:
@@ -226,8 +239,20 @@ class SerializationWriter(ABC):
         """
         pass
 
+    @on_after_object_serialization.setter
     @abstractmethod
-    def get_on_start_object_serialization(
+    def on_after_object_serialization(self, value: Optional[Callable[[Parsable], None]]) -> None:
+        """Sets the callback called after the objects gets serialized.
+
+        Args:
+            value (Optional[Callable[[Parsable], None]]): the callback called after the objects
+            gets serialized.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def on_start_object_serialization(
         self
     ) -> Optional[Callable[[Parsable, SerializationWriter], None]]:
         """Gets the callback called right after the serialization process starts.
@@ -238,32 +263,9 @@ class SerializationWriter(ABC):
         """
         pass
 
+    @on_start_object_serialization.setter
     @abstractmethod
-    def set_on_before_object_serialization(
-        self, value: Optional[Callable[[Parsable], None]]
-    ) -> None:
-        """Sets the callback called before the objects gets serialized.
-
-        Args:
-            value (Optional[Callable[[Parsable], None]]): the callback called before the objects
-            gets serialized.
-        """
-        pass
-
-    @abstractmethod
-    def set_on_after_object_serialization(
-        self, value: Optional[Callable[[Parsable], None]]
-    ) -> None:
-        """Sets the callback called after the objects gets serialized.
-
-        Args:
-            value (Optional[Callable[[Parsable], None]]): the callback called after the objects
-            gets serialized.
-        """
-        pass
-
-    @abstractmethod
-    def set_on_start_object_serialization(
+    def on_start_object_serialization(
         self, value: Optional[Callable[[Parsable, SerializationWriter], None]]
     ) -> None:
         """Sets the callback called right after the serialization process starts.

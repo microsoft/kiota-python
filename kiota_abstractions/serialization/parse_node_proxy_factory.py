@@ -1,3 +1,9 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from io import BytesIO
 from typing import Callable
 
@@ -20,11 +26,13 @@ class ParseNodeProxyFactory(ParseNodeFactory):
         Args:
             concrete (ParseNodeFactory): The concrete factory to wrap.
             on_before (Callable[[Parsable], None]): The callback to invoke before the
-            deserialization
-            of any model object.
+            deserialization of any model object.
             on_after (Callable[[Parsable], None]): The callback to invoke after the deserialization
             of any model object.
         """
+        if not concrete:
+            raise ValueError("Concrete factory cannot be None")
+
         self._concrete = concrete
         self._on_before = on_before
         self._on_after = on_after
@@ -47,8 +55,8 @@ class ParseNodeProxyFactory(ParseNodeFactory):
             ParseNode: A parse node.
         """
         node = self._concrete.get_root_parse_node(content_type, content)
-        original_before = node.get_on_before_assign_field_values()
-        original_after = node.get_on_after_assign_field_values()
+        original_before = node.on_before_assign_field_values
+        original_after = node.on_after_assign_field_values
 
         def before_callback(value):
             if self._on_before:
@@ -56,7 +64,7 @@ class ParseNodeProxyFactory(ParseNodeFactory):
             if callable(original_before):
                 original_before(value)
 
-        node.set_on_before_assign_field_values(before_callback)
+        node.on_before_assign_field_values = before_callback
 
         def after_callback(value):
             if self._on_after:
@@ -64,6 +72,6 @@ class ParseNodeProxyFactory(ParseNodeFactory):
             if callable(original_after):
                 original_after(value)
 
-        node.set_on_after_assign_field_values(after_callback)
+        node.on_after_assign_field_values = after_callback
 
         return node

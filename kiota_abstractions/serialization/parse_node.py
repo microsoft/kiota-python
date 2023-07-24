@@ -174,8 +174,9 @@ class ParseNode(ABC):
         """
         pass
 
+    @property
     @abstractmethod
-    def get_on_before_assign_field_values(self) -> Callable[[Parsable], None]:
+    def on_before_assign_field_values(self) -> Callable[[Parsable], None]:
         """Gets the callback called before the node is deserialized.
 
         Returns:
@@ -183,31 +184,33 @@ class ParseNode(ABC):
         """
         pass
 
+    @on_before_assign_field_values.setter
     @abstractmethod
-    def get_on_after_assign_field_values(self) -> Optional[Callable[[Parsable], None]]:
-        """Gets the callback called before the node is deserialized.
-
-        Returns:
-            Callable[[Parsable], None]: the callback called before the node is deserialized.
-        """
-        pass
-
-    @abstractmethod
-    def set_on_before_assign_field_values(self, value: Callable[[Parsable], None]) -> None:
+    def on_before_assign_field_values(self) -> Optional[Callable[[Parsable], None]]:
         """Sets the callback called before the node is deserialized.
+
+        Returns:
+            Callable[[Parsable], None]: the callback called before the node is deserialized.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def on_after_assign_field_values(self) -> Optional[Callable[[Parsable], None]]:
+        """Gets the callback called after the node is deserialized.
+
+        Returns:
+            Callable[[Parsable], None]: the callback called before the node is deserialized.
+        """
+        pass
+
+    @on_after_assign_field_values.setter
+    @abstractmethod
+    def on_after_assign_field_values(self, value: Callable[[Parsable], None]) -> None:
+        """Sets the callback after before the node is deserialized.
 
         Args:
             value (Callable[[Parsable], None]): the callback called before the node is
-            deserialized.
-        """
-        pass
-
-    @abstractmethod
-    def set_on_after_assign_field_values(self, value: Callable[[Parsable], None]) -> None:
-        """Sets the callback called after the node is deserialized.
-
-        Args:
-            value (Callable[[Parsable], None]): the callback called after the node is
             deserialized.
         """
         pass
