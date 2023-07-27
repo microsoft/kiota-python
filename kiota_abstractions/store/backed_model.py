@@ -29,7 +29,7 @@ class BackedModel:
             return self.backing_store.get(prop)
         try:
             attr = super().__getattribute__(prop)
-            if callable(attr): # methods such as serialize and get_field_deserializers
+            if callable(attr):  # methods such as serialize and get_field_deserializers
                 return attr
             return None
         except AttributeError:
