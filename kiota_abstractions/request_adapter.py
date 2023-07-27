@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from io import BytesIO
-from typing import Callable, Dict, List, Optional, TypeVar
+from typing import Dict, Generic, List, Optional, TypeVar
 
 from .request_information import RequestInformation
 from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
@@ -9,9 +9,10 @@ from .store import BackingStoreFactory
 
 ResponseType = TypeVar("ResponseType", str, int, float, bool, datetime, BytesIO)
 ModelType = TypeVar("ModelType", bound=Parsable)
+RequestType = TypeVar("RequestType")
 
 
-class RequestAdapter(ABC):
+class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
     """Service responsible for translating abstract Request Info into concrete native HTTP requests.
     """
     # The base url for every request.
@@ -29,7 +30,7 @@ class RequestAdapter(ABC):
 
     @abstractmethod
     async def send_async(
-        self, request_info: RequestInformation, type: ParsableFactory,
+        self, request_info: RequestInformation, parsable_factory: ParsableFactory,
         error_map: Dict[str, Optional[ParsableFactory]]
     ) -> Optional[ModelType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
@@ -37,7 +38,8 @@ class RequestAdapter(ABC):
 
         Args:
             request_info (RequestInformation): the request info to execute.
-            type (ParsableFactory): the class of response model to deserialize the response into.
+            parsable_factory (ParsableFactory): the class of response model to
+                deserialize the response into.
             error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in case
             of a failed request.
 
@@ -50,7 +52,7 @@ class RequestAdapter(ABC):
     async def send_collection_async(
         self,
         request_info: RequestInformation,
-        type: ParsableFactory,
+        parsable_factory: ParsableFactory,
         error_map: Dict[str, Optional[ParsableFactory]],
     ) -> Optional[List[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
@@ -58,7 +60,8 @@ class RequestAdapter(ABC):
 
         Args:
             request_info (RequestInformation): the request info to execute.
-            type (ParsableFactory): the class of response model to deserialize the response into.
+            parsable_factory (ParsableFactory): the class of response model to
+                deserialize the response into.
             error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
@@ -129,5 +132,17 @@ class RequestAdapter(ABC):
 
         Args:
             backing_store_factory (Optional[BackingStoreFactory]): the backing store factory to use.
+        """
+        pass
+
+    @abstractmethod
+    async def convert_to_native_async(self, request_info: RequestInformation) -> RequestType:
+        """Translates the request information object into a native HTTP client request object.
+
+        Args:
+            request_info (RequestInformation): request information object to be converted.
+
+        Returns:
+            RequestType: the natively typed HTTP request of the client.
         """
         pass

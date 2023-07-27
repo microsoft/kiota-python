@@ -1,9 +1,7 @@
 from typing_extensions import Self
 
 from kiota_abstractions.store.backing_store_factory import BackingStoreFactory
-from kiota_abstractions.store.in_memory_backing_store_factory import (
-    InMemoryBackingStoreFactory,
-)
+from kiota_abstractions.store.in_memory_backing_store_factory import InMemoryBackingStoreFactory
 
 
 class BackingStoreFactorySingleton:
