@@ -4,9 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
 
 from .backing_store import BackingStore
 
@@ -27,4 +25,12 @@ class BackedModel:
     def __getattribute__(self, prop):
         if prop == "backing_store":
             return super().__getattribute__(prop)
-        return self.backing_store.get(prop)
+        if self.backing_store.get(prop) is not None:
+            return self.backing_store.get(prop)
+        try:
+            attr = super().__getattribute__(prop)
+            if callable(attr): # methods such as serialize and get_field_deserializers
+                return attr
+            return None
+        except AttributeError:
+            return None

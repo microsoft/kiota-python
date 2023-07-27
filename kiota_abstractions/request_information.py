@@ -158,9 +158,9 @@ class RequestInformation():
         writer = self._get_serialization_writer(request_adapter, content_type, values)
 
         if isinstance(values, list):
-            writer.writer = writer.write_collection_of_object_values(None, values)
+            writer.write_collection_of_object_values(None, values)
         else:
-            writer.writer = writer.write_object_value(None, values)
+            writer.write_object_value(None, values)
 
         self._set_content_and_content_type_header(writer, content_type)
 
