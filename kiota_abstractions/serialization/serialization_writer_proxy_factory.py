@@ -1,3 +1,9 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from typing import Callable, Optional
 
 from .parsable import Parsable
@@ -26,6 +32,9 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
             on_start (Optional[Callable[[Parsable, SerializationWriter], None]]): the callback to
             invoke when the serialization of a model object starts
         """
+        if not concrete:
+            raise ValueError("concrete SerializationWriterFactory cannot be None.")
+
         self._concrete = concrete
         self._on_before = on_before
         self._on_after = on_after
@@ -48,9 +57,9 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
             SerializationWriter: A new SerializationWriter instance for the given content type.
         """
         writer = self._concrete.get_serialization_writer(content_type)
-        original_before = writer.get_on_before_object_serialization()
-        original_after = writer.get_on_after_object_serialization()
-        original_start = writer.get_on_start_object_serialization()
+        original_before = writer.on_before_object_serialization
+        original_after = writer.on_after_object_serialization
+        original_start = writer.on_start_object_serialization
 
         def before_callback(value):
             if self._on_before:
@@ -58,7 +67,7 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
             if original_before:
                 original_before(value)
 
-        writer.set_on_before_object_serialization(before_callback)
+        writer.on_before_object_serialization = before_callback
 
         def after_callback(value):
             if self._on_after:
@@ -66,7 +75,7 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
             if original_after:
                 original_after(value)
 
-        writer.set_on_after_object_serialization(after_callback)
+        writer.on_after_object_serialization = after_callback
 
         def start_callback(value1, value2):
             if self._on_start:
@@ -74,6 +83,6 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
             if original_start:
                 original_start(value1, value2)
 
-        writer.set_on_start_object_serialization(start_callback)
+        writer.on_start_object_serialization = start_callback
 
         return writer

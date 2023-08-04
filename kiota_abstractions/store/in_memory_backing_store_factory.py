@@ -1,3 +1,9 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from .backing_store import BackingStore
 from .backing_store_factory import BackingStoreFactory
 from .in_memory_backing_store import InMemoryBackingStore

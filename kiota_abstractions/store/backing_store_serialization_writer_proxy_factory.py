@@ -1,3 +1,9 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from ..serialization import SerializationWriterFactory, SerializationWriterProxyFactory
 from .backed_model import BackedModel
 
@@ -16,28 +22,28 @@ class BackingStoreSerializationWriterProxyFactory(SerializationWriterProxyFactor
             SerializationWriterFactory to wrap.
         """
 
-        def func1(x):
+        def on_before(x):
             if isinstance(x, BackedModel):
                 backed_model = x
-                backing_store = backed_model.get_backing_store()
+                backing_store = backed_model.backing_store
                 if backing_store:
-                    backing_store.set_return_only_changed_values(True)
+                    backing_store.return_only_changed_values = True
 
-        def func2(x):
+        def on_after(x):
             if isinstance(x, BackedModel):
                 backed_model = x
-                backing_store = backed_model.get_backing_store()
+                backing_store = backed_model.backing_store
                 if backing_store:
-                    backing_store.set_return_only_changed_values(False)
-                    backing_store.set_is_initialization_completed(True)
+                    backing_store.return_only_changed_values = False
+                    backing_store.is_initialization_completed = True
 
-        def func3(x, y):
+        def on_start(x, y):
             if isinstance(x, BackedModel):
                 backed_model = x
-                backing_store = backed_model.get_backing_store()
+                backing_store = backed_model.backing_store
                 if backing_store:
                     keys = backing_store.enumerate_keys_for_values_changed_to_null()
                     for key in keys:
                         y.write_null_value(key)
 
-        super().__init__(concrete, func1, func2, func3)
+        super().__init__(concrete, on_before, on_after, on_start)

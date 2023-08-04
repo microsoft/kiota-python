@@ -1,11 +1,14 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, TypeVar
 from uuid import uuid4
 
+from .backed_model import BackedModel
 from .backing_store import BackingStore
-
-StoreEntryWrapper = Tuple[bool, Any]
-SubscriptionCallback = Callable[[str, Any, Any], None]
-StoreEntry = Tuple[str, Any]
 
 T = TypeVar("T")
 
@@ -13,11 +16,38 @@ T = TypeVar("T")
 class InMemoryBackingStore(BackingStore, Generic[T]):
     """In-memory implementation of the backing store. Allows for dirty tracking of changes."""
 
-    __subscriptions: Dict[str, SubscriptionCallback] = {}
-    __store: Dict[str, Tuple[bool, Any]] = {}
-    __initialization_completed: bool = True
+    def __init__(self) -> None:
 
-    return_only_changed_values: bool = False
+        self.__subscriptions: Dict[str, Callable[[str, Any, Any], None]] = {}
+        self.__store: Dict[str, Tuple[bool, Any]] = {}
+        self.__initialization_completed: bool = True
+        self.__return_only_changed_values: bool = False
+
+    @property
+    def is_initialization_completed(self) -> bool:
+        """Flag to show the initialization status of the store."""
+        return self.__initialization_completed
+
+    @is_initialization_completed.setter
+    def is_initialization_completed(self, value: bool) -> None:
+        self.__initialization_completed = value
+        for key, val in self.__store.items():
+            if isinstance(val[1], BackedModel):
+                # forward the initialization status to nested BackedModel instances
+                val[1].backing_store.is_initialization_completed = value
+            self._ensure_collection_size_is_consistent(key, val[1])
+            self.__store[key] = (not value, val[1])
+
+    @property
+    def return_only_changed_values(self) -> bool:
+        """Determines whether the backing store should only return changed values when queried."""
+        return self.__return_only_changed_values
+
+    @return_only_changed_values.setter
+    def return_only_changed_values(self, value: bool) -> None:
+        """Sets the flag to determines whether the backing store should only return changed values
+        when queried."""
+        self.__return_only_changed_values = value
 
     def get(self, key: str) -> Optional[T]:
         """Gets the specified object with the given key from the store.
@@ -28,12 +58,20 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
         Returns:
             Optional[T]: An instance of T
         """
-        wrapper = self.__store.get(key)
+        if not key:
+            raise ValueError("Key cannot be empty or None")
 
-        if wrapper and (
-            self.return_only_changed_values and wrapper[0] or not self.return_only_changed_values
-        ):
-            return wrapper[1]
+        result = self.__store.get(key)
+        if result:
+            self._ensure_collection_size_is_consistent(key, result[1])
+            result_value = result[1]
+            if isinstance(result_value, tuple):
+                result_value = result_value[0]
+            if self.return_only_changed_values is False or (
+                self.return_only_changed_values is True and self.__store[key][0]
+            ):
+                return result_value
+            return None
         return None
 
     def set(self, key: str, value: T) -> None:
@@ -43,27 +81,55 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             key (str): The key to use
             value (T): The object value to store
         """
-        old_value_wrapper = self.__store.get(key)
-        old_value = None
-        if old_value_wrapper:
-            old_value = old_value_wrapper[1]
-        self.__store[key] = (self.get_is_initialization_completed(), value)
-        for val in self.__subscriptions.values():
-            val(key, old_value, value)
+        if not key:
+            raise ValueError("Key cannot be empty or None")
 
-    def enumerate_(self) -> List[StoreEntry]:
+        old_value = self.__store.get(key)
+        value_to_add = (self.is_initialization_completed, value)
+        if isinstance(value, list):
+            value_to_add = (self.is_initialization_completed, (value, len(value)))  # type: ignore
+
+        if key not in self.__store:
+            if isinstance(value, BackedModel) and value.backing_store:
+                # if its the first time adding a BackedModel property to the store, subscribe
+                # to its BackingStore and use the events to flag the property is "dirty"
+                value.backing_store.is_initialization_completed = False
+                value.backing_store.subscribe(
+                    lambda prop_key, old_val, new_val: self.set(key, value)
+                )
+        if isinstance(value, list):
+            # if its a collection, subscribe to the collection's item BackingStores and use
+            # the events to flag the collection property is "dirty"
+            for item in value:
+                if isinstance(item, BackedModel) and item.backing_store:
+                    item.backing_store.is_initialization_completed = False
+                    item.backing_store.subscribe(
+                        lambda prop_key, old_val, new_val: self.set(key, value)
+                    )
+
+        self.__store[key] = value_to_add
+        for sub in list(self.__subscriptions):
+            self.__subscriptions[sub](key, old_value, value_to_add)
+            # sub(key, old_value, value_to_add)
+
+    def enumerate_(self) -> List[Tuple[str, Any]]:
         """Enumerate the values in the store based on the ReturnOnlyChangedValues configuration
         value
 
         Returns:
-            List[StoreEntry]: A collection of changed values or the whole store based on the
+            List[Tuple[str, Any]]: A collection of changed values or the whole store based on the
             ReturnOnlyChangedValues configuration value.
         """
-        filterable_array = list(self.__store.items())
+
+        # refresh the state of collection properties if they've changed in size.
         if self.return_only_changed_values:
-            filtered = [elem for elem in filterable_array if elem[0] is True]
-            return filtered
-        return filterable_array
+            for key, val in self.__store.items():
+                self._ensure_collection_size_is_consistent(key, val[1])
+
+        keyval_pairs = list(self.__store.items())
+        if self.return_only_changed_values:
+            return [(key, val[1]) for key, val in keyval_pairs if val[0] is True]
+        return [(key, val[1]) for key, val in keyval_pairs]
 
     def enumerate_keys_for_values_changed_to_null(self) -> List[str]:
         """Enumerate the values in the store that have changed to None
@@ -71,16 +137,14 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
         Returns:
             List[str]: A collection of strings containing keys changed to None
         """
-        keys: List[str] = []
-        for key, val in self.__store.items():
-            if val[0] and not val[1]:
-                keys.append(key)
-        return keys
+        return [key for key, val in self.__store.items() if val[0] and val[1] is None]
 
     def subscribe(
-        self, callback: Callable[[str, Any, Any], None], subscription_id: Optional[str]
+        self,
+        callback: Callable[[str, Any, Any], None],
+        subscription_id: Optional[str] = None
     ) -> str:
-        """dds a callback to subscribe to events in the store with the given subscription id
+        """Adds a callback to subscribe to events in the store with the given subscription id
 
         Args:
             callback (Callable[[str, Any, Any], None]): The callback to add
@@ -89,8 +153,12 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
         Returns:
             str: The id of the subscription
         """
+        if not callable(callback):
+            raise ValueError("Callback must be a callable function")
+
         if not subscription_id:
             subscription_id = str(uuid4())
+
         self.__subscriptions[subscription_id] = callback
         return subscription_id
 
@@ -106,21 +174,30 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
         """Clears the store"""
         self.__store.clear()
 
-    def get_is_initialization_completed(self) -> bool:
-        """Flag to show the initialization status of the store."""
-        return self.__initialization_completed
+    def _ensure_collection_size_is_consistent(self, key: str, entry: Any) -> None:
+        """Checks if entry of type collection has changed in size.
+        If so, dirty tracks the change by calling set()
 
-    def set_is_initialization_completed(self, value: bool) -> None:
-        self.__initialization_completed = value
-        for key, val in self.__store.items():
-            self.__store[key] = (not value, val[1])
-
-    def get_return_only_changed_values(self) -> bool:
-        """Determines whether the backing store should only return changed values when queried."""
-        return self.return_only_changed_values
-
-    def set_return_only_changed_values(self, value: bool) -> None:
-        """Sets the flag to determines whether the backing store should only return changed values
-        when queried.
+        Args:
+            key (str): _description_
+            entry(StoreEntry): _description_
         """
-        self.return_only_changed_values = value
+        # Check if the entry is a tuple of a collection annotated with the size
+        if isinstance(entry, tuple):
+            backed_models = [item for item in entry[0] if isinstance(item, BackedModel)]
+            for backed_model in backed_models:
+                values = backed_model.backing_store.enumerate_()
+                for value in values:
+                    # Call get() on nested properties so that this method may be called recursively
+                    # to ensure collections are consistent
+                    backed_model.backing_store.get(value[0])
+
+            if len(entry[0]) != entry[1]:  # if the size has changed since last update
+                self.set(key, entry[0])  # dirty track the change
+
+        elif isinstance(entry, BackedModel):
+            values = entry.backing_store.enumerate_()
+            for value in values:
+                # Call get() on nested properties so that this method may be called recursively
+                # to ensure collections are consistent
+                entry.backing_store.get(value[0])

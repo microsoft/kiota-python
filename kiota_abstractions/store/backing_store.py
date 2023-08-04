@@ -1,3 +1,9 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Generic, List, Optional, Tuple, TypeVar
 
@@ -7,8 +13,7 @@ T = TypeVar("T")
 class BackingStore(ABC, Generic[T]):
     """Stores model information in a different location than the object properties.
     Implementations can provide dirty tracking capabilities, caching capabilities
-    or integration with 3rd party stores
-    """
+    or integration with 3rd party stores"""
 
     @abstractmethod
     def get(self, key: str) -> Optional[T]:
@@ -54,7 +59,9 @@ class BackingStore(ABC, Generic[T]):
 
     @abstractmethod
     def subscribe(
-        self, callback: Callable[[str, Any, Any], None], subscription_id: Optional[str]
+        self,
+        callback: Callable[[str, Any, Any], None],
+        subscription_id: Optional[str] = None
     ) -> str:
         """Creates a subscription to any data change happening.
 
@@ -83,8 +90,9 @@ class BackingStore(ABC, Generic[T]):
         """Clears the data stored in the backing store. Doesn't trigger any subscription."""
         pass
 
+    @property
     @abstractmethod
-    def get_is_initialization_completed(self) -> bool:
+    def is_initialization_completed(self) -> bool:
         """Whether the initialization of the object and/or the initial deserialization has been
         completed to track whether objects have changed.
 
@@ -93,15 +101,20 @@ class BackingStore(ABC, Generic[T]):
         """
         pass
 
+    @is_initialization_completed.setter
     @abstractmethod
-    def set_is_initialization_completed(self, completed) -> None:
-        """Sets whether the initialization of the object and/or the initial deserialization has been
-        completed to track whether objects have changed.
+    def is_initialization_completed(self, completed: bool) -> None:
+        """Sets the initialization completed state of the object.
+
+        Args:
+            completed (bool): Whether the initialization of the object and/or the initial
+            deserialization has been completed to track whether objects have changed.
         """
         pass
 
+    @property
     @abstractmethod
-    def get_return_only_changed_values(self) -> bool:
+    def return_only_changed_values(self) -> bool:
         """Whether to return only values that have changed since the initialization of the object
         when calling the Get and Enumerate methods.
 
@@ -110,12 +123,14 @@ class BackingStore(ABC, Generic[T]):
         """
         pass
 
+    @return_only_changed_values.setter
     @abstractmethod
-    def set_return_only_changed_values(self, changed) -> None:
+    def return_only_changed_values(self, changed: bool) -> None:
         """Sets whether to return only values that have changed since the initialization of the
         object when calling the Get and Enumerate methods.
 
-        Returns:
-            bool:
+        Args:
+            changed (bool): Whether to return only values that have changed since the
+            initialization of the object when calling the Get and Enumerate methods.
         """
         pass

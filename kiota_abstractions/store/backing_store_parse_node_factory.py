@@ -1,3 +1,9 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from typing import Callable
 
 from ..serialization import Parsable, ParseNodeFactory, ParseNodeProxyFactory
@@ -14,18 +20,12 @@ class BackingStoreParseNodeFactory(ParseNodeProxyFactory):
         implementation ParseNodeFactory.
         """
 
-        def func1(x):
-            if isinstance(x, BackedModel):
-                backed_model = x
-                backing_store = backed_model.get_backing_store()
-                if backing_store:
-                    backing_store.set_is_initialization_completed(False)
+        def on_before_deserialization(x):
+            if isinstance(x, BackedModel) and x.backing_store:
+                x.backing_store.is_initialization_completed = False
 
-        def func2(x):
-            if isinstance(x, BackedModel):
-                backed_model = x
-                backing_store = backed_model.get_backing_store()
-                if backing_store:
-                    backing_store.set_is_initialization_completed(True)
+        def on_after_deserialization(x):
+            if isinstance(x, BackedModel) and x.backing_store:
+                x.backing_store.is_initialization_completed = True
 
-        super().__init__(concrete, func1, func2)
+        super().__init__(concrete, on_before_deserialization, on_after_deserialization)
