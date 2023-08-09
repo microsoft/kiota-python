@@ -8,8 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.1] - 2023-08-09
 
 ### Added
-- Added an abstract translator method that should convert a `RequestInformation` object into the native client HTTP request object.
-- Enable backing store for Python.
 
 ### Changed
 - Set the default value for the `is_initialization_completed` parameter in the `InMemoryBackingStore` class to be `False` and use the
