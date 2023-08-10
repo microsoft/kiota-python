@@ -20,7 +20,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
 
         self.__subscriptions: Dict[str, Callable[[str, Any, Any], None]] = {}
         self.__store: Dict[str, Tuple[bool, Any]] = {}
-        self.__initialization_completed: bool = True
+        self.__initialization_completed: bool = False
         self.__return_only_changed_values: bool = False
 
     @property

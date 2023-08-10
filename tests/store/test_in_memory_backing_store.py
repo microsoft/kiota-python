@@ -55,6 +55,7 @@ def test_return_only_changed_values():
     
 def test_enumerates_values_changed_to_none_in_store():
     backing_store = InMemoryBackingStore()
+    backing_store.is_initialization_completed = True
     assert not backing_store.enumerate_()
     backing_store.set("name", "Samwel")
     backing_store.set("email", "samwel@example.com")

@@ -16,6 +16,9 @@ class BackedModel:
     # Stores model information.
     backing_store: BackingStore
 
+    def __post_init__(self):
+        self.backing_store.is_initialization_completed = True
+
     def __setattr__(self, prop, val):
         if prop == "backing_store":
             super().__setattr__(prop, val)

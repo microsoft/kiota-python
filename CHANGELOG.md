@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2023-08-09
+
+### Added
+
+### Changed
+- Set the default value for the `is_initialization_completed` parameter in the `InMemoryBackingStore` class to be `False` and use the
+`__post_init__` method of backed model to set it to `True`.
+- Changed the string representation of the `APIError` class to be more descriptive.
+
 ## [0.7.0] - 2023-07-27
 
 ### Added

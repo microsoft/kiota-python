@@ -1,5 +1,4 @@
-from dataclasses import asdict, dataclass
-from json import dumps
+from dataclasses import dataclass
 from typing import Dict, Optional
 
 
@@ -12,4 +11,5 @@ class APIError(Exception):
     response_headers: Optional[Dict[str, str]] = None
 
     def __str__(self) -> str:
-        return dumps(asdict(self), default=str)
+        return f"""APIError {self.response_status_code}: {self.message} {self.__getattribute__(
+                'error')}"""
