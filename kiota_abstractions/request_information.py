@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 Url = str
 T = TypeVar("T", bound=Parsable)
-OBSERVABILITY_TRACER_NAME = "com.microsoft.kiota:microsoft-python-kiota-abstractions"
+OBSERVABILITY_TRACER_NAME = "microsoft-python-kiota-abstractions"
 tracer = trace.get_tracer(OBSERVABILITY_TRACER_NAME, VERSION)
 
 
@@ -157,8 +157,9 @@ class RequestInformation:
             content_type (Optional[str]): the content type.
             values (Union[T, List[T]]): the models.
         """
-        span = self.start_tracing_span("set_content_from_parsable")
-        try:
+        with tracer.start_as_current_span(
+            self._create_parent_span_name("set_content_from_parsable")
+        ) as span:
             writer = self._get_serialization_writer(request_adapter, content_type, values, span)
 
             if isinstance(values, list):
@@ -167,8 +168,6 @@ class RequestInformation:
                 writer.write_object_value(None, values)
 
             self._set_content_and_content_type_header(writer, content_type)
-        finally:
-            span.end()
 
     def set_content_from_scalar(
         self,
@@ -184,8 +183,9 @@ class RequestInformation:
             content_type (Optional[str]): the content type to set.
             values (Union[T, List[T]]): the scalar values to serialize
         """
-        span = self.start_tracing_span("set_content_from_scalar")
-        try:
+        with tracer.start_as_current_span(
+            self._create_parent_span_name("set_content_from_scalar")
+        ) as span:
             writer = self._get_serialization_writer(request_adapter, content_type, values, span)
 
             if isinstance(values, list):
@@ -212,8 +212,6 @@ class RequestInformation:
                     raise exc
                 writer_func(None, values)
             self._set_content_and_content_type_header(writer, content_type)
-        finally:
-            span.end()
 
     def set_stream_content(self, value: BytesIO) -> None:
         """Sets the request body to be a binary stream.
@@ -280,19 +278,11 @@ class RequestInformation:
             return unquote(uri)
         return ""
 
-    def start_tracing_span(self, method: str) -> trace.Span:
-        """Creates an Opentelemetry tracer and starts the parent span.
-
-        Args:
-            method(str): name of the invoker.
-
-        Returns:
-            The parent span.
-        """
+    def _create_parent_span_name(self, method: str) -> str:
+        """Creates a parent span name for the given method."""
         uri_template = self._decode_uri_string(self.url_template)
         parent_span_name = f"{method} - {uri_template}"
-        span = tracer.start_span(parent_span_name)
-        return span
+        return parent_span_name
 
     def _start_local_tracing_span(self, name: str, parent_span: trace.Span) -> trace.Span:
         """Helper method to start a span locally with the parent context."""
