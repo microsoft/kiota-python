@@ -33,6 +33,7 @@ class RequestInformation:
     RAW_URL_KEY = "request-raw-url"
     BINARY_CONTENT_TYPE = "application/octet-stream"
     CONTENT_TYPE_HEADER = "Content-Type"
+    REQUEST_TYPE_KEY = "com.microsoft.kiota.authentication.request_type_key"
 
     def __init__(self) -> None:
         # The uri of the request
@@ -164,8 +165,10 @@ class RequestInformation:
 
             if isinstance(values, list):
                 writer.write_collection_of_object_values(None, values)
+                span.set_attribute(self.REQUEST_TYPE_KEY, "[]")
             else:
                 writer.write_object_value(None, values)
+                span.set_attribute(self.REQUEST_TYPE_KEY, "{}")
 
             self._set_content_and_content_type_header(writer, content_type)
 
@@ -190,6 +193,7 @@ class RequestInformation:
 
             if isinstance(values, list):
                 writer.writer = writer.write_collection_of_primitive_values(None, values)
+                span.set_attribute(self.REQUEST_TYPE_KEY, "[]")
             else:
                 function_values: Dict[type, Callable] = {
                     bool: writer.write_bool_value,
@@ -203,6 +207,7 @@ class RequestInformation:
                     time: writer.write_time_value,
                 }
                 value_type = type(values)
+                span.set_attribute(self.REQUEST_TYPE_KEY, value_type.__name__)
                 writer_func = function_values.get(value_type, None)
                 if writer_func is None:
                     exc = ValueError(
