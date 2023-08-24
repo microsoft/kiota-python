@@ -2,16 +2,16 @@ from dataclasses import dataclass, fields
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, TypeVar, Union
-from uuid import UUID
-from opentelemetry import trace
 from urllib.parse import unquote
+from uuid import UUID
 
+from opentelemetry import trace
 from uritemplate import URITemplate
 
+from ._version import VERSION
 from .method import Method
 from .request_option import RequestOption
 from .serialization import Parsable, SerializationWriter
-from ._version import VERSION
 
 if TYPE_CHECKING:
     from .request_adapter import RequestAdapter
@@ -108,9 +108,7 @@ class RequestInformation:
                 lowercase_key = key.lower()
                 if lowercase_key in self.headers:
                     if isinstance(value, list):
-                        self.headers[lowercase_key] = self.headers[lowercase_key].union(
-                            set(value)
-                        )
+                        self.headers[lowercase_key] = self.headers[lowercase_key].union(set(value))
                     else:
                         self.headers[lowercase_key].add(str(value))
                 else:
@@ -161,9 +159,7 @@ class RequestInformation:
         """
         span = self.start_tracing_span("set_content_from_parsable")
         try:
-            writer = self._get_serialization_writer(
-                request_adapter, content_type, values, span
-            )
+            writer = self._get_serialization_writer(request_adapter, content_type, values, span)
 
             if isinstance(values, list):
                 writer.write_collection_of_object_values(None, values)
@@ -190,14 +186,10 @@ class RequestInformation:
         """
         span = self.start_tracing_span("set_content_from_scalar")
         try:
-            writer = self._get_serialization_writer(
-                request_adapter, content_type, values, span
-            )
+            writer = self._get_serialization_writer(request_adapter, content_type, values, span)
 
             if isinstance(values, list):
-                writer.writer = writer.write_collection_of_primitive_values(
-                    None, values
-                )
+                writer.writer = writer.write_collection_of_primitive_values(None, values)
             else:
                 value_type = type(values)
                 if value_type == bool:
@@ -238,9 +230,7 @@ class RequestInformation:
         self.headers[self.CONTENT_TYPE_HEADER] = {self.BINARY_CONTENT_TYPE}
         self.content = value
 
-    def set_query_string_parameters_from_raw_object(
-        self, q: Optional[QueryParams]
-    ) -> None:
+    def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParams]) -> None:
         if q:
             for field in fields(q):
                 key = field.name
@@ -278,9 +268,8 @@ class RequestInformation:
                 exc = ValueError("Values cannot be null")
                 _span.record_exception(exc)
                 raise exc
-            return request_adapter.get_serialization_writer_factory().get_serialization_writer(
-                content_type
-            )
+            return request_adapter.get_serialization_writer_factory(
+            ).get_serialization_writer(content_type)
         finally:
             _span.end()
 
@@ -311,9 +300,7 @@ class RequestInformation:
         span = tracer.start_span(parent_span_name)
         return span
 
-    def _start_local_tracing_span(
-        self, name: str, parent_span: trace.Span
-    ) -> trace.Span:
+    def _start_local_tracing_span(self, name: str, parent_span: trace.Span) -> trace.Span:
         """Helper method to start a span locally with the parent context."""
         _context = trace.set_span_in_context(parent_span)
         span = tracer.start_span(name, context=_context)
