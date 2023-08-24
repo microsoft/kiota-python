@@ -1,7 +1,7 @@
 from dataclasses import dataclass, fields
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, TypeVar, Union
 from urllib.parse import unquote
 from uuid import UUID
 
@@ -191,32 +191,26 @@ class RequestInformation:
             if isinstance(values, list):
                 writer.writer = writer.write_collection_of_primitive_values(None, values)
             else:
+                function_values: Dict[type, Callable] = {
+                    bool: writer.write_bool_value,
+                    str: writer.write_str_value,
+                    int: writer.write_int_value,
+                    float: writer.write_float_value,
+                    UUID: writer.write_uuid_value,
+                    datetime: writer.write_datetime_value,
+                    date: writer.write_date_value,
+                    timedelta: writer.write_timedelta_value,
+                    time: writer.write_time_value,
+                }
                 value_type = type(values)
-                if value_type == bool:
-                    writer.write_bool_value(None, values)
-                elif value_type == str:
-                    writer.write_str_value(None, values)
-                elif value_type == int:
-                    writer.write_int_value(None, values)
-                elif value_type == float:
-                    writer.write_float_value(None, values)
-                elif value_type == UUID:
-                    writer.write_uuid_value(None, values)
-                elif value_type == datetime:
-                    writer.write_datetime_value(None, values)
-                elif value_type == timedelta:
-                    writer.write_timedelta_value(None, values)
-                elif value_type == date:
-                    writer.write_date_value(None, values)
-                elif value_type == time:
-                    writer.write_time_value(None, values)
-                else:
+                writer_func = function_values.get(value_type, None)
+                if writer_func is None:
                     exc = ValueError(
                         f"Encountered an unknown type during serialization {value_type}"
                     )
                     span.record_exception(exc)
                     raise exc
-
+                writer_func(None, values)
             self._set_content_and_content_type_header(writer, content_type)
         finally:
             span.end()
@@ -280,11 +274,11 @@ class RequestInformation:
             self.headers[self.CONTENT_TYPE_HEADER] = {content_type}
         self.content = writer.get_serialized_content()
 
-    def _decode_uri_string(self, uri: str) -> str:
+    def _decode_uri_string(self, uri: Optional[str]) -> str:
         """Decodes a URI encoded string."""
         if uri and "%" in uri:
             return unquote(uri)
-        return uri
+        return ""
 
     def start_tracing_span(self, method: str) -> trace.Span:
         """Creates an Opentelemetry tracer and starts the parent span.
