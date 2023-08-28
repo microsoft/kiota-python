@@ -33,7 +33,7 @@ class RequestInformation:
     RAW_URL_KEY = "request-raw-url"
     BINARY_CONTENT_TYPE = "application/octet-stream"
     CONTENT_TYPE_HEADER = "Content-Type"
-    REQUEST_TYPE_KEY = "com.microsoft.kiota.authentication.request_type_key"
+    REQUEST_TYPE_KEY = "com.microsoft.kiota.request.type"
 
     def __init__(self) -> None:
         # The uri of the request
