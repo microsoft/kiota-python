@@ -1,5 +1,11 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from enum import Enum
-from typing import List
+from typing import Any, Dict, List
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from kiota_abstractions.request_information import RequestInformation
@@ -47,7 +53,11 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
         self.parameter_name = parameter_name
         self.allowed_hosts_validator = AllowedHostsValidator(allowed_hosts)
 
-    async def authenticate_request(self, request: RequestInformation) -> None:
+    async def authenticate_request(
+        self,
+        request: RequestInformation,
+        additional_authentication_context: Dict[str, Any] = {}
+    ) -> None:
         """
         Ensures that the API key is placed in the correct location for a request.
         """
