@@ -1,4 +1,11 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from abc import ABC, abstractmethod
+from typing import Any, Dict
 
 from .allowed_hosts_validator import AllowedHostsValidator
 
@@ -8,12 +15,15 @@ class AccessTokenProvider(ABC):
     """
 
     @abstractmethod
-    async def get_authorization_token(self, uri: str) -> str:
+    async def get_authorization_token(
+        self, uri: str, additional_authentication_context: Dict[str, Any] = {}
+    ) -> str:
         """This method is called by the BaseBearerTokenAuthenticationProvider class to get the
         access token.
 
         Args:
             uri (str): The target URI to get an access token for.
+            additional_authentication_context (dict):
         Returns:
             str: The access token to use for the request.
         """

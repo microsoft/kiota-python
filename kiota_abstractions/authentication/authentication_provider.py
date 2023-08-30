@@ -1,4 +1,11 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation.  All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------------------------------------------------
+
 from abc import ABC, abstractmethod
+from typing import Any, Dict
 
 from ..request_information import RequestInformation
 
@@ -9,10 +16,15 @@ class AuthenticationProvider(ABC):
     """
 
     @abstractmethod
-    async def authenticate_request(self, request: RequestInformation) -> None:
+    async def authenticate_request(
+        self,
+        request: RequestInformation,
+        additional_authentication_context: Dict[str, Any] = {}
+    ) -> None:
         """Authenticates the application request
 
         Args:
             request (RequestInformation): The request to authenticate
+            additional_authentication_context (dict):
         """
         pass

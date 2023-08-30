@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added opentelemetry to support observability.
+- Added an additional parameter to authentication methods to carry contextual information.
 
 ## [0.7.1] - 2023-08-09
 
