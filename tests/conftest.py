@@ -22,7 +22,11 @@ class MockAccessTokenProvider(AccessTokenProvider):
     def __init__(self):
         self.token = None
 
-    async def get_authorization_token(self, url: str) -> str:
+    async def get_authorization_token(
+        self,
+        url: str,
+        additional_authentication_context: Dict[str, Any] = {}
+    ) -> str:
         return "SomeToken"
 
     def get_allowed_hosts_validator(self) -> AllowedHostsValidator:
