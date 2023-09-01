@@ -7,6 +7,8 @@ name = "microsoft-kiota-abstractions"
 authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
 dependencies = [
     "uritemplate >=4.1.1",
+    "opentelemetry-api >=1.19.0"
+    "opentelemetry-sdk >=1.19.0"
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
