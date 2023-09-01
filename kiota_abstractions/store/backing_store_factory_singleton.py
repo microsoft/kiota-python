@@ -35,7 +35,7 @@ class BackingStoreFactorySingleton:
         return cls.__instance
 
     @classmethod
-    def get_instance(cls) -> Self:
+    def get_instance(cls):
         """
         Returns the instance of the class.
         """
