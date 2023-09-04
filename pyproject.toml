@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "microsoft-kiota-abstractions"
 authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
 dependencies = [
-    "uritemplate >=4.1.1",
+    "std-uritemplate >=0.0.31",
     "opentelemetry-api >=1.19.0",
     "opentelemetry-sdk >=1.19.0",
 ]
