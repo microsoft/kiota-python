@@ -80,7 +80,7 @@ class RequestInformation:
         for key, val in self.path_parameters.items():
             data[key] = val
 
-        result = StdURITemplate.expand(self.url_template, data)
+        result = StdUriTemplate.expand(self.url_template, data)
         return result
 
     @url.setter
