@@ -60,7 +60,7 @@ wrapt==1.15.0 ; python_version < '3.11'
 
 yapf==0.40.1
 
-std-uritemplate==0.0.35
+std-uritemplate==0.0.36
 
 opentelemetry-api==1.19.0
 
