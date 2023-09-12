@@ -11,5 +11,4 @@ class APIError(Exception):
     response_headers: Optional[Dict[str, str]] = None
 
     def __str__(self) -> str:
-        return f"""APIError {self.response_status_code}: {self.message} {self.__getattribute__(
-                'error')}"""
+        return f"""APIError {self.response_status_code}: {self.message} {getattr('error', '')}"""
