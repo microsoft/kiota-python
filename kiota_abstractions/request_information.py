@@ -6,7 +6,7 @@ from urllib.parse import unquote
 from uuid import UUID
 
 from opentelemetry import trace
-from uritemplate import URITemplate
+from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
 from .method import Method
@@ -74,14 +74,13 @@ class RequestInformation:
         if not self.url_template:
             raise Exception("Url Template cannot be null")
 
-        template = URITemplate(self.url_template)
         data: Dict[str, Any] = {}
         for key, val in self.query_parameters.items():
             data[key] = val
         for key, val in self.path_parameters.items():
             data[key] = val
 
-        result = template.expand(data)
+        result = StdUriTemplate.expand(self.url_template, data)
         return result
 
     @url.setter
