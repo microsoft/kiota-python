@@ -14,19 +14,13 @@ class APIError(Exception):
         error = getattr(self, "error", None)
         if error:
             return f"""
-            APIError 
-            Code: {self.response_status_code}
-            message: {self.message}
-            error: {getattr(self, 'error', None)}
-            """
+        APIError
+        Code: {self.response_status_code}
+        message: {self.message}
+        error: {error}
+        """
         return f"""
-        APIError 
+        APIError
         Code: {self.response_status_code}
         message: {self.message}
         """
-    
-    
-    
-
-err = APIError("test", 404, {"test": "test"})
-print(err)
