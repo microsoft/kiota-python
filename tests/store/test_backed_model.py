@@ -16,12 +16,11 @@ def test_backed_model_return_only_changed_values_false(mock_user):
 def test_backed_model_return_only_changed_values_true(mock_user):
     # Set the backing store to only return changed values
     mock_user.backing_store.return_only_changed_values = True
-    # No changes have been made to the backing store, getters should return None
-    assert mock_user.id is None
-    assert mock_user.odata_type is None
-    assert mock_user.business_phones is None
+    # No changes have been made to the backing store
+    # enumerate should return an empty list
+    assert mock_user.backing_store.enumerate_() == []
     # change a property value
     mock_user.business_phones = ["+1 234 567 8901"]
     # returns the changed value
-    assert mock_user.business_phones == ["+1 234 567 8901"]
+    assert mock_user.backing_store.enumerate_() == [('business_phones', (["+1 234 567 8901"], 1))]
     
