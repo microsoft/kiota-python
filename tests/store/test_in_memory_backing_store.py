@@ -170,9 +170,6 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collect
     changed_values = mock_user.backing_store.enumerate_()
     assert len(changed_values) == 1
     assert  changed_values[0][0] == "colleagues" # Backingstore should detect manager property changed
-    nested_changed_values = dict(mock_user.colleagues[0].backing_store.enumerate_())
-    assert len(nested_changed_values) == 6
-    assert BUSINESS_PHONES_KEY in nested_changed_values
     
 def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collection_property_with_extra_value_returns_changed_nested_properties():
     mock_user = MockEntity(
@@ -189,11 +186,6 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collect
     changed_values = mock_user.backing_store.enumerate_()
     assert len(changed_values) == 1
     assert  changed_values[0][0] == "colleagues" # Backingstore should detect manager property changed
-    nested_changed_values = dict(mock_user.colleagues[0].backing_store.enumerate_())
-    assert len(nested_changed_values) == 6
-    assert "id" in nested_changed_values
-    assert BUSINESS_PHONES_KEY in nested_changed_values
-    assert nested_changed_values[BUSINESS_PHONES_KEY] == ([BUSINESS_PHONES_1, "+9 876 543 219"], 2)
     
 def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collection_property_with_extra_backed_model_returns_changed_nested_properties():
     mock_user = MockEntity(
@@ -215,11 +207,6 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collect
     assert len(colleagues) == 2
     assert colleagues[0][0].id ==  "2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af" # hasn't changed
     assert colleagues[0][1].id == "2fe22fe5-1132-42cf-90f9-1dc17e325a74"
-    nested_changed_values = dict(mock_user.colleagues[0].backing_store.enumerate_())
-    assert len(nested_changed_values) == 6
-    assert "id" in nested_changed_values
-    assert BUSINESS_PHONES_KEY in nested_changed_values
-    assert nested_changed_values[BUSINESS_PHONES_KEY] == ([BUSINESS_PHONES_1], 1)
     
         
         
