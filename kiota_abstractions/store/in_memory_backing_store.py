@@ -93,7 +93,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             if isinstance(value, BackedModel) and value.backing_store:
                 # if its the first time adding a BackedModel property to the store, subscribe
                 # to its BackingStore and use the events to flag the property is "dirty"
-                value.backing_store.is_initialization_completed = False
+                value.backing_store.is_initialization_completed = True
                 value.backing_store.subscribe(
                     lambda prop_key, old_val, new_val: self.set(key, value)
                 )
@@ -102,7 +102,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             # the events to flag the collection property is "dirty"
             for item in value:
                 if isinstance(item, BackedModel) and item.backing_store:
-                    item.backing_store.is_initialization_completed = False
+                    item.backing_store.is_initialization_completed = True
                     item.backing_store.subscribe(
                         lambda prop_key, old_val, new_val: self.set(key, value)
                     )
@@ -183,7 +183,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             entry(StoreEntry): _description_
         """
         # Check if the entry is a tuple of a collection annotated with the size
-        if isinstance(entry, tuple):
+        if isinstance(entry, tuple) and isinstance(entry[0], list) and isinstance(entry[1], int):
             backed_models = [item for item in entry[0] if isinstance(item, BackedModel)]
             for backed_model in backed_models:
                 values = backed_model.backing_store.enumerate_()
