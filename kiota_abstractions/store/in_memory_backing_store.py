@@ -74,7 +74,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             return None
         return None
 
-    def set(self, key: str, value: T) -> None:
+    def set(self, key: str, value: Any) -> None:
         """Sets the specified object with the given key in the store.
 
         Args:
