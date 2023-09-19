@@ -6,6 +6,7 @@
 from typing import Any, Dict, Union
 
 from .request_adapter import RequestAdapter
+from .request_information import RequestInformation
 
 
 class BaseRequestBuilder:
@@ -18,6 +19,9 @@ class BaseRequestBuilder:
         """Initializes a new instance of the BaseRequestBuilder class."""
         if path_parameters is None:
             path_parameters = {}
+        elif isinstance(path_parameters, str):
+            path_parameters = {RequestInformation.RAW_URL_KEY: path_parameters}
+
         if request_adapter is None:
             raise TypeError("request_adapter cannot be null.")
         if url_template is None:
