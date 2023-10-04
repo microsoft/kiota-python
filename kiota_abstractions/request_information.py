@@ -123,9 +123,8 @@ class RequestInformation:
             lowercase_key = key.lower()
             if lowercase_key in self.headers:
                 return False
-            else:
-                self.headers[lowercase_key] = {str(value)}
-                return True
+            self.headers[lowercase_key] = {str(value)}
+            return True
         return False
 
     def remove_request_headers(self, key: str) -> None:
