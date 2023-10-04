@@ -84,6 +84,12 @@ def test_request_headers(mock_request_information):
     assert "value3" in mock_request_information.request_headers["header2"]
     assert "value4" in mock_request_information.request_headers["header2"]
 
+def test__try_add_request_header(mock_request_information):
+    """Test the final request header after try_add
+    """
+    assert mock_request_information.try_add_request_header("header1", "value1") == True
+    assert mock_request_information.try_add_request_header("header1", "value2") == False
+    assert "value1" in mock_request_information.request_headers["header1"]
 
 def test_remove_request_headers(mock_request_information):
     """Tests removing a request header
@@ -103,4 +109,4 @@ def test_set_stream_content(mock_request_information):
     """
     mock_request_information.set_stream_content(b'stream')
     assert mock_request_information.content == b'stream'
-    assert mock_request_information.headers["Content-Type"] == {"application/octet-stream"}
+    assert mock_request_information.headers["content-type"] == {"application/octet-stream"}
