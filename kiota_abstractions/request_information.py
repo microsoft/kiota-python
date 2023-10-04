@@ -126,8 +126,7 @@ class RequestInformation:
             else:
                 self.headers[lowercase_key] = {str(value)}
                 return True
-        else:
-            return False
+        return False
 
     def remove_request_headers(self, key: str) -> None:
         """Removes a request header from the current request
