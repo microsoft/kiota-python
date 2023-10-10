@@ -117,6 +117,16 @@ class RequestInformation:
                     else:
                         self.headers[lowercase_key] = {str(value)}
 
+    def try_add_request_header(self, key: str, value: str) -> bool:
+        """Try to add an header to the request if it's not already set"""
+        if key and value:
+            lowercase_key = key.lower()
+            if lowercase_key in self.headers:
+                return False
+            self.headers[lowercase_key] = {str(value)}
+            return True
+        return False
+
     def remove_request_headers(self, key: str) -> None:
         """Removes a request header from the current request
 
@@ -223,7 +233,7 @@ class RequestInformation:
         Args:
             value (BytesIO): the binary stream
         """
-        self.headers[self.CONTENT_TYPE_HEADER] = {self.BINARY_CONTENT_TYPE}
+        self.try_add_request_header(self.CONTENT_TYPE_HEADER, self.BINARY_CONTENT_TYPE)
         self.content = value
 
     def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParams]) -> None:
@@ -273,7 +283,7 @@ class RequestInformation:
         self, writer: SerializationWriter, content_type: Optional[str]
     ):
         if content_type:
-            self.headers[self.CONTENT_TYPE_HEADER] = {content_type}
+            self.try_add_request_header(self.CONTENT_TYPE_HEADER, content_type)
         self.content = writer.get_serialized_content()
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
