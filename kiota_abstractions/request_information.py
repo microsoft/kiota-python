@@ -9,8 +9,8 @@ from opentelemetry import trace
 from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
+from .headers_collection import HeadersCollection
 from .method import Method
-from .request_headers import RequestHeaders
 from .request_option import RequestOption
 from .serialization import Parsable, SerializationWriter
 
@@ -55,7 +55,7 @@ class RequestInformation:
         self.query_parameters: Dict[str, QueryParams] = {}
 
         # The Request Headers
-        self.headers: RequestHeaders = RequestHeaders()
+        self.headers: HeadersCollection = HeadersCollection()
 
         # The Request Body
         self.content: Optional[BytesIO] = None
@@ -99,22 +99,6 @@ class RequestInformation:
         for key, values in self.headers.get_all().items():
             final[key] = ', '.join(values)
         return final
-
-    def add_request_headers(self, headers_to_add: RequestHeaders) -> None:
-        """Vanity method to adds headers to the request"""
-        if not headers_to_add:
-            return
-        self.headers.add_all(headers_to_add)
-
-    def remove_request_headers(self, key: str) -> None:
-        """Vanity method to remove a request header from the current request
-
-        Args:
-            key (str): The key of the header to remove
-        """
-        if not key:
-            return
-        self.headers.remove(key)
 
     @property
     def request_options(self) -> Dict[str, RequestOption]:
