@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Any, Dict, List
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
+from kiota_abstractions.request_headers import RequestHeaders
 from kiota_abstractions.request_information import RequestInformation
 
 from .allowed_hosts_validator import AllowedHostsValidator
@@ -74,4 +75,4 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
             url_parts[4] = urlencode(query)
             request.url = urlunparse(url_parts)
         elif self.key_location == KeyLocation.Header:
-            request.add_request_headers({self.parameter_name: self.api_key})
+            request.headers.add(self.parameter_name, self.api_key)

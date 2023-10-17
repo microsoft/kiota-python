@@ -10,6 +10,7 @@ from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
 from .method import Method
+from .request_headers import RequestHeaders
 from .request_option import RequestOption
 from .serialization import Parsable, SerializationWriter
 
@@ -54,7 +55,7 @@ class RequestInformation:
         self.query_parameters: Dict[str, QueryParams] = {}
 
         # The Request Headers
-        self.headers: Dict[str, Set[str]] = {}  # Use set to remove duplicates
+        self.headers: RequestHeaders = RequestHeaders()
 
         # The Request Body
         self.content: Optional[BytesIO] = None
@@ -95,46 +96,25 @@ class RequestInformation:
     @property
     def request_headers(self) -> Optional[Dict]:
         final = {}
-        for key, value in self.headers.items():
-            final[key] = ", ".join(value)
+        for key, values in self.headers.get_all().items():
+            final[key] = ', '.join(values)
         return final
 
-    def add_request_headers(
-        self, headers_to_add: Optional[Dict[str, Union[str, List[str]]]]
-    ) -> None:
-        """Adds headers to the request"""
-        if headers_to_add:
-            for key, value in headers_to_add.items():
-                lowercase_key = key.lower()
-                if lowercase_key in self.headers:
-                    if isinstance(value, list):
-                        self.headers[lowercase_key] = self.headers[lowercase_key].union(set(value))
-                    else:
-                        self.headers[lowercase_key].add(str(value))
-                else:
-                    if isinstance(value, list):
-                        self.headers[lowercase_key] = set(value)
-                    else:
-                        self.headers[lowercase_key] = {str(value)}
-
-    def try_add_request_header(self, key: str, value: str) -> bool:
-        """Try to add an header to the request if it's not already set"""
-        if key and value:
-            lowercase_key = key.lower()
-            if lowercase_key in self.headers:
-                return False
-            self.headers[lowercase_key] = {str(value)}
-            return True
-        return False
+    def add_request_headers(self, headers_to_add: RequestHeaders) -> None:
+        """Vanity method to adds headers to the request"""
+        if not headers_to_add:
+            return
+        self.headers.add_all(headers_to_add)
 
     def remove_request_headers(self, key: str) -> None:
-        """Removes a request header from the current request
+        """Vanity method to remove a request header from the current request
 
         Args:
             key (str): The key of the header to remove
         """
-        if key and key.lower() in self.headers:
-            del self.headers[key.lower()]
+        if not key:
+            return
+        self.headers.remove(key)
 
     @property
     def request_options(self) -> Dict[str, RequestOption]:
@@ -233,7 +213,7 @@ class RequestInformation:
         Args:
             value (BytesIO): the binary stream
         """
-        self.try_add_request_header(self.CONTENT_TYPE_HEADER, self.BINARY_CONTENT_TYPE)
+        self.headers.try_add(self.CONTENT_TYPE_HEADER, self.BINARY_CONTENT_TYPE)
         self.content = value
 
     def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParams]) -> None:
@@ -283,7 +263,7 @@ class RequestInformation:
         self, writer: SerializationWriter, content_type: Optional[str]
     ):
         if content_type:
-            self.try_add_request_header(self.CONTENT_TYPE_HEADER, content_type)
+            self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = writer.get_serialized_content()
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
