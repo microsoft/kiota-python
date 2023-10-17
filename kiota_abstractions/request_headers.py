@@ -143,9 +143,10 @@ class RequestHeaders():
         values = self.try_get(header_name)
         if values:
             values.remove(header_value)  #type: ignore
-            if not values:
-                return self.remove(header_name)
-            return values
+            if bool(values):
+                return values
+            return self.remove(header_name)
+            
         return False
 
     def remove(self, header_name: str) -> Union[bool, Set[str]]:
