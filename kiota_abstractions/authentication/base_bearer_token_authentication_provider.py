@@ -6,7 +6,7 @@
 
 from typing import Any, Dict
 
-from ..request_headers import RequestHeaders
+from ..headers_collection import HeadersCollection
 from ..request_information import RequestInformation
 from .access_token_provider import AccessTokenProvider
 from .authentication_provider import AuthenticationProvider
@@ -44,7 +44,7 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
             request.headers.remove(self.AUTHORIZATION_HEADER)
 
         if not request.request_headers:
-            request.headers = RequestHeaders()
+            request.headers = HeadersCollection()
 
         if not request.headers.contains(self.AUTHORIZATION_HEADER):
             token = await self.access_token_provider.get_authorization_token(

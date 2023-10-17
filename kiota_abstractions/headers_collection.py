@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Dict, List, Set, Union
 
 
-class RequestHeaders():
-    "Represents a collection of request headers"
+class HeadersCollection():
+    "Represents a collection of request/response headers"
 
     def __init__(self) -> None:
         self._headers: Dict[str, Set[str]] = {}
@@ -74,7 +74,7 @@ class RequestHeaders():
             return True
         return False
 
-    def add_all(self, headers: RequestHeaders) -> None:
+    def add_all(self, headers: HeadersCollection) -> None:
         """Adds the specified headers to the collection.
 
         Args:
