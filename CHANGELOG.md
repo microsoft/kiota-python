@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a content type parameter to the set stream content method in request information.
 
 ### Changed
-- Added dedicated RequestHandler class to manage request headers.
+- Added dedicated HeadersCollection class to manage request headers.
 
 ## [0.8.7] - 2023-10-05
 
