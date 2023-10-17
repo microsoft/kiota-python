@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.0] - 2023-10-10
 
 ### Added
+- Added a content type parameter to the set stream content method in request information.
 
 ### Changed
 - Added dedicated RequestHandler class to manage request headers.
