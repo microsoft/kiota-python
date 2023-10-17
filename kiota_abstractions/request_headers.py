@@ -146,7 +146,7 @@ class RequestHeaders():
             if bool(values):
                 return values
             return self.remove(header_name)
-            
+
         return False
 
     def remove(self, header_name: str) -> Union[bool, Set[str]]:
