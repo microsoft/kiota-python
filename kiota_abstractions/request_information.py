@@ -207,13 +207,15 @@ class RequestInformation:
                 writer_func(None, values)
             self._set_content_and_content_type_header(writer, content_type)
 
-    def set_stream_content(self, value: BytesIO) -> None:
+    def set_stream_content(self, value: BytesIO, content_type: Optional[str] = None) -> None:
         """Sets the request body to be a binary stream.
 
         Args:
             value (BytesIO): the binary stream
         """
-        self.headers.try_add(self.CONTENT_TYPE_HEADER, self.BINARY_CONTENT_TYPE)
+        if not content_type:
+            content_type = self.BINARY_CONTENT_TYPE
+        self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = value
 
     def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParams]) -> None:
