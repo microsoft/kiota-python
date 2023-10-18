@@ -22,5 +22,5 @@ async def test_authenticate_request(mock_request_information, mock_access_token_
     await auth.authenticate_request(mock_request_information)
 
     assert mock_request_information
-    assert mock_request_information.headers == {'authorization': {'Bearer SomeToken'}}
+    assert mock_request_information.headers.get_all() == {'authorization': {'Bearer SomeToken'}}
     assert mock_request_information.request_headers == {'authorization': 'Bearer SomeToken'}

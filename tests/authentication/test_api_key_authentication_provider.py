@@ -61,5 +61,5 @@ async def test_header_location_authentication(mock_request_information):
         allowed_hosts,
     )
     await provider.authenticate_request(mock_request_information)
-    assert "api_key" in mock_request_information.headers
-    assert mock_request_information.headers["api_key"] == {"test_key_string"}
+    assert "api_key" in mock_request_information.request_headers
+    assert mock_request_information.headers.get("api_key") == {"test_key_string"}

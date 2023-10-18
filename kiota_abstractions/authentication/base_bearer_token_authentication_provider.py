@@ -6,6 +6,7 @@
 
 from typing import Any, Dict
 
+from ..headers_collection import HeadersCollection
 from ..request_information import RequestInformation
 from .access_token_provider import AccessTokenProvider
 from .authentication_provider import AuthenticationProvider
@@ -36,17 +37,18 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
         if all(
             [
                 additional_authentication_context, self.CLAIMS_KEY
-                in additional_authentication_context, self.AUTHORIZATION_HEADER in request.headers
+                in additional_authentication_context,
+                request.headers.contains(self.AUTHORIZATION_HEADER)
             ]
         ):
-            del request.headers[self.AUTHORIZATION_HEADER]
+            request.headers.remove(self.AUTHORIZATION_HEADER)
 
         if not request.request_headers:
-            request.headers = {}
+            request.headers = HeadersCollection()
 
-        if not self.AUTHORIZATION_HEADER in request.headers:
+        if not request.headers.contains(self.AUTHORIZATION_HEADER):
             token = await self.access_token_provider.get_authorization_token(
                 request.url, additional_authentication_context
             )
             if token:
-                request.add_request_headers({f'{self.AUTHORIZATION_HEADER}': f'Bearer {token}'})
+                request.headers.add(f'{self.AUTHORIZATION_HEADER}', f'Bearer {token}')

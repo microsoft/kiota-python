@@ -1,6 +1,7 @@
 import pytest
 
 from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.headers_collection import HeadersCollection
 
 
 def test_initialization():
@@ -10,68 +11,45 @@ def test_initialization():
     assert request_info
     assert not request_info.path_parameters
     assert not request_info.query_parameters
-    assert not request_info.headers
     assert not request_info.request_options
     assert not request_info.url_template
     assert not request_info.http_method
     assert not request_info.content
+    assert request_info.headers
     assert request_info.RAW_URL_KEY == 'request-raw-url'
     assert request_info.BINARY_CONTENT_TYPE == 'application/octet-stream'
     assert request_info.CONTENT_TYPE_HEADER == 'Content-Type'
 
 
-def test_add_request_headers_null(mock_request_information):
-    """Tests adding a null request header
-    """
-    mock_request_information.add_request_headers(None)
-    assert mock_request_information.headers == {}
-
-
-def test_add_request_headers_value_string(mock_request_information):
+def test_add_request_headers(mock_request_information):
     """Tests adding a request header with a string value
     """
-    mock_request_information.add_request_headers({"header1": "value1"})
-    mock_request_information.add_request_headers({"header2": "value2"})
-    assert {"value1"} <= mock_request_information.headers["header1"]
-    assert {"value2"} <= mock_request_information.headers["header2"]
-    mock_request_information.add_request_headers({"header1": "value3"})
-    assert {"value1", "value3"} <= mock_request_information.headers["header1"]
-
-
-def test_add_request_headers_value_list(mock_request_information):
-    """Tests adding a request header with a list value
-    """
-    mock_request_information.add_request_headers({"header1": ["value1", "value2"]})
-    mock_request_information.add_request_headers({"header2": ["value3", "value4"]})
-    assert {"value1", "value2"} <= mock_request_information.headers["header1"]
-    assert {"value3", "value4"} <= mock_request_information.headers["header2"]
-    mock_request_information.add_request_headers({"header1": ["value5", "value6"]})
-    assert {"value1", "value2", "value5", "value6"} <= mock_request_information.headers["header1"]
-
-
-def test_add_request_headers_value_normalizes_cases(mock_request_information):
-    """Tests adding a request header normalizes the casing of the header name
-    """
-    mock_request_information.add_request_headers({"heaDER1": "value1"})
-    mock_request_information.add_request_headers({"HEAder2": "value2"})
-    assert {"value1"} <= mock_request_information.headers["header1"]
-    assert {"value2"} <= mock_request_information.headers["header2"]
-    mock_request_information.add_request_headers({"HEADER1": "value3"})
-    assert {"value1", "value3"} <= mock_request_information.headers["header1"]
+    headers = HeadersCollection()
+    headers.add("header1", "value1")
+    headers.add("header2", "value2")
+    mock_request_information.headers.add_all(headers)
+    assert {"value1"} <= mock_request_information.headers.get("header1")
+    assert {"value2"} <= mock_request_information.headers.get("header2")
+    header2 = HeadersCollection()
+    header2.add("header1", "value3")
+    mock_request_information.headers.add_all(header2)
+    assert {"value1", "value3"} <= mock_request_information.headers.get("header1")
 
 
 def test_request_headers(mock_request_information):
     """Test the final request headers
     """
-    mock_request_information.add_request_headers({"header1": ["value1", "value2"]})
-    mock_request_information.add_request_headers({"header2": ["value3", "value4"]})
+    headers = HeadersCollection()
+    headers.add("header1", ["value1", "value2"])
+    headers.add("header2", ["value3", "value4"])
+    mock_request_information.headers.add_all(headers)
     assert "value1" in mock_request_information.request_headers["header1"]
     assert "value2" in mock_request_information.request_headers["header1"]
     assert "value3" in mock_request_information.request_headers["header2"]
     assert "value4" in mock_request_information.request_headers["header2"]
-    mock_request_information.add_request_headers(
-        {"header1": ["value1", "value2", "value5", "value6"]}
-    )
+    headers2 = HeadersCollection()
+    headers2.add("header1", ["value1", "value2", "value5", "value6"])
+    mock_request_information.headers.add_all(headers2)
     assert "value5" in mock_request_information.request_headers["header1"]
     assert "value6" in mock_request_information.request_headers["header1"]
 
@@ -84,24 +62,19 @@ def test_request_headers(mock_request_information):
     assert "value3" in mock_request_information.request_headers["header2"]
     assert "value4" in mock_request_information.request_headers["header2"]
 
-def test__try_add_request_header(mock_request_information):
-    """Test the final request header after try_add
-    """
-    assert mock_request_information.try_add_request_header("header1", "value1") == True
-    assert mock_request_information.try_add_request_header("header1", "value2") == False
-    assert "value1" in mock_request_information.request_headers["header1"]
-
 def test_remove_request_headers(mock_request_information):
     """Tests removing a request header
     """
-    mock_request_information.add_request_headers({"header1": "value1"})
-    mock_request_information.add_request_headers({"header2": "value2"})
-    assert mock_request_information.headers["header1"] == {"value1"}
-    assert mock_request_information.headers["header2"] == {"value2"}
-    mock_request_information.remove_request_headers("header1")
-    mock_request_information.remove_request_headers("header3")
-    assert 'header1' not in mock_request_information.headers
-    assert mock_request_information.headers["header2"] == {"value2"}
+    headers = HeadersCollection()
+    headers.add("header1", "value1")
+    headers.add("header2", "value2")
+    mock_request_information.headers.add_all(headers)
+    assert mock_request_information.headers.get("header1") == {"value1"}
+    assert mock_request_information.headers.get("header2") == {"value2"}
+    mock_request_information.headers.remove("header1")
+    mock_request_information.headers.remove("header3")
+    assert 'header1' not in mock_request_information.request_headers
+    assert mock_request_information.headers.try_get("header2") == {"value2"}
 
 
 def test_set_stream_content(mock_request_information):
@@ -109,4 +82,4 @@ def test_set_stream_content(mock_request_information):
     """
     mock_request_information.set_stream_content(b'stream')
     assert mock_request_information.content == b'stream'
-    assert mock_request_information.headers["content-type"] == {"application/octet-stream"}
+    assert mock_request_information.headers.get("content-type") == {"application/octet-stream"}
