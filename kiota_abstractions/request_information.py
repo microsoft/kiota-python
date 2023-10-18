@@ -227,7 +227,7 @@ class RequestInformation:
                 writer_func(None, values)
             self._set_content_and_content_type_header(writer, content_type)
 
-    def set_stream_content(self, value: BytesIO, content_type: Optional[str]) -> None:
+    def set_stream_content(self, value: BytesIO, content_type: str = None) -> None:
         """Sets the request body to be a binary stream.
 
         Args:
