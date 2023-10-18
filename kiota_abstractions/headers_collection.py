@@ -5,12 +5,10 @@ from typing import Dict, List, Set, Union
 
 class HeadersCollection():
     "Represents a collection of request/response headers"
+    SINGLE_VALUE_HEADERS: Set[str] = {"content-type", "content-encoding", "content-length"}
 
     def __init__(self) -> None:
         self._headers: Dict[str, Set[str]] = {}
-        self._single_value_headers: Set[str] = {
-            "content-type", "content-encoding", "content-length"
-        }
 
     def try_get(self, key: str) -> Union[bool, Set[str]]:
         """Gets the header values corresponding to a specific header name.
@@ -101,7 +99,7 @@ class HeadersCollection():
             return
         header_name = header_name.lower()
         if isinstance(header_values, list):
-            if header_name in self._single_value_headers:
+            if header_name in self.SINGLE_VALUE_HEADERS:
                 self._headers[header_name] = {header_values[0]}
             elif values := self.try_get(header_name):
                 for header_value in header_values:
