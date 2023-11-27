@@ -16,7 +16,7 @@ flit==3.9.0
 
 flit-core==3.9.0 ; python_version >= '3.6'
 
-idna==3.4 ; python_version >= '3.5'
+idna==3.6 ; python_version >= '3.5'
 
 iniconfig==2.0.0 ; python_version >= '3.7'
 
