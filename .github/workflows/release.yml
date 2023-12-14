@@ -1,0 +1,32 @@
+name: Create a draft release
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  autorelease:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Release Notes
+        run: |
+          git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n' --no-merges >> ".github/release_template.md"
+      - name: Create Release Draft
+        uses: softprops/action-gh-release@v1
+        if: github.repository == 'microsoft/kiota-abstractions-python' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        with:
+          body_path: ".github/release_template.md"
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

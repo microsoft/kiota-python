@@ -1,0 +1,32 @@
+name: Publish package to PyPI
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  publish:
+    name: Publish distribution to PyPI
+    runs-on: ubuntu-latest
+    environment: pypi_prod
+    needs: [build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - name: Install flit
+        run: |
+          pip install flit
+      - name: Publish the distibution to PyPI
+        run: flit publish
+        env:
+          FLIT_INDEX_URL: https://upload.pypi.org/legacy/
+          FLIT_USERNAME: __token__
+          FLIT_PASSWORD: ${{ secrets. PYPI_API_TOKEN }}
