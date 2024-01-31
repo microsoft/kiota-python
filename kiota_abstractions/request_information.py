@@ -12,8 +12,8 @@ from ._version import VERSION
 from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
 from .method import Method
-from .request_option import RequestOption
 from .request_configuration import RequestConfiguration
+from .request_option import RequestOption
 from .serialization import Parsable, SerializationWriter
 
 if TYPE_CHECKING:
@@ -33,13 +33,19 @@ class RequestInformation:
     CONTENT_TYPE_HEADER = "Content-Type"
     REQUEST_TYPE_KEY = "com.microsoft.kiota.request.type"
 
-    def __init__(self, method: Method = None, url_template: str = None, path_parameters: Dict[str, Any] = {}) -> None:
+    def __init__(
+        self,
+        method: Method,
+        url_template: str,
+        path_parameters: Dict[str, Any] = {}
+    ) -> None:
         """Creates a new instance of the RequestInformation class.
 
         Args:
-            method (Method, optional): The request method. Defaults to None.
-            url_template (str, optional): The given url template. Defaults to None.
-            path_parameters (Dict[str, Any], optional): Path parameters for the request. Defaults to {}.
+            method (Method): The request method.
+            url_template (str): The given url template.
+            path_parameters (Dict[str, Any], optional): Path parameters
+            for the request. Defaults to {}.
         """
         # The uri of the request
         self.__uri: Optional[Url] = None
@@ -64,7 +70,6 @@ class RequestInformation:
         # The Request Body
         self.content: Optional[BytesIO] = None
 
-    
     def configure(self, request_configuration: RequestConfiguration) -> None:
         """Configures the current request information headers, query parameters, and options
         based on the request configuration provided
@@ -77,7 +82,7 @@ class RequestInformation:
             self.headers.add_all(request_configuration.headers)
             self.add_request_options(request_configuration.options)
             self.set_query_string_parameters_from_raw_object(request_configuration.query_parameters)
-    
+
     @property
     def url(self) -> Url:
         """Gets the URL of the request"""
@@ -123,7 +128,7 @@ class RequestInformation:
         """Gets the request options for the request."""
         return self.__request_options
 
-    def add_request_options(self, options: List[RequestOption]) -> None:
+    def add_request_options(self, options: Optional[List[RequestOption]]) -> None:
         if not options:
             return
         for option in options:

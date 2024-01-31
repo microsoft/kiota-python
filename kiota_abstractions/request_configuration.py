@@ -21,5 +21,5 @@ class RequestConfiguration:
 
     # Request options
     options: Optional[List[RequestOption]] = None
-    
-    query_parameters: QueryParameters = None
+
+    query_parameters: Optional[QueryParameters] = None
