@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class GetQueryParameters:
+class QueryParameters:
     """
     Default placeholder class for query parameters.
     """

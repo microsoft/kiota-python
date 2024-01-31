@@ -4,14 +4,15 @@
 # See License in the project root for license information.
 # ------------------------------------
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
+from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
 from .request_option import RequestOption
 
 
 @dataclass
-class BaseRequestConfiguration:
+class RequestConfiguration:
     """
     Configuration for the request such as headers, query parameters, and middleware options.
     """
@@ -20,3 +21,5 @@ class BaseRequestConfiguration:
 
     # Request options
     options: Optional[List[RequestOption]] = None
+    
+    query_parameters: QueryParameters = None

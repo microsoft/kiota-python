@@ -9,9 +9,11 @@ from opentelemetry import trace
 from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
+from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
 from .method import Method
 from .request_option import RequestOption
+from .request_configuration import RequestConfiguration
 from .serialization import Parsable, SerializationWriter
 
 if TYPE_CHECKING:
@@ -23,11 +25,6 @@ OBSERVABILITY_TRACER_NAME = "microsoft-python-kiota-abstractions"
 tracer = trace.get_tracer(OBSERVABILITY_TRACER_NAME, VERSION)
 
 
-@dataclass
-class QueryParams:
-    pass
-
-
 class RequestInformation:
     """This class represents an abstract HTTP request"""
 
@@ -36,23 +33,30 @@ class RequestInformation:
     CONTENT_TYPE_HEADER = "Content-Type"
     REQUEST_TYPE_KEY = "com.microsoft.kiota.request.type"
 
-    def __init__(self) -> None:
+    def __init__(self, method: Method = None, url_template: str = None, path_parameters: Dict[str, Any] = {}) -> None:
+        """Creates a new instance of the RequestInformation class.
+
+        Args:
+            method (Method, optional): The request method. Defaults to None.
+            url_template (str, optional): The given url template. Defaults to None.
+            path_parameters (Dict[str, Any], optional): Path parameters for the request. Defaults to {}.
+        """
         # The uri of the request
         self.__uri: Optional[Url] = None
 
         self.__request_options: Dict[str, RequestOption] = {}
 
         # The path parameters for the current request
-        self.path_parameters: Dict[str, Any] = {}
+        self.path_parameters: Dict[str, Any] = path_parameters
 
         # The URL template for the request
-        self.url_template: Optional[str] = None
+        self.url_template: Optional[str] = url_template
 
         # The HTTP Method for the request
-        self.http_method: Optional[Method] = None
+        self.http_method: Optional[Method] = method
 
         # The query parameters for the request
-        self.query_parameters: Dict[str, QueryParams] = {}
+        self.query_parameters: Dict[str, Any] = {}
 
         # The Request Headers
         self.headers: HeadersCollection = HeadersCollection()
@@ -60,6 +64,20 @@ class RequestInformation:
         # The Request Body
         self.content: Optional[BytesIO] = None
 
+    
+    def configure(self, request_configuration: RequestConfiguration) -> None:
+        """Configures the current request information headers, query parameters, and options
+        based on the request configuration provided
+
+        Args:
+            request_configuration (RequestConfiguration): Configuration instance to
+            configure the request information.
+        """
+        if request_configuration:
+            self.headers.add_all(request_configuration.headers)
+            self.add_request_options(request_configuration.options)
+            self.set_query_string_parameters_from_raw_object(request_configuration.query_parameters)
+    
     @property
     def url(self) -> Url:
         """Gets the URL of the request"""
@@ -202,7 +220,7 @@ class RequestInformation:
         self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = value
 
-    def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParams]) -> None:
+    def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParameters]) -> None:
         if q:
             for field in fields(q):
                 key = field.name
