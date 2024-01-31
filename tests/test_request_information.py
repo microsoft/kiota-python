@@ -11,7 +11,7 @@ from kiota_abstractions.default_query_parameters import QueryParameters
 def test_initialization():
     """Tests initialization of the RequestInformation objects
     """
-    request_info = RequestInformation()
+    request_info = RequestInformation(None, None)
     assert request_info
     assert not request_info.path_parameters
     assert not request_info.query_parameters

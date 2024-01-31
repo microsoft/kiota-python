@@ -117,7 +117,7 @@ def mock_user():
 
 @pytest.fixture
 def mock_request_information():
-    request_info = RequestInformation()
+    request_info = RequestInformation(None, None)
     request_info.url = "https://example.com"
     return request_info
 
