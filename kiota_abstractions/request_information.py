@@ -34,10 +34,7 @@ class RequestInformation:
     REQUEST_TYPE_KEY = "com.microsoft.kiota.request.type"
 
     def __init__(
-        self,
-        method: Method,
-        url_template: str,
-        path_parameters: Dict[str, Any] = {}
+        self, method: Method, url_template: str, path_parameters: Dict[str, Any] = {}
     ) -> None:
         """Creates a new instance of the RequestInformation class.
 
