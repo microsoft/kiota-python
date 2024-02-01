@@ -10,7 +10,7 @@ from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
 from .base_request_configuration import BaseRequestConfiguration
-from .default_query_parameters import GetQueryParameters
+from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
 from .method import Method
 from .request_option import RequestOption
@@ -225,7 +225,7 @@ class RequestInformation:
         self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = value
 
-    def set_query_string_parameters_from_raw_object(self, q: Optional[GetQueryParameters]) -> None:
+    def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParameters]) -> None:
         if q:
             for field in fields(q):
                 key = field.name

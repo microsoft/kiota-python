@@ -5,7 +5,7 @@ from typing import Optional
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.base_request_configuration import BaseRequestConfiguration
-from kiota_abstractions.default_query_parameters import GetQueryParameters
+from kiota_abstractions.default_query_parameters import QueryParameters
 
 
 def test_initialization():
@@ -102,7 +102,7 @@ def test_configure_request_configuration(mock_request_information):
     """
     
     @dataclass
-    class CustomParams(GetQueryParameters):
+    class CustomParams(QueryParameters):
         query1: Optional[str] = None
         
         def get_query_parameter(self,original_name: Optional[str] = None) -> str:

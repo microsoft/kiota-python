@@ -6,7 +6,7 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from .default_query_parameters import GetQueryParameters
+from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
 from .request_option import RequestOption
 
@@ -22,4 +22,4 @@ class BaseRequestConfiguration:
     # Request options
     options: Optional[List[RequestOption]] = None
 
-    query_parameters: Optional[GetQueryParameters] = None
+    query_parameters: Optional[QueryParameters] = None
