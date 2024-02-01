@@ -4,14 +4,14 @@ from typing import Optional
 
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_abstractions.request_configuration import RequestConfiguration
-from kiota_abstractions.default_query_parameters import QueryParameters
+from kiota_abstractions.request_configuration import BaseRequestConfiguration
+from kiota_abstractions.default_query_parameters import GetQueryParameters
 
 
 def test_initialization():
     """Tests initialization of the RequestInformation objects
     """
-    request_info = RequestInformation(None, None)
+    request_info = RequestInformation()
     assert request_info
     assert not request_info.path_parameters
     assert not request_info.query_parameters
@@ -91,7 +91,7 @@ def test_set_stream_content(mock_request_information):
 def test_configure_empty_configuration(mock_request_information):
     """Tests configuring the request information
     """
-    request_config = RequestConfiguration()
+    request_config = BaseRequestConfiguration()
     mock_request_information.configure(request_config)
     assert not mock_request_information.headers.get_all()
     assert not mock_request_information.request_options
@@ -102,7 +102,7 @@ def test_configure_request_configuration(mock_request_information):
     """
     
     @dataclass
-    class CustomParams(QueryParameters):
+    class CustomParams(GetQueryParameters):
         query1: Optional[str] = None
         
         def get_query_parameter(self,original_name: Optional[str] = None) -> str:
@@ -122,7 +122,7 @@ def test_configure_request_configuration(mock_request_information):
     headers.add("header1", "value1")
     headers.add("header2", "value2")
     
-    request_config = RequestConfiguration(headers=headers, query_parameters=query_params)
+    request_config = BaseRequestConfiguration(headers=headers, query_parameters=query_params)
     
     
     mock_request_information.configure(request_config)

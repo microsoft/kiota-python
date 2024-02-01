@@ -9,10 +9,10 @@ from opentelemetry import trace
 from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
-from .default_query_parameters import QueryParameters
+from .default_query_parameters import GetQueryParameters
 from .headers_collection import HeadersCollection
 from .method import Method
-from .request_configuration import RequestConfiguration
+from .request_configuration import BaseRequestConfiguration
 from .request_option import RequestOption
 from .serialization import Parsable, SerializationWriter
 
@@ -34,7 +34,10 @@ class RequestInformation:
     REQUEST_TYPE_KEY = "com.microsoft.kiota.request.type"
 
     def __init__(
-        self, method: Method, url_template: str, path_parameters: Dict[str, Any] = {}
+        self,
+        method: Optional[Method] = None,
+        url_template: Optional[str] = None,
+        path_parameters: Dict[str, Any] = {}
     ) -> None:
         """Creates a new instance of the RequestInformation class.
 
@@ -67,7 +70,7 @@ class RequestInformation:
         # The Request Body
         self.content: Optional[BytesIO] = None
 
-    def configure(self, request_configuration: RequestConfiguration) -> None:
+    def configure(self, request_configuration: BaseRequestConfiguration) -> None:
         """Configures the current request information headers, query parameters, and options
         based on the request configuration provided
 
@@ -222,7 +225,7 @@ class RequestInformation:
         self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = value
 
-    def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParameters]) -> None:
+    def set_query_string_parameters_from_raw_object(self, q: Optional[GetQueryParameters]) -> None:
         if q:
             for field in fields(q):
                 key = field.name
