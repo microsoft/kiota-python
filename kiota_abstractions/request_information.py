@@ -9,10 +9,10 @@ from opentelemetry import trace
 from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
+from .base_request_configuration import BaseRequestConfiguration
 from .default_query_parameters import GetQueryParameters
 from .headers_collection import HeadersCollection
 from .method import Method
-from .request_configuration import BaseRequestConfiguration
 from .request_option import RequestOption
 from .serialization import Parsable, SerializationWriter
 
