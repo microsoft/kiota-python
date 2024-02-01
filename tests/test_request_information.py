@@ -4,7 +4,7 @@ from typing import Optional
 
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_abstractions.request_configuration import BaseRequestConfiguration
+from kiota_abstractions.base_request_configuration import BaseRequestConfiguration
 from kiota_abstractions.default_query_parameters import GetQueryParameters
 
 
