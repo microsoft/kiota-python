@@ -9,7 +9,7 @@ from opentelemetry import trace
 from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
-from .base_request_configuration import BaseRequestConfiguration
+from .base_request_configuration import RequestConfiguration
 from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
 from .method import Method
@@ -70,7 +70,7 @@ class RequestInformation:
         # The Request Body
         self.content: Optional[BytesIO] = None
 
-    def configure(self, request_configuration: BaseRequestConfiguration) -> None:
+    def configure(self, request_configuration: RequestConfiguration) -> None:
         """Configures the current request information headers, query parameters, and options
         based on the request configuration provided
 
