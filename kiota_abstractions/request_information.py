@@ -10,7 +10,6 @@ from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
 from .base_request_configuration import RequestConfiguration
-from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
 from .method import Method
 from .request_option import RequestOption
@@ -21,6 +20,7 @@ if TYPE_CHECKING:
 
 Url = str
 T = TypeVar("T", bound=Parsable)
+QueryParameters = TypeVar('QueryParameters')
 OBSERVABILITY_TRACER_NAME = "microsoft-python-kiota-abstractions"
 tracer = trace.get_tracer(OBSERVABILITY_TRACER_NAME, VERSION)
 
@@ -227,7 +227,7 @@ class RequestInformation:
 
     def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParameters]) -> None:
         if q:
-            for field in fields(q):
+            for field in fields(q):  # type: ignore
                 key = field.name
                 if hasattr(q, "get_query_parameter"):
                     serialization_key = q.get_query_parameter(key)  # type: ignore

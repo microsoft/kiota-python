@@ -4,25 +4,25 @@
 # See License in the project root for license information.
 # ------------------------------------
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Generic, List, Optional, TypeVar
 from warnings import warn
 
-from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
 from .request_option import RequestOption
 
+QueryParameters = TypeVar('QueryParameters')
+
 
 @dataclass
-class RequestConfiguration:
+class RequestConfiguration(Generic[QueryParameters]):
     """
     Configuration for the request such as headers, query parameters, and middleware options.
     """
     # Request headers
     headers: HeadersCollection = HeadersCollection()
-
     # Request options
     options: Optional[List[RequestOption]] = None
-
+    # Request query parameters
     query_parameters: Optional[QueryParameters] = None
 
 
