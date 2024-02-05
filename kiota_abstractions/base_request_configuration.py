@@ -27,7 +27,7 @@ class RequestConfiguration:
 
 
 @dataclass
-class BaseRequestConfiguration:
+class BaseRequestConfiguration(RequestConfiguration):
     warn(
         "BaseRequestConfiguration is deprecated. Use RequestConfiguration class instead.",
         DeprecationWarning
