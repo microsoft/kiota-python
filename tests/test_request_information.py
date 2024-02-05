@@ -128,7 +128,5 @@ def test_configure_request_configuration(mock_request_information):
     mock_request_information.configure(request_config)
     assert mock_request_information.headers.get("header1") == {"value1"}
     assert mock_request_information.headers.get("header2") == {"value2"}
-    key, value = "%24filter", "query1"
-    assert (key in mock_request_information.query_parameters
-            and mock_request_information.query_parameters[key] == value)
+    assert mock_request_information.query_parameters == {"%24filter": "query1"}
     assert not mock_request_information.request_options

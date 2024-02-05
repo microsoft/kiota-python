@@ -233,7 +233,9 @@ class RequestInformation:
                     serialization_key = q.get_query_parameter(key)  # type: ignore
                     if serialization_key:
                         key = serialization_key
-                self.query_parameters[key] = getattr(q, field.name)
+                value = getattr(q, field.name)
+                if value is not None:
+                    self.query_parameters[key] = value
 
     def _get_serialization_writer(
         self,
