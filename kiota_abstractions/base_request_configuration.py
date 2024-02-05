@@ -5,6 +5,7 @@
 # ------------------------------------
 from dataclasses import dataclass
 from typing import Dict, List, Optional
+from warnings import warn
 
 from .default_query_parameters import QueryParameters
 from .headers_collection import HeadersCollection
@@ -12,7 +13,7 @@ from .request_option import RequestOption
 
 
 @dataclass
-class BaseRequestConfiguration:
+class RequestConfiguration:
     """
     Configuration for the request such as headers, query parameters, and middleware options.
     """
@@ -23,3 +24,11 @@ class BaseRequestConfiguration:
     options: Optional[List[RequestOption]] = None
 
     query_parameters: Optional[QueryParameters] = None
+
+
+@dataclass
+class BaseRequestConfiguration:
+    warn(
+        "BaseRequestConfiguration is deprecated. Use RequestConfiguration class instead.",
+        DeprecationWarning
+    )
