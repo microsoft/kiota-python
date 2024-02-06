@@ -7,7 +7,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import pytest
 
@@ -104,6 +105,15 @@ class MockEntity(Parsable, AdditionalDataHolder, BackedModel):
         writer.write_object_value("manager", self.manager)
         writer.write_collection_of_object_values("colleagues", self.colleagues)
 
+
+class TestEnum(Enum):
+    VALUE1 = "value1"
+    VALUE2 = "value2"
+    VALUE3 = "value3"
+    
+@dataclass
+class QueryParams:
+    dataset: Union[TestEnum, List[TestEnum]]
 
 @pytest.fixture
 def mock_user():

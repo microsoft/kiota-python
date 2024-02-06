@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0] - 2024-01-31
 
 ### Added
-- Added methods in request information to reduce the amount of code being generated.
+- Added methods in request information to reduce the amount of code being generated. [microsoft/kiota#3695](https://github.com/microsoft/kiota/issues/3695)
+
+### Changed
+- Fixed an issue where path and query parameters of enum type would not be expanded properly. [microsoft/kiota#3783](https://github.com/microsoft/kiota/issues/3783)
 
 ## [1.1.0] - 2024-01-25
 

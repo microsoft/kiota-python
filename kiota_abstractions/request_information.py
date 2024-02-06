@@ -1,5 +1,6 @@
-from dataclasses import dataclass, fields
+from dataclasses import fields, is_dataclass
 from datetime import date, datetime, time, timedelta
+from enum import Enum
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, TypeVar, Union
 from urllib.parse import unquote
@@ -100,8 +101,10 @@ class RequestInformation:
 
         data: Dict[str, Any] = {}
         for key, val in self.query_parameters.items():
+            val = self._replace_enum_values_with_string_representation(val)
             data[key] = val
         for key, val in self.path_parameters.items():
+            val = self._replace_enum_values_with_string_representation(val)
             data[key] = val
 
         result = StdUriTemplate.expand(self.url_template, data)
@@ -227,15 +230,16 @@ class RequestInformation:
 
     def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParameters]) -> None:
         if q:
-            for field in fields(q):  # type: ignore
-                key = field.name
-                if hasattr(q, "get_query_parameter"):
-                    serialization_key = q.get_query_parameter(key)  # type: ignore
-                    if serialization_key:
-                        key = serialization_key
-                value = getattr(q, field.name)
-                if value is not None:
-                    self.query_parameters[key] = value
+            if is_dataclass(q):
+                for field in fields(q):
+                    key = field.name
+                    if hasattr(q, "get_query_parameter"):
+                        serialization_key = q.get_query_parameter(key)  # type: ignore
+                        if serialization_key:
+                            key = serialization_key
+                    value = getattr(q, field.name)
+                    if value is not None:
+                        self.query_parameters[key] = value
 
     def _get_serialization_writer(
         self,
@@ -276,6 +280,18 @@ class RequestInformation:
         if content_type:
             self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = writer.get_serialized_content()
+
+    def _replace_enum_values_with_string_representation(self, value: Any) -> Any:
+        """Replaces enum values with their string representation.
+
+        Args:
+            value (Any): The value to replace.
+        """
+        if isinstance(value, Enum):
+            return value.value
+        if isinstance(value, list) and all(isinstance(x, Enum) for x in value):
+            return ','.join([x.value for x in value])
+        return value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
         """Decodes a URI encoded string."""
