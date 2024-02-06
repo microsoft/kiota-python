@@ -5,6 +5,10 @@ from typing import Optional
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.base_request_configuration import RequestConfiguration
+from kiota_abstractions.method import Method
+
+from .conftest import TestEnum, QueryParams
+
 
 
 def test_initialization():
@@ -127,3 +131,36 @@ def test_configure_request_configuration(mock_request_information):
     assert mock_request_information.headers.get("header2") == {"value2"}
     assert mock_request_information.query_parameters == {"%24filter": "query1"}
     assert not mock_request_information.request_options
+    
+    
+def test_sets_enum_value_in_query_parameters():
+    """Tests setting enum values in query parameters
+    """
+    
+    request_info = RequestInformation(Method.GET, "https://example.com/me{?dataset}")
+    request_info.set_query_string_parameters_from_raw_object(QueryParams(TestEnum.VALUE1))
+    assert request_info.url == "https://example.com/me?dataset=value1"
+    
+def test_sets_enum_values_in_query_parameters():
+    """Tests setting enum values in query parameters
+    """
+    
+    request_info = RequestInformation(Method.GET, "https://example.com/me{?dataset}")
+    request_info.set_query_string_parameters_from_raw_object(QueryParams([TestEnum.VALUE1, TestEnum.VALUE2]))
+    assert request_info.url == "https://example.com/me?dataset=value1%2Cvalue2"
+    
+def test_sets_enum_value_in_path_parameters():
+    """Tests setting enum values in path parameters
+    """
+    request_info = RequestInformation(Method.GET, "https://example.com/{dataset}")
+    request_info.path_parameters["dataset"] = TestEnum.VALUE1
+    assert request_info.url == "https://example.com/value1"
+    
+def test_sets_enum_values_in_path_parameters():
+    """Tests setting enum values in path parameters
+    """
+    request_info = RequestInformation(Method.GET, "https://example.com/{dataset}")
+    request_info.path_parameters["dataset"] = [TestEnum.VALUE1, TestEnum.VALUE2]
+    assert request_info.url == "https://example.com/value1%2Cvalue2"
+
+    
