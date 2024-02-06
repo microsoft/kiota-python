@@ -1,4 +1,5 @@
 from .additional_data_holder import AdditionalDataHolder
+from .composed_type_wrapper import ComposedTypeWrapper
 from .parsable import Parsable
 from .parsable_factory import ParsableFactory
 from .parse_node import ParseNode

@@ -9,6 +9,7 @@ from opentelemetry import trace
 from stduritemplate import StdUriTemplate
 
 from ._version import VERSION
+from .base_request_configuration import RequestConfiguration
 from .headers_collection import HeadersCollection
 from .method import Method
 from .request_option import RequestOption
@@ -19,13 +20,9 @@ if TYPE_CHECKING:
 
 Url = str
 T = TypeVar("T", bound=Parsable)
+QueryParameters = TypeVar('QueryParameters')
 OBSERVABILITY_TRACER_NAME = "microsoft-python-kiota-abstractions"
 tracer = trace.get_tracer(OBSERVABILITY_TRACER_NAME, VERSION)
-
-
-@dataclass
-class QueryParams:
-    pass
 
 
 class RequestInformation:
@@ -36,29 +33,55 @@ class RequestInformation:
     CONTENT_TYPE_HEADER = "Content-Type"
     REQUEST_TYPE_KEY = "com.microsoft.kiota.request.type"
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        method: Optional[Method] = None,
+        url_template: Optional[str] = None,
+        path_parameters: Dict[str, Any] = {}
+    ) -> None:
+        """Creates a new instance of the RequestInformation class.
+
+        Args:
+            method (Method): The request method.
+            url_template (str): The given url template.
+            path_parameters (Dict[str, Any], optional): Path parameters
+            for the request. Defaults to {}.
+        """
         # The uri of the request
         self.__uri: Optional[Url] = None
 
         self.__request_options: Dict[str, RequestOption] = {}
 
         # The path parameters for the current request
-        self.path_parameters: Dict[str, Any] = {}
+        self.path_parameters: Dict[str, Any] = path_parameters
 
         # The URL template for the request
-        self.url_template: Optional[str] = None
+        self.url_template: Optional[str] = url_template
 
         # The HTTP Method for the request
-        self.http_method: Optional[Method] = None
+        self.http_method: Optional[Method] = method
 
         # The query parameters for the request
-        self.query_parameters: Dict[str, QueryParams] = {}
+        self.query_parameters: Dict[str, Any] = {}
 
         # The Request Headers
         self.headers: HeadersCollection = HeadersCollection()
 
         # The Request Body
         self.content: Optional[BytesIO] = None
+
+    def configure(self, request_configuration: RequestConfiguration) -> None:
+        """Configures the current request information headers, query parameters, and options
+        based on the request configuration provided
+
+        Args:
+            request_configuration (RequestConfiguration): Configuration instance to
+            configure the request information.
+        """
+        if request_configuration:
+            self.headers.add_all(request_configuration.headers)
+            self.add_request_options(request_configuration.options)
+            self.set_query_string_parameters_from_raw_object(request_configuration.query_parameters)
 
     @property
     def url(self) -> Url:
@@ -105,7 +128,7 @@ class RequestInformation:
         """Gets the request options for the request."""
         return self.__request_options
 
-    def add_request_options(self, options: List[RequestOption]) -> None:
+    def add_request_options(self, options: Optional[List[RequestOption]]) -> None:
         if not options:
             return
         for option in options:
@@ -202,15 +225,17 @@ class RequestInformation:
         self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = value
 
-    def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParams]) -> None:
+    def set_query_string_parameters_from_raw_object(self, q: Optional[QueryParameters]) -> None:
         if q:
-            for field in fields(q):
+            for field in fields(q):  # type: ignore
                 key = field.name
                 if hasattr(q, "get_query_parameter"):
                     serialization_key = q.get_query_parameter(key)  # type: ignore
                     if serialization_key:
                         key = serialization_key
-                self.query_parameters[key] = getattr(q, field.name)
+                value = getattr(q, field.name)
+                if value is not None:
+                    self.query_parameters[key] = value
 
     def _get_serialization_writer(
         self,

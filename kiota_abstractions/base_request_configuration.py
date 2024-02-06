@@ -4,19 +4,31 @@
 # See License in the project root for license information.
 # ------------------------------------
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
+from typing import Generic, List, Optional, TypeVar
+from warnings import warn
 
 from .headers_collection import HeadersCollection
 from .request_option import RequestOption
 
+QueryParameters = TypeVar('QueryParameters')
+
 
 @dataclass
-class BaseRequestConfiguration:
+class RequestConfiguration(Generic[QueryParameters]):
     """
     Configuration for the request such as headers, query parameters, and middleware options.
     """
     # Request headers
     headers: HeadersCollection = HeadersCollection()
-
     # Request options
     options: Optional[List[RequestOption]] = None
+    # Request query parameters
+    query_parameters: Optional[QueryParameters] = None
+
+
+@dataclass
+class BaseRequestConfiguration(RequestConfiguration):
+    warn(
+        "BaseRequestConfiguration is deprecated. Use RequestConfiguration class instead.",
+        DeprecationWarning
+    )
