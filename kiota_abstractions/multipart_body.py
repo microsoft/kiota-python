@@ -113,10 +113,12 @@ class MultipartBody(Parsable, Generic[T]):
                     get_serialization_writer(part_value[0])
                 )
                 part_writer.write_object_value("", part_value[1], None)
-                part_content: io.BytesIO = part_writer.get_serialized_content()
-                if part_content.seekable():
+                part_content: bytes = part_writer.get_serialized_content()
+                if hasattr(part_content, "seek"):
                     part_content.seek(0)
-                writer.write_bytes_value("", part_content.read())
+                    writer.write_bytes_value("", part_content.read())
+                else:
+                    writer.write_bytes_value("", part_content)
             elif isinstance(part_value[1], str):
                 writer.write_str_value("", part_value[1])
             elif isinstance(part_value[1], bytes):
