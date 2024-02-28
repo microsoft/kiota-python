@@ -108,17 +108,7 @@ class MultipartBody(Parsable, Generic[T]):
             self._add_new_line(writer)
 
             if isinstance(part_value[1], Parsable):
-                part_writer: SerializationWriter = (
-                    self.request_adapter.get_serialization_writer_factory().
-                    get_serialization_writer(part_value[0])
-                )
-                part_writer.write_object_value("", part_value[1], None)
-                part_content: bytes = part_writer.get_serialized_content()
-                if hasattr(part_content, "seek"):
-                    part_content.seek(0)
-                    writer.write_bytes_value("", part_content.read())
-                else:
-                    writer.write_bytes_value("", part_content)
+                self._write_parsable(writer, part_value[1])
             elif isinstance(part_value[1], str):
                 writer.write_str_value("", part_value[1])
             elif isinstance(part_value[1], bytes):
@@ -136,3 +126,19 @@ class MultipartBody(Parsable, Generic[T]):
 
     def _add_new_line(self, writer: SerializationWriter) -> None:
         writer.write_str_value("", "")
+
+    def _write_parsable(self, writer, part_value) -> None:
+        if not self.request_adapter or not self.request_adapter.get_serialization_writer_factory():
+            raise ValueError("Request adapter or serialization writer factory cannot be null")
+        part_writer = (
+            self.request_adapter.get_serialization_writer_factory().get_serialization_writer(
+                part_value[0]
+            )
+        )
+        part_writer.write_object_value("", part_value[1], None)
+        part_content = part_writer.get_serialized_content()
+        if hasattr(part_content, "seek"):
+            part_content.seek(0)
+            writer.write_bytes_value("", part_content.read())
+        else:
+            writer.write_bytes_value("", part_content)
