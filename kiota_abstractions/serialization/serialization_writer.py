@@ -146,7 +146,7 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_bytes_value(self, key: Optional[str], value: BytesIO) -> None:
+    def write_bytes_value(self, key: Optional[str], value: bytes) -> None:
         """Writes the specified byte array as a base64 string to the stream with an optional
         given key.
 
