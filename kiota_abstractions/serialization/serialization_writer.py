@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from io import BytesIO
 from typing import Any, Callable, Dict, List, Optional, TypeVar
 from uuid import UUID
 
@@ -152,7 +151,7 @@ class SerializationWriter(ABC):
 
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            value (BytesIO): The byte array to be written.
+            value (bytes): The bytes to be written.
         """
         pass
 
@@ -198,11 +197,11 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def get_serialized_content(self) -> BytesIO:
+    def get_serialized_content(self) -> bytes:
         """Gets the value of the serialized content.
 
         Returns:
-            BytesIO: The value of the serialized content.
+            bytes: The value of the serialized content.
         """
         pass
 

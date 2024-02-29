@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from io import BytesIO
 from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar
 from uuid import UUID
 
@@ -166,11 +165,11 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_bytes_value(self) -> BytesIO:
-        """Get a bytearray value from the nodes
+    def get_bytes_value(self) -> bytes:
+        """Get a bytes value from the nodes
 
         Returns:
-            bytearray: The bytearray value from the nodes
+            bytes: The bytes value from the nodes
         """
         pass
 

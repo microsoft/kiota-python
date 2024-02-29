@@ -77,7 +77,7 @@ class RequestInformation:
         self.headers: HeadersCollection = HeadersCollection()
 
         # The Request Body
-        self.content: Optional[BytesIO] = None
+        self.content: Optional[bytes] = None
 
     def configure(self, request_configuration: RequestConfiguration) -> None:
         """Configures the current request information headers, query parameters, and options
@@ -227,7 +227,7 @@ class RequestInformation:
                 writer_func(None, values)
             self._set_content_and_content_type_header(writer, content_type)
 
-    def set_stream_content(self, value: BytesIO, content_type: Optional[str] = None) -> None:
+    def set_stream_content(self, value: bytes, content_type: Optional[str] = None) -> None:
         """Sets the request body to be a binary stream.
 
         Args:

@@ -137,8 +137,8 @@ class MultipartBody(Parsable, Generic[T]):
         )
         part_writer.write_object_value("", part_value[1], None)
         part_content = part_writer.get_serialized_content()
-        if hasattr(part_content, "seek"):
+        if hasattr(part_content, "seek"):  # seekable
             part_content.seek(0)
-            writer.write_bytes_value("", part_content.read())
+            writer.write_bytes_value("", part_content.read())  #type: ignore
         else:
             writer.write_bytes_value("", part_content)

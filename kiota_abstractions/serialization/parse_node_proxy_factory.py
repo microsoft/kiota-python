@@ -4,7 +4,6 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from io import BytesIO
 from typing import Callable
 
 from .parsable import Parsable
@@ -44,12 +43,12 @@ class ParseNodeProxyFactory(ParseNodeFactory):
         """
         return self._concrete.get_valid_content_type()
 
-    def get_root_parse_node(self, content_type: str, content: BytesIO) -> ParseNode:
+    def get_root_parse_node(self, content_type: str, content: bytes) -> ParseNode:
         """Create a parse node from the given stream and content type.
 
         Args:
             content_type (str): The content type of the parse node.
-            content (BytesIO): The stream to read the parse node from.
+            content (bytes): The stream to read the parse node from.
 
         Returns:
             ParseNode: A parse node.
