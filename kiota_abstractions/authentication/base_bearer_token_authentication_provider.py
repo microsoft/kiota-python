@@ -64,6 +64,15 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
         request: RequestInformation,
         additional_authentication_context: Dict[str, Any],
     ) -> None:
+        """
+        Checks if the claims key is in the additional authentication context and if the 
+        authorization header is in the request headers. If both conditions are met, it removes 
+        the authorization header from the request headers.
+
+        Args:
+            request (RequestInformation): The request information object.
+            additional_authentication_context (Dict[str, Any]): Additional context for authentication.
+        """
 
         if all(
             [
