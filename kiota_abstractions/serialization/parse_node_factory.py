@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from io import BytesIO
 
 from .parse_node import ParseNode
 
@@ -18,12 +17,12 @@ class ParseNodeFactory(ABC):
         pass
 
     @abstractmethod
-    def get_root_parse_node(self, content_type: str, content: BytesIO) -> ParseNode:
+    def get_root_parse_node(self, content_type: str, content: bytes) -> ParseNode:
         """Creates a ParseNode from the given binary stream and content type
 
         Args:
             content_type (str): The content type of the binary stream
-            content (BytesIO): The array buffer to read from
+            content (bytes): The array buffer to read from
 
         Returns:
             ParseNode: A ParseNode that can deserialize the given binary stream

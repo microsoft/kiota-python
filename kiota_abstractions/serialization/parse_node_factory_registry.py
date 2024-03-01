@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from io import BytesIO
 from typing import Dict
 
 from .parse_node import ParseNode
@@ -31,7 +30,7 @@ class ParseNodeFactoryRegistry(ParseNodeFactory):
             "The registry supports multiple content types. Get the registered factory instead"
         )
 
-    def get_root_parse_node(self, content_type: str, content: BytesIO) -> ParseNode:
+    def get_root_parse_node(self, content_type: str, content: bytes) -> ParseNode:
         if not content_type:
             raise Exception("Content type cannot be null")
         if not content:

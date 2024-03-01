@@ -9,11 +9,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from unittest.mock import Mock
 
 import pytest
 
 from kiota_abstractions.authentication.access_token_provider import AccessTokenProvider
 from kiota_abstractions.authentication.allowed_hosts_validator import AllowedHostsValidator
+from kiota_abstractions.multipart_body import MultipartBody
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import (
@@ -21,6 +23,7 @@ from kiota_abstractions.serialization import (
     Parsable,
     ParseNode,
     SerializationWriter,
+    SerializationWriterFactory
 )
 from kiota_abstractions.store import BackedModel, BackingStore, BackingStoreFactorySingleton
 
@@ -111,6 +114,8 @@ class TestEnum(Enum):
     VALUE2 = "value2"
     VALUE3 = "value3"
     
+    __test__ = False
+    
 @dataclass
 class QueryParams:
     dataset: Union[TestEnum, List[TestEnum]]
@@ -138,6 +143,21 @@ def mock_access_token_provider():
 
 
 @pytest.fixture
-def mock_request_adapter(mocker):
-    mocker.patch.multiple(RequestAdapter, __abstractmethods__=set())
-    return RequestAdapter()
+def mock_request_adapter():
+    request_adapter = Mock(spec=RequestAdapter)
+    return request_adapter
+
+@pytest.fixture
+def mock_serialization_writer():
+    return Mock(spec=SerializationWriter)
+    
+
+@pytest.fixture
+def mock_serialization_writer_factory():
+    mock_factory = Mock(spec=SerializationWriterFactory)
+    return mock_factory
+
+@pytest.fixture
+def mock_multipart_body():
+    mock_multipart_body = MultipartBody()
+    return mock_multipart_body

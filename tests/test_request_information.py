@@ -1,11 +1,13 @@
 import pytest
 from dataclasses import dataclass
 from typing import Optional
+from unittest.mock import Mock
 
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 from kiota_abstractions.method import Method
+
 
 from .conftest import TestEnum, QueryParams
 
@@ -132,7 +134,24 @@ def test_configure_request_configuration(mock_request_information):
     assert mock_request_information.query_parameters == {"%24filter": "query1"}
     assert not mock_request_information.request_options
     
-    
+def test_sets_boundary_on_multipart_request_body(
+    mock_request_information,
+    mock_request_adapter,
+    mock_multipart_body,
+    mock_serialization_writer,
+    mock_serialization_writer_factory
+    ):
+    """Tests setting the boundary on a multipart request
+    """
+    mock_request_information.http_method = Method.POST
+    mock_serialization_writer_factory.get_serialization_writer = Mock(return_value=mock_serialization_writer)
+    mock_request_adapter.get_serialization_writer_factory = Mock(return_value=mock_serialization_writer_factory)
+    mock_multipart_body.request_adapter = mock_request_adapter
+    mock_request_information.set_content_from_parsable(mock_request_adapter, "multipart/form-data", mock_multipart_body)
+    assert mock_multipart_body.boundary
+    assert mock_request_information.headers.get("content-type") == {"multipart/form-data; boundary=" + mock_multipart_body.boundary}
+
+
 def test_sets_enum_value_in_query_parameters():
     """Tests setting enum values in query parameters
     """
@@ -162,5 +181,6 @@ def test_sets_enum_values_in_path_parameters():
     request_info = RequestInformation(Method.GET, "https://example.com/{dataset}")
     request_info.path_parameters["dataset"] = [TestEnum.VALUE1, TestEnum.VALUE2]
     assert request_info.url == "https://example.com/value1%2Cvalue2"
+    
 
     

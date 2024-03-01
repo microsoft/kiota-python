@@ -1,3 +1,10 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation. All Rights Reserved.
+# Licensed under the MIT License.
+# See License in the project root for license information.
+# ------------------------------------
+from __future__ import annotations
+
 from dataclasses import fields, is_dataclass
 from datetime import date, datetime, time, timedelta
 from enum import Enum
@@ -13,6 +20,7 @@ from ._version import VERSION
 from .base_request_configuration import RequestConfiguration
 from .headers_collection import HeadersCollection
 from .method import Method
+from .multipart_body import MultipartBody
 from .request_option import RequestOption
 from .serialization import Parsable, SerializationWriter
 
@@ -69,7 +77,7 @@ class RequestInformation:
         self.headers: HeadersCollection = HeadersCollection()
 
         # The Request Body
-        self.content: Optional[BytesIO] = None
+        self.content: Optional[bytes] = None
 
     def configure(self, request_configuration: RequestConfiguration) -> None:
         """Configures the current request information headers, query parameters, and options
@@ -145,8 +153,8 @@ class RequestInformation:
 
     def set_content_from_parsable(
         self,
-        request_adapter: Optional["RequestAdapter"],
-        content_type: Optional[str],
+        request_adapter: RequestAdapter,
+        content_type: str,
         values: Union[T, List[T]],
     ) -> None:
         """Sets the request body from a model with the specified content type.
@@ -161,7 +169,9 @@ class RequestInformation:
             self._create_parent_span_name("set_content_from_parsable")
         ) as span:
             writer = self._get_serialization_writer(request_adapter, content_type, values, span)
-
+            if isinstance(values, MultipartBody):
+                content_type += f"; boundary={values.boundary}"
+                values.request_adapter = request_adapter
             if isinstance(values, list):
                 writer.write_collection_of_object_values(None, values)
                 span.set_attribute(self.REQUEST_TYPE_KEY, "[]")
@@ -217,7 +227,7 @@ class RequestInformation:
                 writer_func(None, values)
             self._set_content_and_content_type_header(writer, content_type)
 
-    def set_stream_content(self, value: BytesIO, content_type: Optional[str] = None) -> None:
+    def set_stream_content(self, value: bytes, content_type: Optional[str] = None) -> None:
         """Sets the request body to be a binary stream.
 
         Args:
