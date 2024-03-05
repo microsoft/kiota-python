@@ -108,7 +108,7 @@ class MultipartBody(Parsable, Generic[T]):
             self._add_new_line(writer)
 
             if isinstance(part_value[1], Parsable):
-                self._write_parsable(writer, part_value[1])
+                self._write_parsable(writer, part_value)
             elif isinstance(part_value[1], str):
                 writer.write_str_value("", part_value[1])
             elif isinstance(part_value[1], bytes):
