@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Moved DepricationWarning to __post_init__ of BaseRequestConfiguration. [microsoft/kiota#250](https://github.com/microsoft/kiota-abstractions-python/pull/250)
+- Moved DeprecationWarning to __post_init__ of BaseRequestConfiguration. [microsoft/kiota#250](https://github.com/microsoft/kiota-abstractions-python/pull/250)
 
 
 ## [1.3.1] - 2024-03-05
