@@ -28,6 +28,7 @@ class RequestConfiguration(Generic[QueryParameters]):
 
 @dataclass
 class BaseRequestConfiguration(RequestConfiguration):
+
     def __post_init__(self):
         warn(
             "BaseRequestConfiguration is deprecated. Use RequestConfiguration class instead.",
