@@ -12,6 +12,8 @@ class BackingStoreFactorySingleton:
     """
     Ensures that there is only a single instance of a Backing Store Factory.
     """
+    __instance = None
+    __init_arg = None
 
     def __new__(cls, *args, **kwargs):
         """
@@ -34,11 +36,19 @@ class BackingStoreFactorySingleton:
             cls.__instance = super(BackingStoreFactorySingleton, cls).__new__(cls)
         return cls.__instance
 
+    def __init__(self,
+                 backing_store_factory: BackingStoreFactory = None) -> None:
+        if backing_store_factory is None:
+            backing_store_factory = self.__class__.__init_arg
+        self._backing_store_factory = backing_store_factory
+
     @classmethod
     def get_instance(cls):
         """
         Returns the instance of the class.
         """
+        if cls.__instance is None:
+            cls.__instance = cls()
         return cls.__instance
 
     def __init__(self, backing_store_factory: BackingStoreFactory) -> None:
