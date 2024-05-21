@@ -303,6 +303,12 @@ class RequestInformation:
             return ','.join([x.value for x in value])
         if isinstance(value, UUID):
             return str(value)
+        if isinstance(value, datetime):
+            return value
+        if isinstance(value, date):
+            return str(value)
+        if isinstance(value, time):
+            return str(value)
         return value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
