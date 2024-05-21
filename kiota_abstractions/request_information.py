@@ -297,19 +297,20 @@ class RequestInformation:
         Args:
             value (Any): The value to replace.
         """
+        sanitized_value = value
         if isinstance(value, Enum):
-            return value.value
-        if isinstance(value, list) and all(isinstance(x, Enum) for x in value):
-            return ','.join([x.value for x in value])
-        if isinstance(value, UUID):
-            return str(value)
-        if isinstance(value, datetime):
-            return value
-        if isinstance(value, date):
-            return str(value)
-        if isinstance(value, time):
-            return str(value)
-        return value
+            sanitized_value = value.value
+        elif isinstance(value, list) and all(isinstance(x, Enum) for x in value):
+            sanitized_value = ','.join([x.value for x in value])
+        elif isinstance(value, UUID):
+            sanitized_value = str(value)
+        elif isinstance(value, datetime):
+            sanitized_value = value
+        elif isinstance(value, date):
+            sanitized_value = str(value)
+        elif isinstance(value, time):
+            sanitized_value = str(value)
+        return sanitized_value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
         """Decodes a URI encoded string."""
