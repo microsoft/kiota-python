@@ -1,3 +1,4 @@
+import uuid
 import pytest
 from dataclasses import dataclass
 from typing import Optional
@@ -181,6 +182,13 @@ def test_sets_enum_values_in_path_parameters():
     request_info = RequestInformation(Method.GET, "https://example.com/{dataset}")
     request_info.path_parameters["dataset"] = [TestEnum.VALUE1, TestEnum.VALUE2]
     assert request_info.url == "https://example.com/value1%2Cvalue2"
+
+def test_sets_uuid_values_in_path_parameters():
+    """Tests setting uuid values in path parameters
+    """
+    request_info = RequestInformation(Method.GET, "https://example.com/values/{id}")
+    request_info.path_parameters["id"] = uuid.UUID("123e4567-e89b-12d3-a456-426614174000")
+    assert request_info.url == "https://example.com/values/123e4567-e89b-12d3-a456-426614174000"
     
 
     

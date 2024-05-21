@@ -109,10 +109,10 @@ class RequestInformation:
 
         data: Dict[str, Any] = {}
         for key, val in self.query_parameters.items():
-            val = self._replace_enum_values_with_string_representation(val)
+            val = self._get_sanitized_value(val)
             data[key] = val
         for key, val in self.path_parameters.items():
-            val = self._replace_enum_values_with_string_representation(val)
+            val = self._get_sanitized_value(val)
             data[key] = val
 
         result = StdUriTemplate.expand(self.url_template, data)
@@ -291,7 +291,7 @@ class RequestInformation:
             self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = writer.get_serialized_content()
 
-    def _replace_enum_values_with_string_representation(self, value: Any) -> Any:
+    def _get_sanitized_value(self, value: Any) -> Any:
         """Replaces enum values with their string representation.
 
         Args:
@@ -301,6 +301,8 @@ class RequestInformation:
             return value.value
         if isinstance(value, list) and all(isinstance(x, Enum) for x in value):
             return ','.join([x.value for x in value])
+        if isinstance(value, UUID):
+            return str(value)
         return value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:

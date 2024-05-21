@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.3.3] - 2024-05-21
+
+### Added
+
+### Changed
+
+- Adds support for guid and date parameters in the url. [#245](https://github.com/microsoft/kiota-abstractions-python/issues/245)
+
 ## [1.3.2] - 2024-03-25
 
 ### Added
