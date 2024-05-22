@@ -109,10 +109,10 @@ class RequestInformation:
 
         data: Dict[str, Any] = {}
         for key, val in self.query_parameters.items():
-            val = self._replace_enum_values_with_string_representation(val)
+            val = self._get_sanitized_value(val)
             data[key] = val
         for key, val in self.path_parameters.items():
-            val = self._replace_enum_values_with_string_representation(val)
+            val = self._get_sanitized_value(val)
             data[key] = val
 
         result = StdUriTemplate.expand(self.url_template, data)
@@ -291,17 +291,22 @@ class RequestInformation:
             self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = writer.get_serialized_content()
 
-    def _replace_enum_values_with_string_representation(self, value: Any) -> Any:
+    def _get_sanitized_value(self, value: Any) -> Any:
         """Replaces enum values with their string representation.
 
         Args:
             value (Any): The value to replace.
         """
+        sanitized_value = value
         if isinstance(value, Enum):
-            return value.value
-        if isinstance(value, list) and all(isinstance(x, Enum) for x in value):
-            return ','.join([x.value for x in value])
-        return value
+            sanitized_value = value.value
+        elif isinstance(value, list) and all(isinstance(x, Enum) for x in value):
+            sanitized_value = ','.join([x.value for x in value])
+        elif isinstance(value, datetime):
+            sanitized_value = value
+        elif any([isinstance(value, UUID), isinstance(value, date), isinstance(value, time)]):
+            sanitized_value = str(value)
+        return sanitized_value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
         """Decodes a URI encoded string."""
