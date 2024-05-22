@@ -302,14 +302,10 @@ class RequestInformation:
             sanitized_value = value.value
         elif isinstance(value, list) and all(isinstance(x, Enum) for x in value):
             sanitized_value = ','.join([x.value for x in value])
-        elif isinstance(value, UUID):
+        elif any([isinstance(value, UUID), isinstance(value, date), isinstance(value, time)]:)
             sanitized_value = str(value)
         elif isinstance(value, datetime):
             sanitized_value = value
-        elif isinstance(value, date):
-            sanitized_value = str(value)
-        elif isinstance(value, time):
-            sanitized_value = str(value)
         return sanitized_value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
