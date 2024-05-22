@@ -44,7 +44,7 @@ pytest-asyncio==0.23.7
 
 pytest-mock==3.14.0
 
-requests==2.32.1
+requests==2.32.2
 
 toml==0.10.2
 
