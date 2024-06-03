@@ -5,7 +5,7 @@ class UntypedList(UntypedNode):
     Represents an untyped node with list value.
     """
 
-    def __init__(self, value: list) -> None:
+    def __init__(self, value: list[UntypedNode]) -> None:
         """
         Creates a new instance of UntypedList.
 
@@ -14,7 +14,7 @@ class UntypedList(UntypedNode):
         """
         self.__value = value
 
-    def get_value(self) -> list:
+    def get_value(self) -> list[UntypedNode]:
         """
         Gets the value associated with untyped list node.
 
