@@ -12,6 +12,8 @@ class UntypedFloat(UntypedNode):
         Args:
             value (bool): The float value associated with the node.
         """
+        if not isinstance(value, float):
+            raise TypeError("Value of UntypedFloat must be of type float")
         self.__value = value
 
     def get_value(self) -> float:

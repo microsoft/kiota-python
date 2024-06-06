@@ -12,6 +12,8 @@ class UntypedString(UntypedNode):
         Args:
             value (bool): The string value associated with the node.
         """
+        if not isinstance(value, str):
+            raise TypeError("Value of UntypedStr must be of type str")
         self.__value = value
 
     def get_value(self) -> str:

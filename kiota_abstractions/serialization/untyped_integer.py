@@ -12,6 +12,8 @@ class UntypedInteger(UntypedNode):
         Args:
             value (bool): The integer value associated with the node.
         """
+        if not isinstance(value, int):
+            raise TypeError("Value of UntypedInteger must be of type int")
         self.__value = value
 
     def get_value(self) -> int:

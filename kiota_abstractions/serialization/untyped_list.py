@@ -12,6 +12,10 @@ class UntypedList(UntypedNode):
         Args:
             value (bool): The list value associated with the node.
         """
+        if not isinstance(value, list):
+            if not all(isinstance(value, UntypedNode) for value in value):
+                raise TypeError("Values of UntypedList must be of type UntypedNode")
+            raise TypeError("Value of UntypedList must be of type list")
         self.__value = value
 
     def get_value(self) -> list[UntypedNode]:
