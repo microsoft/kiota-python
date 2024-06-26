@@ -9,6 +9,10 @@ updates:
     open-telemetry:
       patterns:
         - "*opentelemetry*"
+    pylint:
+      patterns:
+        - "*pylint*"
+        - "*astroid*"
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
