@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
 
-astroid==3.2.3 ; python_full_version >= '3.7.2'
+astroid==3.2.4 ; python_full_version >= '3.7.2'
 
 certifi==2024.7.4 ; python_version >= '3.6'
 
@@ -36,7 +36,7 @@ platformdirs==4.2.2 ; python_version >= '3.7'
 
 pluggy==1.5.0 ; python_version >= '3.6'
 
-pylint==3.2.5
+pylint==3.2.6
 
 pytest==8.2.2
 
