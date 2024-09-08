@@ -1,18 +1,17 @@
-from datetime import datetime
 import uuid
-import pytest
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 from unittest.mock import Mock
 
-from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.headers_collection import HeadersCollection
+import pytest
+
 from kiota_abstractions.base_request_configuration import RequestConfiguration
+from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.method import Method
+from kiota_abstractions.request_information import RequestInformation
 
-
-from .conftest import TestEnum, QueryParams
-
+from .conftest import QueryParams, TestEnum
 
 
 def test_initialization():

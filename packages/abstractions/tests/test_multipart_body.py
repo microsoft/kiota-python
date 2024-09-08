@@ -1,7 +1,9 @@
 import pytest
 
-from kiota_abstractions.serialization import SerializationWriter
 from kiota_abstractions.multipart_body import MultipartBody
+from kiota_abstractions.serialization import SerializationWriter
+
+
 def test_defensive():
     """Tests initialization of MultipartBody objects
     """

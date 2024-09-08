@@ -23,7 +23,7 @@ from kiota_abstractions.serialization import (
     Parsable,
     ParseNode,
     SerializationWriter,
-    SerializationWriterFactory
+    SerializationWriterFactory,
 )
 from kiota_abstractions.store import BackedModel, BackingStore, BackingStoreFactorySingleton
 

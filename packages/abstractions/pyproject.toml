@@ -1,16 +1,13 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
-[project]
+[tool.poetry]
 name = "microsoft-kiota-abstractions"
-authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
-dependencies = [
-    "std-uritemplate >=0.0.38",
-    "opentelemetry-api >=1.19.0",
-    "opentelemetry-sdk >=1.19.0",
-]
-license = {file = "LICENSE"}
+version = "0.0.4"
+description = "Core abstractions for kiota generated libraries in Python"
+authors = ["Microsoft <graphtooling+python@microsoft.com>"]
+license = "MIT"
 readme = "README.md"
 keywords = ["kiota", "openAPI", "Microsoft", "Graph"]
 classifiers = [
@@ -21,21 +18,29 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
 ]
-dynamic = ["version", "description"]
-
-
-[project.urls]
 homepage = "https://github.com/microsoft/kiota#readme"
-repository = "https://github.com/microsoft/kiota-abstractions-python"
+repository = "https://github.com/microsoft/kiota-python"
 documentation = "https://microsoft.github.io/kiota/"
+packages = [{include = "kiota_abstractions"}]	
 
-[tool.flit.module]
-name = "kiota_abstractions"
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+std-uritemplate = ">=0.0.38"
+opentelemetry-api = ">=1.19.0"
+opentelemetry-sdk = ">=1.19.0"
+
+[tool.poetry.group.dev.dependencies]
+yapf = "^0.40.2"
+isort = "^5.13.2"
+pylint = "^3.2.7"
+mypy = "^1.11.2"
+pytest = "^8.3.2"
+pytest-asyncio = "^0.24.0"
 
 [mypy]
 warn_unused_configs = true
 files = "kiota_abstractions"
-ignore_missing_imports = true
+ignore_missing_imports = false
 
 [tool.yapf]
 based_on_style = "pep8"

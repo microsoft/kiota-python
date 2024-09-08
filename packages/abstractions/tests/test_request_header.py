@@ -2,6 +2,7 @@ import pytest
 
 from kiota_abstractions.headers_collection import HeadersCollection
 
+
 def test_defensive():
     """Tests initialization of RequestHeader objects
     """

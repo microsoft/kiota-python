@@ -4,13 +4,11 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Callable, TypeVar, Generic, List, Tuple
+from typing import Any, Callable, Generic, List, Tuple, TypeVar
+
 import pytest
 
-from kiota_abstractions.store import (
-    BackingStoreFactorySingleton,
-    InMemoryBackingStoreFactory,
-)
+from kiota_abstractions.store import BackingStoreFactorySingleton, InMemoryBackingStoreFactory
 from kiota_abstractions.store.backing_store import BackingStore
 from kiota_abstractions.store.backing_store_factory import BackingStoreFactory
 from kiota_abstractions.store.in_memory_backing_store import InMemoryBackingStore

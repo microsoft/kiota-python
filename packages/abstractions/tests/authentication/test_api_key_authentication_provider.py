@@ -1,10 +1,6 @@
 import pytest
 
-from kiota_abstractions.authentication import (
-    ApiKeyAuthenticationProvider,
-    KeyLocation,
-    AuthenticationProvider,
-)
+from kiota_abstractions.authentication import ApiKeyAuthenticationProvider, AuthenticationProvider, KeyLocation
 
 allowed_hosts = ["https://example.com"]
 

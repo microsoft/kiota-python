@@ -6,6 +6,7 @@
 
 import pytest
 
+
 def test_backed_model_return_only_changed_values_false(mock_user):
     # Getters retrieve all values from backing store
     assert mock_user.id == "84b3f7bf-6afb-46b2-9c6d-660c9b8c8ea0"

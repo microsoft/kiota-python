@@ -7,7 +7,6 @@
 import pytest
 
 from kiota_abstractions.store import InMemoryBackingStore
-
 from tests.conftest import MockEntity
 
 BUSINESS_PHONES_KEY = "business_phones"
