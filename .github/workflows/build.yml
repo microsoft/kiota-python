@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:
-      max-parallel: 5
+      max-parallel: 10
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         library : 
@@ -62,7 +62,7 @@ jobs:
       - name: Static type checking with Mypy
         working-directory: ${{ matrix.library.path }}
         run: |
-          poetry run mypy ${{ matrix.library.name }} --ignore_missing_imports
+          poetry run mypy ${{ matrix.library.name }} --ignore-missing-imports
       - name: Run the tests
         working-directory: ${{ matrix.library.path }}
         run: |
