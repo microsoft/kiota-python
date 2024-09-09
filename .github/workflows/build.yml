@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, dev]
+    branches: [main]
   workflow_call:
 
 jobs:
@@ -19,6 +19,22 @@ jobs:
       max-parallel: 5
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        library : 
+          - name: "kiota_abstractions"
+            path: "./packages/abstractions"
+          - name: "kiota_authentication_azure"
+            path: "./packages/authentication/azure"
+          - name: "kiota_http"
+            path: "./packages/http/httpx"
+          - name: "kiota_serialization_form"
+            path: "./packages/serialization/form"
+          - name: "kiota_serialization_json"
+            path: "./packages/serialization/json"
+          - name: "kiota_serialization_text"
+            path: "./packages/serialization/text"
+          - name: "kiota_serialization_multipart"
+            path: "./packages/serialization/multipart"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,22 +42,27 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Change directory to library path
+        run: |
+          cd ${{ matrix.library.path }}
+          echo "Changed directory to ${{ matrix.library.path }}"
+          pwd
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          python -m pip install --upgrade poetry
+          poetry install
       - name: Check code format
         run: |
-          yapf -dr kiota_abstractions
+          poetry run yapf -dr ${{ matrix.library.name }}
       - name: Check import order
         run: |
-          isort kiota_abstractions
+          poetry run isort ${{ matrix.library.name }}
       - name: Lint with Pylint
         run: |
-          pylint kiota_abstractions --disable=W --rcfile=.pylintrc
+          poetry run pylint ${{ matrix.library.name }} --disable=W --rcfile=.pylintrc
       - name: Static type checking with Mypy
         run: |
-          mypy kiota_abstractions
+          poetry run mypy ${{ matrix.library.name }}
       - name: Run the tests
         run: |
-          pytest
+          poetry run pytest
