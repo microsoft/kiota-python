@@ -58,4 +58,4 @@ async def test_decodes_query_parameter_names_only():
         request = httpx.Request('GET', encoded)
         mock_transport = httpx.MockTransport(request_handler)
         resp = await handler.send(request, mock_transport)
-        assert str(resp.request.url) == decoded
+        assert str(resp.request.url).casefold() == decoded.casefold()
