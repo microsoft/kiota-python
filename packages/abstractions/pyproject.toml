@@ -36,6 +36,7 @@ pylint = "^3.2.7"
 mypy = "^1.11.2"
 pytest = "^8.3.2"
 pytest-asyncio = "^0.24.0"
+poetry-plugin-mono-repo-deps = "^0.2.1"
 
 [mypy]
 warn_unused_configs = true
@@ -49,3 +50,7 @@ column_limit = 100
 
 [tool.isort]
 profile = "hug"
+
+[tool.poetry-monorepo.deps]
+enabled = true
+commands = ["build", "export", "publish"]
