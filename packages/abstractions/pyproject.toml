@@ -40,7 +40,6 @@ pytest-asyncio = "^0.24.0"
 [mypy]
 warn_unused_configs = true
 files = "kiota_abstractions"
-ignore_missing_imports = true
 
 [tool.yapf]
 based_on_style = "pep8"

@@ -39,7 +39,6 @@ pytest-asyncio = "^0.24.0"
 [tool.mypy]
 warn_unused_configs = true
 files = "kiota_serialization_form"
-ignore_missing_imports = true
 
 [tool.yapf]
 based_on_style = "pep8"

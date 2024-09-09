@@ -44,7 +44,6 @@ pytest-mock = "^3.14.0"
 [tool.mypy]
 warn_unused_configs = true
 files = "kiota_http"
-ignore_missing_imports = true
 
 [tool.yapf]
 based_on_style = "pep8"
