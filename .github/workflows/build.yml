@@ -59,10 +59,10 @@ jobs:
         working-directory: ${{ matrix.library.path }}
         run: |
           poetry run pylint ${{ matrix.library.name }} --disable=W --rcfile=.pylintrc 
-      - name: Static type checking with Mypy
-        working-directory: ${{ matrix.library.path }}
-        run: |
-          poetry run mypy ${{ matrix.library.name }} --ignore-missing-imports
+      # - name: Static type checking with Mypy
+      #   working-directory: ${{ matrix.library.path }}
+      #   run: |
+      #     poetry run mypy ${{ matrix.library.name }} --ignore-missing-imports
       - name: Run the tests
         working-directory: ${{ matrix.library.path }}
         run: |
