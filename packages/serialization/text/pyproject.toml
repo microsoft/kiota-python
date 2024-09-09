@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "microsoft-kiota-serialization-multipart"
+name = "microsoft-kiota-serialization-text"
 version = "0.0.4"
 description = "Core abstractions for kiota generated libraries in Python"
 authors = ["Microsoft <graphtooling+python@microsoft.com>"]
@@ -21,12 +21,12 @@ classifiers = [
 homepage = "https://github.com/microsoft/kiota#readme"
 repository = "https://github.com/microsoft/kiota-python"
 documentation = "https://microsoft.github.io/kiota/"
-packages = [{include = "kiota_serialization_multipart"}]	
+packages = [{include = "kiota_serialization_text"}]	
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
 microsoft-kiota-abstractions = ">=1.0.0,<2.0.0"
-pendulum = ">=3.0.0b1"
+python-dateutil = "2.8.2"
 
 [tool.poetry.group.dev.dependencies]
 yapf = "^0.40.2"
@@ -38,7 +38,7 @@ pytest-asyncio = "^0.24.0"
 
 [tool.mypy]
 warn_unused_configs = true
-files = "kiota_serialization_multipart"
+files = "kiota_serialization_text"
 ignore_missing_imports = true
 
 [tool.yapf]
