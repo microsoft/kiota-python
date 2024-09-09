@@ -25,7 +25,7 @@ packages = [{include = "kiota_serialization_json"}]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-microsoft-kiota-abstractions = ">=1.0.0,<2.0.0"
+microsoft-kiota-abstractions = {path="../../abstractions/", develop=true}
 pendulum = ">=3.0.0b1"
 
 [tool.poetry.group.dev.dependencies]
