@@ -42,7 +42,7 @@ pytest-asyncio = "^0.24.0"
 
 [mypy]
 warn_unused_configs = true
-files = "kiota_abstractions"
+files = "kiota_authentication_azure"
 ignore_missing_imports = true
 
 [tool.yapf]
