@@ -170,7 +170,7 @@ class TextParseNode(ParseNode, Generic[T, U]):
                 raise Exception(f'Invalid key: {camel_case_key} for enum {enum_class}.')
         return None
 
-    def get_object_value(self, factory: ParsableFactory) -> U:
+    def get_object_value(self, factory: ParsableFactory) -> Parsable:
         """Gets the model object value of the node
         Returns:
             Parsable: The model object value of the node

@@ -291,7 +291,7 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = base64_string
 
     def write_object_value(
-        self, key: Optional[str], value: Optional[U], *additional_values_to_merge: U
+        self, key: Optional[str], value: U, *additional_values_to_merge: Optional[List[U]]
     ) -> None:
         """Writes the specified model object to the stream with an optional given key.
         Args:
@@ -308,9 +308,9 @@ class JsonSerializationWriter(SerializationWriter):
 
             if additional_values_to_merge:
                 for additional_value in filter(lambda x: x is not None, additional_values_to_merge):
-                    self._serialize_value(temp_writer, additional_value)
+                    self._serialize_value(temp_writer, additional_value)  # type: ignore
                     if on_after := self.on_after_object_serialization:
-                        on_after(additional_value)
+                        on_after(additional_value)  # type: ignore
 
             if value and self._on_after_object_serialization:
                 self._on_after_object_serialization(value)
@@ -502,7 +502,7 @@ class JsonSerializationWriter(SerializationWriter):
 
         value.serialize(temp_writer)
 
-    def _create_new_writer(self) -> SerializationWriter:
+    def _create_new_writer(self) -> JsonSerializationWriter:
         writer = JsonSerializationWriter()
         writer.on_before_object_serialization = self.on_before_object_serialization
         writer.on_after_object_serialization = self.on_after_object_serialization

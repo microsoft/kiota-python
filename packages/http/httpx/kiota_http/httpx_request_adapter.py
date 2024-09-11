@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 from urllib import parse
 
-import httpx
 from kiota_abstractions.api_client_builder import (
     enable_backing_store_for_parse_node_factory,
     enable_backing_store_for_serialization_writer_factory,
@@ -26,6 +25,7 @@ from kiota_abstractions.store import BackingStoreFactory, BackingStoreFactorySin
 from opentelemetry import trace
 from opentelemetry.semconv.trace import SpanAttributes
 
+import httpx
 from kiota_http._exceptions import (
     BackingStoreError,
     DeserializationError,
@@ -153,7 +153,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
         self,
         request_info: RequestInformation,
         parsable_factory: ParsableFactory,
-        error_map: Dict[str, ParsableFactory],
+        error_map: Dict[str, Optional[ParsableFactory]],
     ) -> Optional[ModelType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model.
@@ -190,7 +190,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
             value = root_node.get_object_value(parsable_factory)
             parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
             _deserialized_span.end()
-            return value
+            return value  #type: ignore
         finally:
             parent_span.end()
 
@@ -198,7 +198,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
         self,
         request_info: RequestInformation,
         parsable_factory: ParsableFactory,
-        error_map: Dict[str, ParsableFactory],
+        error_map: Dict[str, Optional[ParsableFactory]],
     ) -> Optional[List[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
@@ -232,7 +232,9 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
             )
             root_node = await self.get_root_parse_node(response, parent_span, parent_span)
             if root_node:
-                result = root_node.get_collection_of_object_values(parsable_factory)
+                result: List[ModelType] = root_node.get_collection_of_object_values(
+                    parsable_factory
+                )
                 parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, result.__class__.__name__)
                 _deserialized_span.end()
                 return result
@@ -244,7 +246,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
         self,
         request_info: RequestInformation,
         response_type: ResponseType,
-        error_map: Dict[str, ParsableFactory],
+        error_map: Dict[str, Optional[ParsableFactory]],
     ) -> Optional[List[ResponseType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
@@ -279,7 +281,8 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
             )
             root_node = await self.get_root_parse_node(response, parent_span, parent_span)
             if root_node:
-                values = root_node.get_collection_of_primitive_values(response_type)
+                values: Optional[List[ResponseType]
+                                 ] = root_node.get_collection_of_primitive_values(response_type)
                 parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, values.__class__.__name__)
                 _deserialized_span.end()
                 return values
@@ -291,7 +294,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
         self,
         request_info: RequestInformation,
         response_type: ResponseType,
-        error_map: Dict[str, ParsableFactory],
+        error_map: Dict[str, Optional[ParsableFactory]],
     ) -> Optional[ResponseType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
@@ -327,7 +330,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
             root_node = await self.get_root_parse_node(response, parent_span, parent_span)
             if not root_node:
                 return None
-            value = None
+            value: Optional[ResponseType] = None
             if response_type == "str":
                 value = root_node.get_str_value()
             if response_type == "int":
@@ -352,7 +355,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
             parent_span.end()
 
     async def send_no_response_content_async(
-        self, request_info: RequestInformation, error_map: Dict[str, ParsableFactory]
+        self, request_info: RequestInformation, error_map: Dict[str, Optional[ParsableFactory]]
     ) -> None:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
@@ -400,7 +403,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
         response: httpx.Response,
         parent_span: trace.Span,
         attribute_span: trace.Span,
-    ) -> ParseNode:
+    ) -> Optional[ParseNode]:
         span = self._start_local_tracing_span("get_root_parse_node", parent_span)
 
         try:
@@ -418,7 +421,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
     async def throw_failed_responses(
         self,
         response: httpx.Response,
-        error_map: Dict[str, ParsableFactory],
+        error_map: Dict[str, Optional[ParsableFactory]],
         parent_span: trace.Span,
         attribute_span: trace.Span,
     ) -> None:
@@ -442,7 +445,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
                     "The server returned an unexpected status code and no error class is registered"
                     f" for this code {response_status_code}",
                     response_status_code,
-                    response_headers,
+                    response_headers,  # type: ignore
                 )
                 # set this or ignore as description in set_status?
                 _throw_failed_resp_span.set_attribute("status_message", "received_error_response")
@@ -458,7 +461,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
                     "The server returned an unexpected status code and no error class is registered"
                     f" for this code {response_status_code}",
                     response_status_code,
-                    response_headers,
+                    response_headers,  # type: ignore
                 )
                 attribute_span.record_exception(exc)
                 raise exc
@@ -484,9 +487,12 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
 
             if not root_node:
                 return None
-            error = root_node.get_object_value(error_class)
+            error = None
+            if error_class:
+                error = root_node.get_object_value(error_class)
+
             if isinstance(error, APIError):
-                error.response_headers = response_headers
+                error.response_headers = response_headers  # type: ignore
                 error.response_status_code = response_status_code
                 exc = error
             else:
@@ -496,7 +502,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
                         f" for this code failed to deserialize: {type(error)}"
                     ),
                     response_status_code,
-                    response_headers,
+                    response_headers,  # type: ignore
                 )
             _get_obj_span.end()
             raise exc
@@ -568,7 +574,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
 
     def get_response_handler(self, request_info: RequestInformation) -> Any:
         response_handler_option = request_info.request_options.get(ResponseHandlerOption.get_key())
-        if response_handler_option:
+        if response_handler_option and isinstance(response_handler_option, ResponseHandlerOption):
             return response_handler_option.response_handler
         return None
 
@@ -585,8 +591,12 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
             "get_request_from_request_information", parent_span
         )
         url = parse.urlparse(request_info.url)
+        method = request_info.http_method
+        if not method:
+            raise RequestError("HTTP method must be provided")
+
         otel_attributes = {
-            SpanAttributes.HTTP_METHOD: request_info.http_method,
+            SpanAttributes.HTTP_METHOD: method.value,
             "http.port": url.port,
             SpanAttributes.HTTP_HOST: url.hostname,
             SpanAttributes.HTTP_SCHEME: url.scheme,
@@ -597,7 +607,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
             otel_attributes.update({"http.uri": url.geturl()})
 
         request = self._http_client.build_request(
-            method=request_info.http_method.value,
+            method=method.value,
             url=request_info.url,
             headers=request_info.request_headers,
             content=request_info.content,
@@ -614,8 +624,8 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
 
         if content_type := request.headers.get("Content-Type", None):
             otel_attributes.update({"http.request_content_type": content_type})
-        attribute_span.set_attributes(otel_attributes)
-        _get_request_span.set_attributes(otel_attributes)
+        attribute_span.set_attributes(otel_attributes)  # type: ignore
+        _get_request_span.set_attributes(otel_attributes)  # type: ignore
         _get_request_span.end()
 
         return request
@@ -638,7 +648,7 @@ class HttpxRequestAdapter(RequestAdapter, Generic[ModelType]):
             parent_span.end()
 
     def _error_class_not_in_error_mapping(
-        self, error_map: Dict[str, ParsableFactory], status_code: int
+        self, error_map: Dict[str, Optional[ParsableFactory]], status_code: int
     ) -> bool:
         """Helper function to check if the error class corresponding to a response status code
         is not in the error mapping.

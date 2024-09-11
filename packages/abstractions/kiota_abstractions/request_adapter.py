@@ -16,7 +16,7 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
     """Service responsible for translating abstract Request Info into concrete native HTTP requests.
     """
     # The base url for every request.
-    base_url = str
+    base_url = str()
 
     @abstractmethod
     def get_serialization_writer_factory(self) -> SerializationWriterFactory:

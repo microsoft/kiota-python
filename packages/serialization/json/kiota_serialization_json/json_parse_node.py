@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import warnings
 from datetime import date, datetime, time, timedelta
 from enum import Enum
@@ -8,8 +9,6 @@ from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
 import pendulum
-import re
-
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
 T = TypeVar("T")
@@ -206,7 +205,7 @@ class JsonParseNode(ParseNode, Generic[T, U]):
         except KeyError:
             return None
 
-    def get_object_value(self, factory: ParsableFactory) -> U:
+    def get_object_value(self, factory: ParsableFactory) -> Parsable:
         """Gets the model object value of the node
         Returns:
             Parsable: The model object value of the node
@@ -264,7 +263,7 @@ class JsonParseNode(ParseNode, Generic[T, U]):
         """
         self._on_after_assign_field_values = value
 
-    def _assign_field_values(self, item: U) -> None:
+    def _assign_field_values(self, item: Parsable) -> None:
         """Assigns the field values to the model object"""
 
         # if object is null

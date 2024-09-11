@@ -157,7 +157,7 @@ class SerializationWriter(ABC):
 
     @abstractmethod
     def write_object_value(
-        self, key: Optional[str], value: U, additional_values_to_merge: Optional[List[U]]
+        self, key: Optional[str], value: U, *additional_values_to_merge: Optional[List[U]]
     ) -> None:
         """Writes the specified model object to the stream with an optional given key.
 

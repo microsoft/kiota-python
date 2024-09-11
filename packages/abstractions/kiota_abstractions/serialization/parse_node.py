@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Callable, Generic, List, Optional, TypeVar
 from uuid import UUID
 
 from .parsable import Parsable
@@ -18,14 +18,14 @@ if TYPE_CHECKING:
     from .parsable_factory import ParsableFactory
 
 
-class ParseNode(ABC):
+class ParseNode(ABC, Generic[T, U]):
     """
     Interface for a deserialization node in a parse tree. This interace provides an abstraction
     layer over serialization formats, libraries and implementations.
     """
 
     @abstractmethod
-    def get_str_value(self) -> str:
+    def get_str_value(self) -> Optional[str]:
         """Gets the string value of the node
 
         Returns:
@@ -34,7 +34,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_child_node(self, identifier: str) -> ParseNode:
+    def get_child_node(self, identifier: str) -> Optional[ParseNode]:
         """Gets a new parse node for the given identifier
 
         Args:
@@ -118,7 +118,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_collection_of_primitive_values(self) -> List[T]:
+    def get_collection_of_primitive_values(self, primitive_type) -> Optional[List[T]]:
         """Gets the collection of primitive values of the node
 
         Returns:
@@ -137,7 +137,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_collection_of_enum_values(self) -> List[K]:
+    def get_collection_of_enum_values(self, enum_class: K) -> List[Optional[K]]:
         """Gets the collection of enum values of the node
 
         Returns:
@@ -146,7 +146,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_enum_value(self) -> Enum:
+    def get_enum_value(self, enum_class: K) -> Optional[K]:
         """Gets the enum value of the node
 
         Returns:
@@ -165,7 +165,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_bytes_value(self) -> bytes:
+    def get_bytes_value(self) -> Optional[bytes]:
         """Get a bytes value from the nodes
 
         Returns:
