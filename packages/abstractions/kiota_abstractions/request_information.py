@@ -79,7 +79,7 @@ class RequestInformation:
         # The Request Body
         self.content: Optional[bytes] = None
 
-    def configure(self, request_configuration: RequestConfiguration) -> None:
+    def configure(self, request_configuration: Optional[RequestConfiguration]) -> None:
         """Configures the current request information headers, query parameters, and options
         based on the request configuration provided
 

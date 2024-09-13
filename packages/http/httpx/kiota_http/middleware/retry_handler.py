@@ -4,9 +4,10 @@ import time
 from email.utils import parsedate_to_datetime
 from typing import FrozenSet, Set, Type
 
-import httpx
 from kiota_abstractions.request_option import RequestOption
 from opentelemetry.semconv.trace import SpanAttributes
+
+import httpx
 
 from .middleware import BaseMiddleware
 from .options import RetryHandlerOption
@@ -54,7 +55,7 @@ class RetryHandler(BaseMiddleware):
         ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
     )
 
-    def __init__(self, options: RequestOption = RetryHandlerOption()) -> None:
+    def __init__(self, options: RetryHandlerOption = RetryHandlerOption()) -> None:
         super().__init__()
         self.allowed_methods: FrozenSet[str] = self.DEFAULT_ALLOWED_METHODS
         self.backoff_factor: float = self.DEFAULT_BACKOFF_FACTOR

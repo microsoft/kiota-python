@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import warnings
 from datetime import date, datetime, time, timedelta
 from enum import Enum
@@ -8,18 +9,16 @@ from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
 import pendulum
-import re
-
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
-T = TypeVar("T")
+T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
 
 U = TypeVar("U", bound=Parsable)
 
 K = TypeVar("K", bound=Enum)
 
 
-class JsonParseNode(ParseNode, Generic[T, U]):
+class JsonParseNode(ParseNode):
 
     def __init__(self, node: Any) -> None:
         """
@@ -142,6 +141,8 @@ class JsonParseNode(ParseNode, Generic[T, U]):
 
     def get_collection_of_primitive_values(self, primitive_type: Any) -> Optional[List[T]]:
         """Gets the collection of primitive values of the node
+        Args:
+            primitive_type: The type of primitive to return.
         Returns:
             List[T]: The collection of primitive values
         """
@@ -160,7 +161,7 @@ class JsonParseNode(ParseNode, Generic[T, U]):
             return list(map(func, json.loads(self._json_node)))
         return list(map(func, list(self._json_node)))
 
-    def get_collection_of_object_values(self, factory: ParsableFactory) -> List[U]:
+    def get_collection_of_object_values(self, factory: ParsableFactory) -> Optional[List[U]]:
         """Gets the collection of type U values from the json node
         Returns:
             List[U]: The collection of model object values of the node
@@ -206,7 +207,7 @@ class JsonParseNode(ParseNode, Generic[T, U]):
         except KeyError:
             return None
 
-    def get_object_value(self, factory: ParsableFactory) -> U:
+    def get_object_value(self, factory: ParsableFactory[U]) -> U:
         """Gets the model object value of the node
         Returns:
             Parsable: The model object value of the node
@@ -264,7 +265,7 @@ class JsonParseNode(ParseNode, Generic[T, U]):
         """
         self._on_after_assign_field_values = value
 
-    def _assign_field_values(self, item: U) -> None:
+    def _assign_field_values(self, item: Parsable) -> None:
         """Assigns the field values to the model object"""
 
         # if object is null

@@ -1,22 +1,22 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from io import BytesIO
-from typing import Dict, Generic, List, Optional, TypeVar
+from typing import Dict, Generic, List, Optional, TypeVar, Union
 
 from .request_information import RequestInformation
 from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
 from .store import BackingStoreFactory
 
-ResponseType = TypeVar("ResponseType", str, int, float, bool, datetime, BytesIO)
+ResponseType = TypeVar("ResponseType")
 ModelType = TypeVar("ModelType", bound=Parsable)
 RequestType = TypeVar("RequestType")
 
 
-class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
+class RequestAdapter(ABC, Generic[RequestType]):
     """Service responsible for translating abstract Request Info into concrete native HTTP requests.
     """
     # The base url for every request.
-    base_url = str
+    base_url = str()
 
     @abstractmethod
     def get_serialization_writer_factory(self) -> SerializationWriterFactory:
@@ -30,8 +30,8 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
 
     @abstractmethod
     async def send_async(
-        self, request_info: RequestInformation, parsable_factory: ParsableFactory,
-        error_map: Dict[str, Optional[ParsableFactory]]
+        self, request_info: RequestInformation, parsable_factory: ParsableFactory[ModelType],
+        error_map: Optional[Dict[str, ParsableFactory]]
     ) -> Optional[ModelType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model.
@@ -40,7 +40,7 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
             request_info (RequestInformation): the request info to execute.
             parsable_factory (ParsableFactory): the class of response model to
                 deserialize the response into.
-            error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in case
+            error_map (Optional[Dict[str, ParsableFactory]]): the error dict to use in case
             of a failed request.
 
         Returns:
@@ -53,7 +53,7 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
         self,
         request_info: RequestInformation,
         parsable_factory: ParsableFactory,
-        error_map: Dict[str, Optional[ParsableFactory]],
+        error_map: Optional[Dict[str, ParsableFactory]],
     ) -> Optional[List[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
@@ -62,7 +62,7 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
             request_info (RequestInformation): the request info to execute.
             parsable_factory (ParsableFactory): the class of response model to
                 deserialize the response into.
-            error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in
+            error_map (Optional[Dict[str, ParsableFactory]]): the error dict to use in
             case of a failed request.
 
         Returns:
@@ -75,7 +75,7 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
         self,
         request_info: RequestInformation,
         response_type: ResponseType,
-        error_map: Dict[str, Optional[ParsableFactory]],
+        error_map: Optional[Dict[str, ParsableFactory]],
     ) -> Optional[List[ResponseType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
@@ -84,7 +84,7 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
             request_info (RequestInformation): the request info to execute.
             response_type (ResponseType): the class of the response model to deserialize the
             response into.
-            error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in
+            error_map (Optional[Dict[str, ParsableFactory]]): the error dict to use in
             case of a failed request.
 
         Returns:
@@ -94,17 +94,17 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
 
     @abstractmethod
     async def send_primitive_async(
-        self, request_info: RequestInformation, response_type: ResponseType,
-        error_map: Dict[str, Optional[ParsableFactory]]
+        self, request_info: RequestInformation, response_type: str,
+        error_map: Optional[Dict[str, ParsableFactory]]
     ) -> Optional[ResponseType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
 
         Args:
             request_info (RequestInformation): the request info to execute.
-            response_type (ResponseType): the class of the response model to deserialize the
+            response_type (str): the class name of the response model to deserialize the
             response into.
-            error_map (Dict[str, Optional[ParsableFactory]]): the error dict to use in
+            error_map (Optional[Dict[str, ParsableFactory]]): the error dict to use in
             case of a failed request.
 
         Returns:
@@ -114,14 +114,14 @@ class RequestAdapter(ABC, Generic[ResponseType, ModelType, RequestType]):
 
     @abstractmethod
     async def send_no_response_content_async(
-        self, request_info: RequestInformation, error_map: Dict[str, Optional[ParsableFactory]]
+        self, request_info: RequestInformation, error_map: Optional[Dict[str, ParsableFactory]]
     ) -> None:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
 
         Args:
             request_info (RequestInformation):the request info to execute.
-            error_map (Dict[str, Optional[Optional[ParsableFactory]]): the error dict to use in
+            error_map (Optional[Dict[str, ParsableFactory]]): the error dict to use in
             case of a failed request.
         """
         pass

@@ -7,7 +7,6 @@ from typing import Any, Callable, Dict, List, Optional, TypeVar
 from urllib.parse import quote_plus
 from uuid import UUID
 
-import pendulum
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 T = TypeVar("T")
@@ -111,7 +110,7 @@ class FormSerializationWriter(SerializationWriter):
         if key and value:
             self.write_str_value(key, str(value))
 
-    def write_bytes_value(self, key: Optional[str], value: bytes) -> None:
+    def write_bytes_value(self, key: Optional[str], value: Optional[bytes]) -> None:
         """Writes the specified byte array as a base64 string to the stream with an optional
         given key.
         Args:
@@ -178,7 +177,7 @@ class FormSerializationWriter(SerializationWriter):
         raise Exception("Form serialization does not support collections.")
 
     def write_object_value(
-        self, key: Optional[str], value: Optional[U], *additional_values_to_merge: U
+        self, key: Optional[str], value: Optional[U], *additional_values_to_merge: Optional[List[U]]
     ) -> None:
         """Writes the specified model object to the stream with an optional given key.
         Args:
@@ -195,10 +194,11 @@ class FormSerializationWriter(SerializationWriter):
         if value is not None:
             self._serialize_value(temp_writer, value)
 
-        for additional_value in filter(lambda x: x is not None, additional_values_to_merge):
-            self._serialize_value(temp_writer, additional_value)
-            if on_after := self.on_after_object_serialization:
-                on_after(additional_value)
+        if additional_values_to_merge:
+            for additional_value in filter(lambda x: x is not None, additional_values_to_merge):
+                self._serialize_value(temp_writer, additional_value)  # type: ignore
+                if on_after := self.on_after_object_serialization:
+                    on_after(additional_value)  # type: ignore
 
         if value and self._on_after_object_serialization:
             self._on_after_object_serialization(value)
@@ -304,7 +304,7 @@ class FormSerializationWriter(SerializationWriter):
             if hasattr(value, '__dict__'):
                 temp_writer = self._create_new_writer()
                 for k, v in value.__dict__.items():
-                    temp_writer.write_str_value(key, value.__dict__)
+                    temp_writer.write_any_value(k, v)
                 if len(self.writer) > 0:
                     self.writer += "&"
                 self.writer += f"{quote_plus(key.strip())}={temp_writer.writer}"
@@ -344,7 +344,7 @@ class FormSerializationWriter(SerializationWriter):
 
         value.serialize(temp_writer)
 
-    def _create_new_writer(self) -> SerializationWriter:
+    def _create_new_writer(self) -> FormSerializationWriter:
         writer = FormSerializationWriter()
         writer.on_before_object_serialization = self.on_before_object_serialization
         writer.on_after_object_serialization = self.on_after_object_serialization

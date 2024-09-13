@@ -18,8 +18,8 @@ class HeadersInspectionHandlerOption(RequestOption):
         self,
         inspect_request_headers: bool = True,
         inspect_response_headers: bool = True,
-        request_headers: HeadersCollection = None,
-        response_headers: HeadersCollection = None,
+        request_headers: HeadersCollection = HeadersCollection(),
+        response_headers: HeadersCollection = HeadersCollection(),
     ) -> None:
         """Creates an instance of headers inspection handler option.
 

@@ -9,14 +9,14 @@ from uuid import UUID
 from dateutil import parser
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
-T = TypeVar("T")
+T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
 
 U = TypeVar("U", bound=Parsable)
 
 K = TypeVar("K", bound=Enum)
 
 
-class TextParseNode(ParseNode, Generic[T, U]):
+class TextParseNode(ParseNode):
     """The ParseNode implementation for the text/plain content type
     """
 
@@ -133,8 +133,10 @@ class TextParseNode(ParseNode, Generic[T, U]):
             return datetime_obj.time()
         return None
 
-    def get_collection_of_primitive_values(self, primitive_type) -> Optional[List[T]]:
+    def get_collection_of_primitive_values(self, primitive_type) -> List[T]:
         """Gets the collection of primitive values of the node
+        Args:
+            primitive_type: The type of primitive to return.
         Returns:
             List[T]: The collection of primitive values
         """
@@ -170,7 +172,7 @@ class TextParseNode(ParseNode, Generic[T, U]):
                 raise Exception(f'Invalid key: {camel_case_key} for enum {enum_class}.')
         return None
 
-    def get_object_value(self, factory: ParsableFactory) -> U:
+    def get_object_value(self, factory: ParsableFactory[U]) -> U:
         """Gets the model object value of the node
         Returns:
             Parsable: The model object value of the node
