@@ -341,7 +341,7 @@ class HttpxRequestAdapter(RequestAdapter):
             if value is not None:
                 parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
                 _deserialized_span.end()
-                return value # type: ignore
+                return value  # type: ignore
 
             exc = TypeError(f"Error handling the response, unexpected type {response_type!r}")
             parent_span.record_exception(exc)
