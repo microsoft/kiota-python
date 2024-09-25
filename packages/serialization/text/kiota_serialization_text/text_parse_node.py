@@ -149,7 +149,7 @@ class TextParseNode(ParseNode):
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 
-    def get_collection_of_enum_values(self, enum_class: K) -> List[Optional[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
         """Gets the collection of enum values of the text node
         Returns:
             List[K]: The collection of enum values

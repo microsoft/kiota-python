@@ -175,14 +175,14 @@ class JsonParseNode(ParseNode):
             )
         return []
 
-    def get_collection_of_enum_values(self, enum_class: K) -> List[Optional[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
         """Gets the collection of enum values of the json node
         Returns:
             List[K]: The collection of enum values
         """
         if isinstance(self._json_node, list):
             return list(
-                map(lambda x: self._create_new_node(x).get_enum_value(enum_class), self._json_node)
+                map(lambda x: self._create_new_node(x).get_enum_value(enum_class), self._json_node) # type: ignore
             )
         return []
 

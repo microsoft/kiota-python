@@ -138,7 +138,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_collection_of_enum_values(self, enum_class: K) -> List[Optional[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
         """Gets the collection of enum values of the node
 
         Returns:

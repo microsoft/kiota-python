@@ -192,14 +192,14 @@ class FormParseNode(ParseNode):
     def get_collection_of_object_values(self, factory: ParsableFactory) -> Optional[List[U]]:
         raise Exception("Collection of object values is not supported with uri form encoding.")
 
-    def get_collection_of_enum_values(self, enum_class: K) -> List[Optional[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
         """Gets the collection of enum values of the node
         Returns:
             List[K]: The collection of enum values
         """
         values = self._node.split(',')
         if values:
-            return list(map(lambda x: self._create_new_node(x).get_enum_value(enum_class), values))
+            return list(map(lambda x: self._create_new_node(x).get_enum_value(enum_class), values)) # type: ignore
         return []
 
     def get_enum_value(self, enum_class: K) -> Optional[K]:
