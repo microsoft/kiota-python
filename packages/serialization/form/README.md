@@ -1,6 +1,6 @@
 # Microsoft Kiota URI Form Encoded Serialization Library for Python
+
 [![PyPI version](https://badge.fury.io/py/microsoft-kiota-serialization-form.svg)](https://badge.fury.io/py/microsoft-kiota-serialization-form)
-[![CI Actions Status](https://github.com/microsoft/kiota-serialization-form-python/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/microsoft/kiota-serialization-form-python/actions)
 [![Downloads](https://pepy.tech/badge/microsoft-kiota-serialization-form)](https://pepy.tech/project/microsoft-kiota-serialization-form)
 
 The Form Serialization Library for Python is the python `application/x-www-form-urlencoded` serialization library implementation.
@@ -21,7 +21,7 @@ pip install microsoft-kiota-serialization-form
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
@@ -33,8 +33,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.

@@ -1,6 +1,6 @@
 # Microsoft Kiota Serialization library for JSON
+
 [![PyPI version](https://badge.fury.io/py/microsoft-kiota-serialization-json.svg)](https://badge.fury.io/py/microsoft-kiota-serialization-json)
-[![CI Actions Status](https://github.com/microsoft/kiota-serialization-json-python/actions/workflows/build_publish.yml/badge.svg?branch=main)](https://github.com/microsoft/kiota-serialization-json-python/actions)
 [![Downloads](https://pepy.tech/badge/microsoft-kiota-serialization-json)](https://pepy.tech/project/microsoft-kiota-serialization-json)
 
 The Microsoft Kiota Serialization Library for JSON is a python implementation to serialize/deserialize JSON.
@@ -21,7 +21,7 @@ pip install microsoft-kiota-serialization-json
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
@@ -33,8 +33,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.

@@ -1,1 +1,3 @@
-VERSION: str = '1.3.1'
+import importlib.metadata
+
+VERSION: str = importlib.metadata.version('microsoft-kiota-serialization-json')
