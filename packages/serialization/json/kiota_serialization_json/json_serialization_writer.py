@@ -80,7 +80,7 @@ class JsonSerializationWriter(SerializationWriter):
         """Writes the specified uuid value to the stream with an optional given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            value (Optional[UUId]): The uuid value to be written.
+            value (Optional[UUID]): The uuid value to be written.
         """
         if isinstance(value, UUID):
             if key:
@@ -107,9 +107,9 @@ class JsonSerializationWriter(SerializationWriter):
         """
         if isinstance(value, datetime):
             if key:
-                self.writer[key] = str(value.isoformat())
+                self.writer[key] = value.isoformat()
             else:
-                self.value = str(value.isoformat())
+                self.value = value.isoformat()
         elif isinstance(value, str):
             try:
                 pendulum.parse(value)
@@ -239,7 +239,7 @@ class JsonSerializationWriter(SerializationWriter):
         """Writes the specified collection of enum values to the stream with an optional given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values Optional[List[Enum]): The enum values to be written.
+            values (Optional[List[Enum]]): The enum values to be written.
         """
         if isinstance(values, list):
             result = []
@@ -360,7 +360,7 @@ class JsonSerializationWriter(SerializationWriter):
     def write_additional_data_value(self, value: Dict[str, Any]) -> None:
         """Writes the specified additional data to the stream.
         Args:
-            value (Dict[str, Any]): he additional data to be written.
+            value (Dict[str, Any]): The additional data to be written.
         """
         if isinstance(value, dict):
             for key, val in value.items():
@@ -390,17 +390,17 @@ class JsonSerializationWriter(SerializationWriter):
     def on_before_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called before the object gets serialized.
         Returns:
-            Optional[Callable[[Parsable], None]]:the callback called before the object
+            Optional[Callable[[Parsable], None]]: The callback called before the object
             gets serialized.
         """
         return self._on_before_object_serialization
 
     @on_before_object_serialization.setter
     def on_before_object_serialization(self, value: Optional[Callable[[Parsable], None]]) -> None:
-        """Sets the callback called before the objects gets serialized.
+        """Sets the callback called before the objects get serialized.
         Args:
-            value (Optional[Callable[[Parsable], None]]): the callback called before the objects
-            gets serialized.
+            value (Optional[Callable[[Parsable], None]]): The callback called before the objects
+            get serialized.
         """
         self._on_before_object_serialization = value
 
@@ -408,17 +408,17 @@ class JsonSerializationWriter(SerializationWriter):
     def on_after_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called after the object gets serialized.
         Returns:
-            Optional[Optional[Callable[[Parsable], None]]]: the callback called after the object
+            Optional[Optional[Callable[[Parsable], None]]]: The callback called after the object
             gets serialized.
         """
         return self._on_after_object_serialization
 
     @on_after_object_serialization.setter
     def on_after_object_serialization(self, value: Optional[Callable[[Parsable], None]]) -> None:
-        """Sets the callback called after the objects gets serialized.
+        """Sets the callback called after the objects get serialized.
         Args:
-            value (Optional[Callable[[Parsable], None]]): the callback called after the objects
-            gets serialized.
+            value (Optional[Callable[[Parsable], None]]): The callback called after the objects
+            get serialized.
         """
         self._on_after_object_serialization = value
 
@@ -428,7 +428,7 @@ class JsonSerializationWriter(SerializationWriter):
     ) -> Optional[Callable[[Parsable, SerializationWriter], None]]:
         """Gets the callback called right after the serialization process starts.
         Returns:
-            Optional[Callable[[Parsable, SerializationWriter], None]]: the callback called
+            Optional[Callable[[Parsable, SerializationWriter], None]]: The callback called
             right after the serialization process starts.
         """
         return self._on_start_object_serialization
@@ -439,7 +439,7 @@ class JsonSerializationWriter(SerializationWriter):
     ) -> None:
         """Sets the callback called right after the serialization process starts.
         Args:
-            value (Optional[Callable[[Parsable, SerializationWriter], None]]): the callback
+            value (Optional[Callable[[Parsable, SerializationWriter], None]]): The callback
             called right after the serialization process starts.
         """
         self._on_start_object_serialization = value
@@ -460,14 +460,11 @@ class JsonSerializationWriter(SerializationWriter):
         """Writes the specified value to the stream with an optional given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            value Any): The value to be written.
+            value (Any): The value to be written.
         """
         value_type = type(value)
         if value is None:
             self.write_null_value(key)
-        elif value_type in PRIMITIVE_TYPES:
-            method = getattr(self, f'write_{value_type.__name__.lower()}_value')
-            method(key, value)
         elif isinstance(value, Parsable):
             self.write_object_value(key, value)
         elif isinstance(value, list):
@@ -475,24 +472,32 @@ class JsonSerializationWriter(SerializationWriter):
                 self.write_collection_of_object_values(key, value)
             elif all(isinstance(x, Enum) for x in value):
                 self.write_collection_of_enum_values(key, value)
-            elif all((type(x) in PRIMITIVE_TYPES) for x in value):
+            elif all(
+                any(isinstance(x, primitive_type) for primitive_type in PRIMITIVE_TYPES)
+                for x in value
+            ):
                 self.write_collection_of_primitive_values(key, value)
             elif all(isinstance(x, dict) for x in value):
                 self.__write_collection_of_dict_values(key, value)
             else:
                 raise TypeError(
-                    f"Encountered an unknown collection type during serialization \
-                    {value_type} with key {key}"
+                    f"Encountered an unknown collection type during serialization {type(value)}\
+                    with key {key}"
                 )
         elif isinstance(value, dict):
             self.__write_dict_value(key, value)
-        elif hasattr(value, '__dict__'):
-            self.write_non_parsable_object_value(key, value)
         else:
-            raise TypeError(
-                f"Encountered an unknown type during serialization {value_type} \
-                    with key {key}"
-            )
+            for primitive_type in PRIMITIVE_TYPES:
+                if isinstance(value, primitive_type):
+                    method = getattr(self, f"write_{primitive_type.__name__.lower()}_value")
+                    method(key, value)
+                    return
+            if hasattr(value, "__dict__"):
+                self.write_non_parsable_object_value(key, value)
+            else:
+                raise TypeError(
+                    f"Encountered an unknown type during serialization {type(value)} with key {key}"
+                )
 
     def _serialize_value(self, temp_writer: JsonSerializationWriter, value: U):
         if on_before := self.on_before_object_serialization:
