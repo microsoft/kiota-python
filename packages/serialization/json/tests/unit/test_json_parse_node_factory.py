@@ -18,7 +18,7 @@ def test_get_root_parse_node(sample_json_string):
     assert isinstance(root, JsonParseNode)
     assert root._json_node == json.loads(sample_json_string)
 
-  
+
 def test_get_root_parse_node_no_content_type(sample_json_string):
     with pytest.raises(Exception) as e_info:
         factory = JsonParseNodeFactory()
