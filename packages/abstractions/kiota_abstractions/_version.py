@@ -1,1 +1,3 @@
-VERSION: str = "1.3.3"
+import importlib.metadata
+
+VERSION: str = importlib.metadata.version('microsoft-kiota-abstractions')

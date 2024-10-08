@@ -1,1 +1,3 @@
-VERSION: str = '0.1.1'
+import importlib.metadata
+
+VERSION: str = importlib.metadata.version('microsoft-kiota-serialization-form')
