@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-import httpx
 from kiota_abstractions.request_option import RequestOption
 
+import httpx
 from kiota_http.middleware.options.user_agent_handler_option import UserAgentHandlerOption
 from kiota_http.middleware.user_agent_handler import UserAgentHandler
 
@@ -94,33 +94,43 @@ class KiotaClientFactory:
 
         if options:
             redirect_handler_options = options.get(RedirectHandlerOption.get_key())
-            if redirect_handler_options:
+            if redirect_handler_options and isinstance(
+                redirect_handler_options, RedirectHandlerOption
+            ):
                 redirect_handler = RedirectHandler(options=redirect_handler_options)
 
             retry_handler_options = options.get(RetryHandlerOption.get_key())
-            if retry_handler_options:
+            if retry_handler_options and isinstance(retry_handler_options, RetryHandlerOption):
                 retry_handler = RetryHandler(options=retry_handler_options)
 
             parameters_name_decoding_handler_options = options.get(
                 ParametersNameDecodingHandlerOption.get_key()
             )
-            if parameters_name_decoding_handler_options:
+            if parameters_name_decoding_handler_options and isinstance(
+                parameters_name_decoding_handler_options, ParametersNameDecodingHandlerOption
+            ):
                 parameters_name_decoding_handler = ParametersNameDecodingHandler(
                     options=parameters_name_decoding_handler_options
                 )
 
             url_replace_handler_options = options.get(UrlReplaceHandlerOption.get_key())
-            if url_replace_handler_options:
+            if url_replace_handler_options and isinstance(
+                url_replace_handler_options, UrlReplaceHandlerOption
+            ):
                 url_replace_handler = UrlReplaceHandler(options=url_replace_handler_options)
 
             user_agent_handler_options = options.get(UserAgentHandlerOption.get_key())
-            if user_agent_handler_options:
+            if user_agent_handler_options and isinstance(
+                user_agent_handler_options, UserAgentHandlerOption
+            ):
                 user_agent_handler = UserAgentHandler(options=user_agent_handler_options)
 
             headers_inspection_handler_options = options.get(
                 HeadersInspectionHandlerOption.get_key()
             )
-            if headers_inspection_handler_options:
+            if headers_inspection_handler_options and isinstance(
+                headers_inspection_handler_options, HeadersInspectionHandlerOption
+            ):
                 headers_inspection_handler = HeadersInspectionHandler(
                     options=headers_inspection_handler_options
                 )

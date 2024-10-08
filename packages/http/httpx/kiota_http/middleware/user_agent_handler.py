@@ -1,6 +1,7 @@
-from httpx import AsyncBaseTransport, Request, Response
 from kiota_abstractions.request_option import RequestOption
 from opentelemetry.semconv.trace import SpanAttributes
+
+from httpx import AsyncBaseTransport, Request, Response
 
 from .middleware import BaseMiddleware
 from .options import UserAgentHandlerOption
@@ -11,7 +12,7 @@ class UserAgentHandler(BaseMiddleware):
     Middleware handler for User Agent.
     """
 
-    def __init__(self, options: RequestOption = UserAgentHandlerOption(), **kwargs):
+    def __init__(self, options: UserAgentHandlerOption = UserAgentHandlerOption(), **kwargs):
         super().__init__(**kwargs)
         self.options = UserAgentHandlerOption() if options is None else options
 

@@ -1,9 +1,10 @@
 import ssl
 from typing import Optional
 
-import httpx
 from opentelemetry import trace
 from urllib3 import PoolManager
+
+import httpx
 
 from .._version import VERSION
 from ..observability_options import ObservabilityOptions

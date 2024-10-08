@@ -1,8 +1,9 @@
 import typing
 
-import httpx
 from kiota_abstractions.request_option import RequestOption
 from opentelemetry.semconv.trace import SpanAttributes
+
+import httpx
 
 from .._exceptions import RedirectError
 from .middleware import BaseMiddleware
@@ -27,7 +28,7 @@ class RedirectHandler(BaseMiddleware):
     LOCATION_HEADER: str = "Location"
     AUTHORIZATION_HEADER: str = "Authorization"
 
-    def __init__(self, options: RequestOption = RedirectHandlerOption()) -> None:
+    def __init__(self, options: RedirectHandlerOption = RedirectHandlerOption()) -> None:
         super().__init__()
         self.options = options
         self.redirect_on_status_codes: typing.Set[int] = self.DEFAULT_REDIRECT_STATUS_CODES

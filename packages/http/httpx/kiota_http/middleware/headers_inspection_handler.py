@@ -4,8 +4,9 @@
 # See License in the project root for license information.
 # ------------------------------------
 
-import httpx
 from kiota_abstractions.request_option import RequestOption
+
+import httpx
 
 from .middleware import BaseMiddleware
 from .options import HeadersInspectionHandlerOption
@@ -20,7 +21,7 @@ class HeadersInspectionHandler(BaseMiddleware):
 
     def __init__(
         self,
-        options: RequestOption = HeadersInspectionHandlerOption(),
+        options: HeadersInspectionHandlerOption = HeadersInspectionHandlerOption(),
     ):
         """Create an instance of HeadersInspectionHandler
 
@@ -33,7 +34,7 @@ class HeadersInspectionHandler(BaseMiddleware):
 
     async def send(
         self, request: httpx.Request, transport: httpx.AsyncBaseTransport
-    ) -> httpx.Response:  # type: ignore
+    ) -> httpx.Response:
         """To execute the current middleware
 
         Args:

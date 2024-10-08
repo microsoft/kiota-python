@@ -1,17 +1,19 @@
 from abc import abstractmethod
-from typing import Optional
+from typing import Generic, Optional, Protocol, TypeVar
 
 from .parsable import Parsable
 from .parse_node import ParseNode
 
+U_co = TypeVar("U_co", bound="Parsable", covariant=True)
 
-class ParsableFactory(Parsable):
+
+class ParsableFactory(Protocol, Generic[U_co]):
     """Defines the factory for creating parsable objects.
     """
 
     @staticmethod
     @abstractmethod
-    def create_from_discriminator_value(parse_node: Optional[ParseNode]) -> Parsable:
+    def create_from_discriminator_value(parse_node: ParseNode) -> U_co:
         """Create a new parsable object from the given serialized data.
 
         Args:

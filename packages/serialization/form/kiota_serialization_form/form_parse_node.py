@@ -18,7 +18,7 @@ U = TypeVar("U", bound=Parsable)
 K = TypeVar("K", bound=Enum)
 
 
-class FormParseNode(ParseNode, Generic[T, U]):
+class FormParseNode(ParseNode):
     """Represents a parse node that can be used to parse a form url encoded string."""
 
     def __init__(self, raw_value: str) -> None:
@@ -169,6 +169,8 @@ class FormParseNode(ParseNode, Generic[T, U]):
 
     def get_collection_of_primitive_values(self, primitive_type: type) -> Optional[List[T]]:
         """Gets the collection of primitive values of the node
+        Args:
+            primitive_type: The type of primitive to return.
         Returns:
             List[T]: The collection of primitive values
         """
@@ -178,29 +180,29 @@ class FormParseNode(ParseNode, Generic[T, U]):
         primitive_types = {bool, str, int, float, UUID, datetime, timedelta, date, time, bytes}
         if primitive_type in primitive_types:
             items = self._node.split(',')
-            result = []
+            result: List[T] = []
             for item in items:
                 current_parse_node = self._create_new_node(item)
-                method_name = f"get_{primitive_type.__name__.lower()}_value"  # type: ignore
+                method_name = f"get_{primitive_type.__name__.lower()}_value"
                 method = getattr(current_parse_node, method_name)
                 result.append(method())
             return result
         raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
 
-    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Exception:
+    def get_collection_of_object_values(self, factory: ParsableFactory) -> Optional[List[U]]:
         raise Exception("Collection of object values is not supported with uri form encoding.")
 
-    def get_collection_of_enum_values(self, enum_class: K) -> List[Optional[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
         """Gets the collection of enum values of the node
         Returns:
             List[K]: The collection of enum values
         """
         values = self._node.split(',')
         if values:
-            return list(map(lambda x: self._create_new_node(x).get_enum_value(enum_class), values))
+            return list(map(lambda x: self._create_new_node(x).get_enum_value(enum_class), values)) # type: ignore
         return []
 
-    def get_enum_value(self, enum_class: K) -> Any:
+    def get_enum_value(self, enum_class: K) -> Optional[K]:
         """Gets the enum value of the node
         Returns:
             Optional[K]: The enum value of the node
@@ -219,7 +221,7 @@ class FormParseNode(ParseNode, Generic[T, U]):
             if value not in enum_values:
                 raise Exception(f'Invalid value: {value} for enum {enum_class}.')
             result.append(enum_class(value))  # type: ignore
-        return result
+        return result  # type: ignore
 
     def get_object_value(self, factory: ParsableFactory[U]) -> U:
         """Gets the model object value of the node
@@ -269,7 +271,7 @@ class FormParseNode(ParseNode, Generic[T, U]):
         """
         self._on_after_assign_field_values = value
 
-    def _assign_field_values(self, item: U) -> None:
+    def _assign_field_values(self, item: Parsable) -> None:
         """Assigns the field values to the model object"""
 
         # if object is null
