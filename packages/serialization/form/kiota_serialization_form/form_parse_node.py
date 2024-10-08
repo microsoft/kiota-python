@@ -199,7 +199,12 @@ class FormParseNode(ParseNode):
         """
         values = self._node.split(',')
         if values:
-            return list(map(lambda x: self._create_new_node(x).get_enum_value(enum_class), values)) # type: ignore
+            return list(
+                map(
+                    lambda x: self._create_new_node(x).get_enum_value(enum_class),  # type: ignore
+                    values
+                )
+            )
         return []
 
     def get_enum_value(self, enum_class: K) -> Optional[K]:

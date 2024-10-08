@@ -182,7 +182,10 @@ class JsonParseNode(ParseNode):
         """
         if isinstance(self._json_node, list):
             return list(
-                map(lambda x: self._create_new_node(x).get_enum_value(enum_class), self._json_node) # type: ignore
+                map(
+                    lambda x: self._create_new_node(x).get_enum_value(enum_class),  # type: ignore
+                    self._json_node
+                )
             )
         return []
 
