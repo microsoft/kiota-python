@@ -152,14 +152,15 @@ def test_get_retry_after_http_date():
 
     retry_handler = RetryHandler()
     assert retry_handler._get_retry_after(response) < 120
-    
+
+
 @pytest.mark.asyncio
 async def test_ok_response_not_retried():
     """Test that a 200 response is not retried"""
+
     def request_handler(request: httpx.Request):
-        return httpx.Response(
-            200,
-        )
+        return httpx.Response(200, )
+
     handler = RetryHandler()
     request = httpx.Request(
         'GET',
@@ -171,18 +172,17 @@ async def test_ok_response_not_retried():
     assert resp.request
     assert resp.request == request
     assert RETRY_ATTEMPT not in resp.request.headers
-    
+
+
 @pytest.mark.asyncio
 async def test_retries_valid():
     """Test that a valid response is retried"""
+
     def request_handler(request: httpx.Request):
         if RETRY_ATTEMPT in request.headers:
-            return httpx.Response(
-                200,
-            )
-        return httpx.Response(
-            SERVICE_UNAVAILABLE,
-        )
+            return httpx.Response(200, )
+        return httpx.Response(SERVICE_UNAVAILABLE, )
+
     handler = RetryHandler()
     request = httpx.Request(
         'GET',
@@ -194,17 +194,16 @@ async def test_retries_valid():
     assert RETRY_ATTEMPT in resp.request.headers
     assert resp.request.headers[RETRY_ATTEMPT] == '1'
 
+
 @pytest.mark.asyncio
 async def test_should_retry_false():
     """Test that a request is not retried if should_retry is set to False"""
+
     def request_handler(request: httpx.Request):
         if RETRY_ATTEMPT in request.headers:
-            return httpx.Response(
-                200,
-            )
-        return httpx.Response(
-            TOO_MANY_REQUESTS,
-        )
+            return httpx.Response(200, )
+        return httpx.Response(TOO_MANY_REQUESTS, )
+
     handler = RetryHandler(RetryHandlerOption(10, 1, False))
     request = httpx.Request(
         'GET',
@@ -215,18 +214,19 @@ async def test_should_retry_false():
     assert resp.status_code == TOO_MANY_REQUESTS
     assert RETRY_ATTEMPT not in resp.request.headers
 
+
 @pytest.mark.asyncio
 async def test_returns_same_status_code_if_delay_greater_than_max_delay():
     """Test that a request is delayed based on the Retry-After header"""
+
     def request_handler(request: httpx.Request):
         if RETRY_ATTEMPT in request.headers:
-            return httpx.Response(
-                200,
-            )
+            return httpx.Response(200, )
         return httpx.Response(
             TOO_MANY_REQUESTS,
             headers={RETRY_AFTER: "20"},
         )
+
     handler = RetryHandler(RetryHandlerOption(10, 1, True))
     request = httpx.Request(
         'GET',
@@ -236,38 +236,29 @@ async def test_returns_same_status_code_if_delay_greater_than_max_delay():
     resp = await handler.send(request, mock_transport)
     assert resp.status_code == 429
     assert RETRY_ATTEMPT not in resp.request.headers
-    
+
+
 @pytest.mark.asyncio
 async def test_retry_options_apply_per_request():
     """Test that a request options are applied per request"""
+
     def request_handler(request: httpx.Request):
         if "request_1" in request.headers:
-            return httpx.Response(
-                SERVICE_UNAVAILABLE,
-            )
-        return httpx.Response(
-            GATEWAY_TIMEOUT,
-        )
+            return httpx.Response(SERVICE_UNAVAILABLE, )
+        return httpx.Response(GATEWAY_TIMEOUT, )
+
     handler = RetryHandler(RetryHandlerOption(10, 2, True))
-    
+
     # Requet 1
-    request = httpx.Request(
-        'GET',
-        BASE_URL,
-        headers={"request_1": "request_1_header"}
-    )
+    request = httpx.Request('GET', BASE_URL, headers={"request_1": "request_1_header"})
     mock_transport = httpx.MockTransport(request_handler)
     resp = await handler.send(request, mock_transport)
     assert resp.status_code == SERVICE_UNAVAILABLE
     assert 'request_1' in resp.request.headers
     assert resp.request.headers[RETRY_ATTEMPT] == '2'
-    
+
     # Request 2
-    request = httpx.Request(
-        'GET',
-        BASE_URL,
-        headers={"request_2": "request_2_header"}
-    )
+    request = httpx.Request('GET', BASE_URL, headers={"request_2": "request_2_header"})
     mock_transport = httpx.MockTransport(request_handler)
     resp = await handler.send(request, mock_transport)
     assert resp.status_code == GATEWAY_TIMEOUT

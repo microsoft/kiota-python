@@ -79,14 +79,15 @@ def test_is_not_https_redirect(mock_redirect_handler):
     url = httpx.URL(BASE_URL)
     location = httpx.URL("http://www.example.com")
     assert not mock_redirect_handler.is_https_redirect(url, location)
-    
+
+
 @pytest.mark.asyncio
 async def test_ok_response_not_redirected():
     """Test that a 200 response is not redirected"""
+
     def request_handler(request: httpx.Request):
-        return httpx.Response(
-            200,
-        )
+        return httpx.Response(200, )
+
     handler = RedirectHandler()
     request = httpx.Request(
         'GET',
@@ -97,19 +98,20 @@ async def test_ok_response_not_redirected():
     assert resp.status_code == 200
     assert resp.request
     assert resp.request == request
-    
+
+
 @pytest.mark.asyncio
 async def test_redirects_valid():
     """Test that a valid response is redirected"""
+
     def request_handler(request: httpx.Request):
         if request.url == REDIRECT_URL:
-            return httpx.Response(
-                200,
-            )
+            return httpx.Response(200, )
         return httpx.Response(
             MOVED_PERMANENTLY,
             headers={LOCATION_HEADER: REDIRECT_URL},
         )
+
     handler = RedirectHandler()
     request = httpx.Request(
         'GET',
@@ -122,19 +124,20 @@ async def test_redirects_valid():
     assert resp.request.method == request.method
     assert resp.request.url == REDIRECT_URL
 
+
 @pytest.mark.asyncio
 async def test_redirect_to_different_host_removes_auth_header():
     """Test that if a request is redirected to a different host,
     the Authorization header is removed"""
+
     def request_handler(request: httpx.Request):
         if request.url == "https://httpbin.org":
-            return httpx.Response(
-                200,
-            )
+            return httpx.Response(200, )
         return httpx.Response(
             FOUND,
             headers={LOCATION_HEADER: "https://httpbin.org"},
         )
+
     handler = RedirectHandler()
     request = httpx.Request(
         'GET',
@@ -149,42 +152,44 @@ async def test_redirect_to_different_host_removes_auth_header():
     assert resp.request.url == "https://httpbin.org"
     assert AUTHORIZATION_HEADER not in resp.request.headers
 
+
 @pytest.mark.asyncio
 async def test_redirect_on_scheme_change_disabled():
     """Test that a request is not redirected if the scheme changes and
     allow_redirect_on_scheme_change is set to False"""
+
     def request_handler(request: httpx.Request):
-        if request.url ==  "http://example.com":
-            return httpx.Response(
-                200,
-            )
+        if request.url == "http://example.com":
+            return httpx.Response(200, )
         return httpx.Response(
             TEMPORARY_REDIRECT,
             headers={LOCATION_HEADER: "http://example.com"},
         )
+
     handler = RedirectHandler()
     request = httpx.Request(
         'GET',
         BASE_URL,
     )
     mock_transport = httpx.MockTransport(request_handler)
-    
+
     with pytest.raises(Exception):
         await handler.send(request, mock_transport)
-    
+
+
 @pytest.mark.asyncio
 async def test_redirect_on_scheme_change_removes_auth_header():
     """Test that if a request is redirected to a different scheme,
     the Authorization header is removed"""
+
     def request_handler(request: httpx.Request):
-        if request.url ==  "http://example.com":
-            return httpx.Response(
-                200,
-            )
+        if request.url == "http://example.com":
+            return httpx.Response(200, )
         return httpx.Response(
             TEMPORARY_REDIRECT,
             headers={LOCATION_HEADER: "http://example.com"},
         )
+
     handler = RedirectHandler(RedirectHandlerOption(allow_redirect_on_scheme_change=True))
     request = httpx.Request(
         'GET',
@@ -196,20 +201,21 @@ async def test_redirect_on_scheme_change_removes_auth_header():
     assert resp.status_code == 200
     assert resp.request != request
     assert AUTHORIZATION_HEADER not in resp.request.headers
-    
+
+
 @pytest.mark.asyncio
 async def test_redirect_with_same_host_keeps_auth_header():
     """Test that if a request is redirected to the same host,
     the Authorization header is kept"""
+
     def request_handler(request: httpx.Request):
-        if request.url ==  f"{BASE_URL}/foo":
-            return httpx.Response(
-                200,
-            )
+        if request.url == f"{BASE_URL}/foo":
+            return httpx.Response(200, )
         return httpx.Response(
             TEMPORARY_REDIRECT,
             headers={LOCATION_HEADER: f"{BASE_URL}/foo"},
         )
+
     handler = RedirectHandler(RedirectHandlerOption(allow_redirect_on_scheme_change=True))
     request = httpx.Request(
         'GET',
@@ -221,21 +227,21 @@ async def test_redirect_with_same_host_keeps_auth_header():
     assert resp.status_code == 200
     assert resp.request != request
     assert AUTHORIZATION_HEADER in resp.request.headers
-    
-    
+
+
 @pytest.mark.asyncio
 async def test_redirect_with_relative_url_keeps_host():
     """Test that if a request is redirected to a relative url,
     the host is kept"""
+
     def request_handler(request: httpx.Request):
-        if request.url ==  f"{BASE_URL}/foo":
-            return httpx.Response(
-                200,
-            )
+        if request.url == f"{BASE_URL}/foo":
+            return httpx.Response(200, )
         return httpx.Response(
             TEMPORARY_REDIRECT,
             headers={LOCATION_HEADER: "/foo"},
         )
+
     handler = RedirectHandler(RedirectHandlerOption(allow_redirect_on_scheme_change=True))
     request = httpx.Request(
         'GET',
@@ -248,12 +254,14 @@ async def test_redirect_with_relative_url_keeps_host():
     assert resp.request != request
     assert AUTHORIZATION_HEADER in resp.request.headers
     assert resp.request.url == f"{BASE_URL}/foo"
-    
+
+
 @pytest.mark.asyncio
 async def test_max_redirects_exceeded():
     """Test that if the maximum number of redirects is exceeded, an exception is raised"""
+
     def request_handler(request: httpx.Request):
-        if request.url ==  f"{BASE_URL}/foo":
+        if request.url == f"{BASE_URL}/foo":
             return httpx.Response(
                 TEMPORARY_REDIRECT,
                 headers={LOCATION_HEADER: "/bar"},
@@ -262,6 +270,7 @@ async def test_max_redirects_exceeded():
             TEMPORARY_REDIRECT,
             headers={LOCATION_HEADER: "/foo"},
         )
+
     handler = RedirectHandler(RedirectHandlerOption(allow_redirect_on_scheme_change=True))
     request = httpx.Request(
         'GET',

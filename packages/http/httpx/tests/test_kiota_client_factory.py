@@ -3,13 +3,8 @@ import pytest
 
 from kiota_http.kiota_client_factory import KiotaClientFactory
 from kiota_http.middleware import (
-    AsyncKiotaTransport,
-    MiddlewarePipeline,
-    ParametersNameDecodingHandler,
-    RedirectHandler,
-    RetryHandler,
-    UrlReplaceHandler,
-    HeadersInspectionHandler
+    AsyncKiotaTransport, MiddlewarePipeline, ParametersNameDecodingHandler, RedirectHandler,
+    RetryHandler, UrlReplaceHandler, HeadersInspectionHandler
 )
 from kiota_http.middleware.options import RedirectHandlerOption, RetryHandlerOption
 from kiota_http.middleware.user_agent_handler import UserAgentHandler
@@ -21,7 +16,8 @@ def test_create_with_default_middleware():
 
     assert isinstance(client, httpx.AsyncClient)
     assert isinstance(client._transport, AsyncKiotaTransport)
-    
+
+
 def test_create_with_default_middleware_custom_client():
     """Test creation of HTTP Client using default middleware while providing
     a custom client"""
@@ -32,7 +28,8 @@ def test_create_with_default_middleware_custom_client():
     assert isinstance(client, httpx.AsyncClient)
     assert client.timeout == httpx.Timeout(connect=10, read=20, write=20, pool=20)
     assert isinstance(client._transport, AsyncKiotaTransport)
-    
+
+
 def test_create_with_default_middleware_custom_client_with_proxy():
     """Test creation of HTTP Client using default middleware while providing
     a custom client"""
@@ -78,7 +75,8 @@ def test_create_with_custom_middleware():
     assert isinstance(client._transport, AsyncKiotaTransport)
     pipeline = client._transport.pipeline
     assert isinstance(pipeline._first_middleware, RetryHandler)
-    
+
+
 def test_create_with_custom_middleware_custom_client():
     """Test creation of HTTP Client using custom middleware while providing
     a custom client"""
@@ -92,6 +90,7 @@ def test_create_with_custom_middleware_custom_client():
     assert isinstance(client._transport, AsyncKiotaTransport)
     pipeline = client._transport.pipeline
     assert isinstance(pipeline._first_middleware, RetryHandler)
+
 
 def test_create_with_custom_middleware_custom_client_with_proxy():
     """Test creation of HTTP Client using custom middleware while providing
@@ -115,7 +114,7 @@ def test_create_with_custom_middleware_custom_client_with_proxy():
         assert isinstance(transport, AsyncKiotaTransport)
         pipeline = transport.pipeline
         assert isinstance(pipeline._first_middleware, RetryHandler)
-    
+
 
 def test_get_default_middleware():
     """Test fetching of default middleware with no custom options passed"""

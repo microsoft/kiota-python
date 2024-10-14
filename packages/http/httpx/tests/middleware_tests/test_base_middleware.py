@@ -9,6 +9,7 @@ def test_next_is_none():
     middleware = BaseMiddleware()
     assert middleware.next is None
 
+
 def test_span_created(request_info):
     """Ensures the current span is returned and the parent_span is not set."""
     middleware = BaseMiddleware()

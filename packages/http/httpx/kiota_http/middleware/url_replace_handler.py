@@ -1,5 +1,5 @@
 from kiota_abstractions.request_option import RequestOption
-from opentelemetry.semconv.trace import SpanAttributes
+from opentelemetry.semconv.attributes.url_attributes import (URL_FULL)
 
 import httpx
 
@@ -41,7 +41,7 @@ class UrlReplaceHandler(BaseMiddleware):
             url_string: str = str(request.url)
             url_string = self.replace_url_segment(url_string, current_options)
             request.url = httpx.URL(url_string)
-            _enable_span.set_attribute(SpanAttributes.HTTP_URL, str(request.url))
+            _enable_span.set_attribute(URL_FULL, str(request.url))
         response = await super().send(request, transport)
         _enable_span.end()
         return response

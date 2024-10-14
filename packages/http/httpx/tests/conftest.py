@@ -13,9 +13,11 @@ from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 
 from .helpers import MockTransport, MockErrorObject, MockResponseObject, OfficeLocation
 
+
 @pytest.fixture
 def sample_headers():
     return {"Content-Type": "application/json"}
+
 
 @pytest.fixture
 def auth_provider():
@@ -25,6 +27,7 @@ def auth_provider():
 @pytest.fixture
 def request_info():
     return RequestInformation()
+
 
 @pytest.fixture
 def mock_async_transport():
@@ -57,6 +60,7 @@ def mock_error_500_map():
         "500": Exception("Internal Server Error"),
     }
 
+
 @pytest.fixture
 def mock_apierror_map(sample_headers):
     return {
@@ -64,19 +68,23 @@ def mock_apierror_map(sample_headers):
         "500": APIError("Custom Internal Server Error", 500, sample_headers)
     }
 
+
 @pytest.fixture
 def mock_apierror_XXX_map(sample_headers):
-    return {"XXX": APIError("OdataError",400, sample_headers)}
-    
+    return {"XXX": APIError("OdataError", 400, sample_headers)}
+
+
 @pytest.fixture
 def mock_request_adapter(sample_headers):
     resp = httpx.Response(json={'error': 'not found'}, status_code=404, headers=sample_headers)
     mock_request_adapter = AsyncMock
     mock_request_adapter.get_http_response_message = AsyncMock(return_value=resp)
 
+
 @pytest.fixture
 def simple_error_response(sample_headers):
     return httpx.Response(json={'error': 'not found'}, status_code=404, headers=sample_headers)
+
 
 @pytest.fixture
 def simple_success_response(sample_headers):
@@ -153,9 +161,7 @@ def mock_users_response(mocker):
 
 @pytest.fixture
 def mock_primitive_collection_response(sample_headers):
-    return httpx.Response(
-        200, json=[12.1, 12.2, 12.3, 12.4, 12.5], headers=sample_headers
-    )
+    return httpx.Response(200, json=[12.1, 12.2, 12.3, 12.4, 12.5], headers=sample_headers)
 
 
 @pytest.fixture
