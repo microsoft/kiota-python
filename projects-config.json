@@ -1,0 +1,91 @@
+{
+  "projects":[
+    {
+      "name": "abstractions",
+      "packageName": "kiota_abstractions",
+      "path": "./packages/abstractions/"
+    },
+    {
+      "name": "authentication azure",
+      "packageName": "kiota_authentication_azure",
+      "path": "./packages/authentication/azure/"
+    },
+    {
+      "name": "http - httpx",
+      "packageName": "kiota_http",
+      "path": "./packages/http/httpx/"
+    },
+    {
+      "name": "serialization - json",
+      "packageName": "kiota_serialization_json",
+      "path": "./packages/serialization/json/"
+    },
+    {
+      "name": "serialization - form",
+      "packageName": "kiota_serialization_form",
+      "path": "./packages/serialization/form/"
+    },
+    {
+      "name": "serialization - text",
+      "packageName": "kiota_serialization_text",
+      "path": "./packages/serialization/text/"
+    },
+    {
+      "name": "serialization - multipart",
+      "packageName": "kiota_serialization_multipart",
+      "path": "./packages/serialization/multipart/"
+    }
+  ],
+  "commands":[
+    {
+      "name": "install-deps",
+      "description": "install dependencies",
+      "command": "poetry install"
+    },
+    {
+      "name": "format",
+      "description": "Fix code format with yapf",
+      "command": "poetry run yapf -ir {projectName}"
+    },
+    {
+      "name": "check-format",
+      "description": "Check code format with yapf",
+      "command": "poetry run yapf -dr {projectName}"
+    },
+    {
+      "name": "check-imports",
+      "description": "Check import order with isort",
+      "command": "poetry run isort {projectName}"
+    },
+    {
+      "name": "lint",
+      "description": "Check lint with pylint",
+      "command": "poetry run pylint {projectName} --disable=W --rcfile=.pylintrc"
+    },
+    {
+      "name": "check-types",
+      "description": "Check types with mypy",
+      "command": "poetry run mypy {projectName}"
+    },
+    {
+      "name": "test",
+      "description": "Check tests with pytest",
+      "command": "poetry run pytest"
+    },
+    {
+      "name": "check-all",
+      "description": "Check all with yapf, isort, pylint, mypy and pytest",
+      "command": "poetry run yapf -dr {projectName} && poetry run isort {projectName} && poetry run pylint {projectName} && poetry run mypy {projectName} && poetry run pytest {projectName}"
+    },
+    {
+      "name": "bump-minor",
+      "description": "Bump next minor version across projects",
+      "command": "poetry version minor"
+    },
+    {
+      "name": "bump-patch",
+      "description": "Bump to next patch version across projects",
+      "command": "poetry version patch"
+    }
+  ]
+}
