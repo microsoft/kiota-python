@@ -5,7 +5,9 @@ from email.utils import parsedate_to_datetime
 from typing import FrozenSet, Set, Type
 
 from kiota_abstractions.request_option import RequestOption
-from opentelemetry.semconv.trace import SpanAttributes
+from opentelemetry.semconv.attributes.http_attributes import (
+    HTTP_RESPONSE_STATUS_CODE,
+)
 
 import httpx
 
@@ -83,7 +85,7 @@ class RetryHandler(BaseMiddleware):
         while retry_valid:
             start_time = time.time()
             response = await super().send(request, transport)
-            _retry_span.set_attribute(SpanAttributes.HTTP_STATUS_CODE, response.status_code)
+            _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
             # check that max retries has not been hit
             retry_valid = self.check_retry_valid(retry_count, current_options)
 
@@ -100,7 +102,7 @@ class RetryHandler(BaseMiddleware):
                 # increment the count for retries
                 retry_count += 1
                 request.headers.update({'retry-attempt': f'{retry_count}'})
-                _retry_span.set_attribute(SpanAttributes.HTTP_RETRY_COUNT, retry_count)
+                _retry_span.set_attribute('http.request.resend_count', retry_count)
                 continue
             break
         if response is None:

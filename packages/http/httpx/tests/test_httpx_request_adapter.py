@@ -21,7 +21,6 @@ APPLICATION_JSON = "application/json"
 BASE_URL = "https://graph.microsoft.com"
 
 
-
 def test_create_request_adapter(auth_provider):
     request_adapter = HttpxRequestAdapter(auth_provider)
     assert request_adapter._authentication_provider is auth_provider
@@ -180,10 +179,10 @@ async def test_throw_failed_responses_not_apierror(
     with pytest.raises(Exception) as e:
         span = mock_otel_span
         await request_adapter.throw_failed_responses(resp, mock_error_500_map, span, span)
-    assert ("The server returned an unexpected status code and the error registered"
-            " for this code failed to deserialize") in str(
-        e.value.message
-    )
+    assert (
+        "The server returned an unexpected status code and the error registered"
+        " for this code failed to deserialize"
+    ) in str(e.value.message)
 
 
 @pytest.mark.asyncio
@@ -200,7 +199,8 @@ async def test_throw_failed_responses_4XX(
         span = mock_otel_span
         await request_adapter.throw_failed_responses(resp, mock_apierror_map, span, span)
     assert str(e.value.message) == "Resource not found"
-    
+
+
 @pytest.mark.asyncio
 async def test_throw_failed_responses_5XX(
     request_adapter, mock_apierror_map, mock_error_object, mock_otel_span
@@ -215,7 +215,8 @@ async def test_throw_failed_responses_5XX(
         span = mock_otel_span
         await request_adapter.throw_failed_responses(resp, mock_apierror_map, span, span)
     assert str(e.value.message) == "Custom Internal Server Error"
-    
+
+
 @pytest.mark.asyncio
 async def test_throw_failed_responses_XXX(
     request_adapter, mock_apierror_XXX_map, mock_error_object, mock_otel_span
@@ -230,7 +231,6 @@ async def test_throw_failed_responses_XXX(
         span = mock_otel_span
         await request_adapter.throw_failed_responses(resp, mock_apierror_XXX_map, span, span)
     assert str(e.value.message) == "OdataError"
-
 
 
 @pytest.mark.asyncio
@@ -392,9 +392,10 @@ async def test_retries_on_cae_failure(
         call(
             request_info_mock,
             {
-                "claims":
-                ("eyJhY2Nlc3NfdG9rZW4iOnsibmJmIjp7ImVzc2VudGlhbCI6dHJ1ZSwgInZhbH"
-                 "VlIjoiMTYwNDEwNjY1MSJ9fX0")
+                "claims": (
+                    "eyJhY2Nlc3NfdG9rZW4iOnsibmJmIjp7ImVzc2VudGlhbCI6dHJ1ZSwgInZhbH"
+                    "VlIjoiMTYwNDEwNjY1MSJ9fX0"
+                )
             },
         ),
     ]
