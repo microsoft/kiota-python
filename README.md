@@ -12,7 +12,7 @@ Read more about Kiota [here](https://github.com/microsoft/kiota/blob/main/README
 
 ## Libraries
 
-| Library                                                                   | Pypi Release                                                                                                                                        | Changelog                                                      |
+| Library                                                                   | PyPi Release                                                                                                                                        | Changelog                                                      |
 |---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
 | [Abstractions](./packages/abstractions/README.md)                         | [![PyPI version](https://badge.fury.io/py/microsoft-kiota-abstractions.svg)](https://badge.fury.io/py/microsoft-kiota-abstractions)                 | [Changelog](./packages/abstractions/CHANGELOG.md)              |
 | [Authentication - Azure](./packages/authentication/azure/README.md)       | [![PyPI version](https://badge.fury.io/py/microsoft-kiota-authentication-azure.svg)](https://badge.fury.io/py/microsoft-kiota-authentication-azure) | [Changelog](./packages/authentication/azure/CHANGELOG.md)      |
