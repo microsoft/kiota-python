@@ -53,7 +53,7 @@ class MultipartBody(Parsable, Generic[T]):
         value: Tuple[str, Any] = (content_type, part_value)
         self.parts[self._normalize_part_name(part_name)] = value
 
-    def get_part_value(self, part_name: str) -> T:
+    def get_part_value(self, part_name: str) -> Optional[T]:
         """Gets the value of a part from the multipart body."""
         if not part_name:
             raise ValueError("Part name cannot be null")
