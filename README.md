@@ -1,10 +1,8 @@
-# Kiota Libraries for python
+# Kiota Libraries for Python
 
-The Kiota libraries define the basic constructs for Kiota projects needed once an SDK has been generated from an OpenAPI definition and provide default implementations.
+The Kiota libraries provide the essential building blocks for Kiota-generated SDKs based on OpenAPI definitions, offering default implementations for serialization, authentication, and HTTP transport. These libraries are necessary for compiling and running any Kiota-generated project.
 
-A [Kiota](https://github.com/microsoft/kiota) generated project will need a reference to the libraries to build and execute by providing default implementations for serialization, authentication and http transport.
-
-Read more about Kiota [here](https://github.com/microsoft/kiota/blob/main/README.md).
+To learn more about Kiota, visit the [Kiota repository](https://github.com/microsoft/kiota).
 
 ## Build Status
 
@@ -24,22 +22,12 @@ Read more about Kiota [here](https://github.com/microsoft/kiota/blob/main/README
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
+We welcome contributions and suggestions to this project. Most contributions require agreeing to a Contributor License Agreement (CLA) which ensures that you grant us the rights to use your contribution. For more details, please visit <https://cla.opensource.microsoft.com>.
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+Upon submitting a pull request, a CLA bot will check whether you need to sign the agreement and will update the PR status accordingly. Follow the bot’s instructions if needed. You only need to sign the CLA once across all Microsoft repositories.
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+This project adheres to the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, visit the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any questions or comments.
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
-trademarks or logos is subject to and must follow
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies.
+This project may include trademarks or logos for certain projects, products, or services. Use of Microsoft trademarks or logos must comply with [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general). Any usage of Microsoft logos in modified versions of this project must not create confusion or imply endorsement by Microsoft. The use of third-party trademarks is subject to the respective owners' policies.
