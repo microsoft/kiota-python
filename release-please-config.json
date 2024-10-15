@@ -93,5 +93,20 @@
       ]
     }
   },
+  "plugins": [
+    {
+      "type": "linked-versions",
+      "groupName": "microsoft-kiota",
+      "components": [
+        "microsoft-kiota-abstractions",
+        "microsoft-kiota-authentication-azure", 
+        "microsoft-kiota-http",
+        "microsoft-kiota-serialization-json", 
+        "microsoft-kiota-serialization-form", 
+        "microsoft-kiota-serialization-text",
+        "microsoft-kiota-serialization-multipart"
+      ]
+    }
+  ],
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
 }
