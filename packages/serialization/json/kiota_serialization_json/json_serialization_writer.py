@@ -12,6 +12,7 @@ from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 T = TypeVar("T")
 U = TypeVar("U", bound=Parsable)
+K = TypeVar("K", bound=Enum)
 PRIMITIVE_TYPES = [bool, str, int, float, UUID, datetime, timedelta, date, time, bytes, Enum]
 
 
@@ -234,12 +235,12 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = obj_list
 
     def write_collection_of_enum_values(
-        self, key: Optional[str], values: Optional[List[Enum]]
+        self, key: Optional[str], values: Optional[List[K]]
     ) -> None:
         """Writes the specified collection of enum values to the stream with an optional given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values (Optional[List[Enum]]): The enum values to be written.
+            values (Optional[List[K]]): The enum values to be written.
         """
         if isinstance(values, list):
             result = []
@@ -320,11 +321,11 @@ class JsonSerializationWriter(SerializationWriter):
             else:
                 self.value = temp_writer.writer
 
-    def write_enum_value(self, key: Optional[str], value: Optional[Enum]) -> None:
+    def write_enum_value(self, key: Optional[str], value: Optional[K]) -> None:
         """Writes the specified enum value to the stream with an optional given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            value (Optional[Enum]): The enum value to be written.
+            value (Optional[K]): The enum value to be written.
         """
         if isinstance(value, Enum):
             if key:
