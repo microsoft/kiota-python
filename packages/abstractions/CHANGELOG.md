@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2](https://github.com/microsoft/kiota-python/compare/v1.4.1...v1.4.2) (2024-10-15)
+
+
+### Bug Fixes
+
+* fixed missing install command before release ([4b02a38](https://github.com/microsoft/kiota-python/commit/4b02a38abfa30897431a92815a6eb1f7b5824803))
+* fixed missing install command before release ([1928ba1](https://github.com/microsoft/kiota-python/commit/1928ba157a05036b4fb1c7868cf0d54b0949f58d))
+
 ## [1.4.1](https://github.com/microsoft/kiota-python/compare/v1.4.0...v1.4.1) (2024-10-15)
 
 
