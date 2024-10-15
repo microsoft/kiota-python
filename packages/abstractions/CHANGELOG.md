@@ -202,7 +202,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed BaseRequesBuilder class to be instantiable.
+- Changed BaseRequestBuilder class to be instantiable.
 - Renamed RequestConfiguration class to BaseRequestConfiguration.
 
 ## [0.5.4] - 2023-06-22
