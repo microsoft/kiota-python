@@ -10,6 +10,7 @@ T = TypeVar("T")
 U = TypeVar("U", bound=Parsable)
 K = TypeVar("K", bound=Enum)
 
+
 class TextSerializationWriter(SerializationWriter):
 
     NO_STRUCTURED_DATA_MESSAGE = 'Text does not support structured data'

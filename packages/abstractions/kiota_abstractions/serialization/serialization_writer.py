@@ -12,6 +12,7 @@ T = TypeVar("T")
 U = TypeVar("U", bound=Parsable)
 K = TypeVar("K", bound=Enum)
 
+
 class SerializationWriter(ABC):
     """Defines an interface for serialization of objects to a stream
     """

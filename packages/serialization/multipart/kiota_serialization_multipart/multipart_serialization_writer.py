@@ -13,6 +13,7 @@ T = TypeVar("T")
 U = TypeVar("U", bound=Parsable)
 K = TypeVar("K", bound=Enum)
 
+
 class MultipartSerializationWriter(SerializationWriter):
 
     def __init__(self) -> None:
