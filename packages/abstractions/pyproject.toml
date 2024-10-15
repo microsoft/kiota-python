@@ -21,7 +21,8 @@ classifiers = [
 homepage = "https://github.com/microsoft/kiota#readme"
 repository = "https://github.com/microsoft/kiota-python"
 documentation = "https://microsoft.github.io/kiota/"
-packages = [{include = "kiota_abstractions"}]	
+packages = [{include = "kiota_abstractions"}]
+include = ["CHANGELOG.md", "LICENSE"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
