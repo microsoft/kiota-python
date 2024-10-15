@@ -32,24 +32,38 @@ jobs:
           python -m pip install --upgrade poetry
           python -m pip install --upgrade poetry-plugin-mono-repo-deps
       - name: Publish kiota_abstractions to PyPI
-        run: poetry publish --build
+        run: |
+          poetry install
+          poetry publish --build
         working-directory: "./packages/abstractions"
       - name: Publish kiota_authentication_azure to PyPI
-        run: poetry publish --build
+        run: |
+          poetry install
+          poetry publish --build
         working-directory: "./packages/authentication/azure"
       - name: Publish kiota_http to PyPI
-        run: poetry publish --build
+        run: |
+          poetry install
+          poetry publish --build
         working-directory: "./packages/http/httpx"
       - name: Publish kiota_serialization_form to PyPI
-        run: poetry publish --build
+        run: |
+          poetry install
+          poetry publish --build
         working-directory: "./packages/serialization/form"
       - name: Publish kiota_serialization_json to PyPI
-        run: poetry publish --build
+        run: |
+          poetry install
+          poetry publish --build
         working-directory: "./packages/serialization/json"
       - name: Publish kiota_serialization_text to PyPI
-        run: poetry publish --build
+        run: |
+          poetry install
+          poetry publish --build
         working-directory: "./packages/serialization/text"
       - name: Publish kiota_serialization_multipart to PyPI
-        run: poetry publish --build
+        run: |
+          poetry install
+          poetry publish --build
         working-directory: "./packages/serialization/multipart"
   
