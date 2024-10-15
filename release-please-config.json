@@ -6,7 +6,7 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
   "versioning": "prerelease",
-  "bootstrap-sha": "1f879d73ac30a7f098323468e32d33e165f7f229",
+  "bootstrap-sha": "11d3cc3c83d24b03e3a9cd60ab8a3236bb03727f",
   "packages": {
     "packages/abstractions": {
       "component": "microsoft-kiota-abstractions",
