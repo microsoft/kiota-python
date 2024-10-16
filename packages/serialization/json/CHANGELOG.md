@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.4.1...microsoft-kiota-serialization-json-v1.4.3) (2024-10-16)
+
+
+### Bug Fixes
+
+* fixed type variable in enum writer method to align to reader methods ([d5ce1ec](https://github.com/microsoft/kiota-python/commit/d5ce1ec226b804dd949a2f3b52d1b0cb042fc062))
+* include licence file in distribution package. ([645af28](https://github.com/microsoft/kiota-python/commit/645af285a6f97848b190c51199fda9f541e9027a))
+
 ## [1.4.1](https://github.com/microsoft/kiota-python/compare/v1.4.0...v1.4.1) (2024-10-15)
 
 
