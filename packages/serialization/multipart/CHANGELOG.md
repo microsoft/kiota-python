@@ -42,5 +42,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added support for multipart serialization for Python.[microsoft/kiota#3030](https://github.com/microsoft/kiota/issues/3030)
-
-### Changed
