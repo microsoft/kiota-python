@@ -259,7 +259,8 @@ def test_write_additional_data_value(user_1, user_2):
                 "groups": [{
                     "friends": [user_2]
                 }]
-            }
+            },
+            "pinnedItems": [None, None]
         }
     )
     content = json_serialization_writer.get_serialized_content()
@@ -272,4 +273,5 @@ def test_write_additional_data_value(user_1, user_2):
             '"approvers": [{"id": "8f841f30-e6e3-439a-a812-ebd369559c36", '\
                 '"updated_at": "2022-01-27T12:59:45.596117+00:00", "is_active": true}, '\
                 '{"display_name": "John Doe", "age": 32}], "created_at": "2022-01-27", '\
-                '"data": {"groups": [{"friends": [{"display_name": "John Doe", "age": 32}]}]}}'
+                '"data": {"groups": [{"friends": [{"display_name": "John Doe", "age": 32}]}]}, '\
+                    '"pinnedItems": [null, null]}'
