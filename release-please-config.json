@@ -1,6 +1,6 @@
 {
   "exclude-paths": [".git", ".idea", ".github", ".vscode"],
-  "include-component-in-tag": false,
+  "include-component-in-tag": true,
   "include-v-in-tag": true,
   "separate-pull-requests": false,
   "bump-minor-pre-major": true,
