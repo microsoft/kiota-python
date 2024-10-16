@@ -5,7 +5,7 @@ import re
 import warnings
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
+from typing import Any, Callable, List, Optional, TypeVar
 from uuid import UUID
 
 import pendulum

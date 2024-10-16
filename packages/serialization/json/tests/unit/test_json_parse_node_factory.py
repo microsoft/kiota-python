@@ -20,24 +20,24 @@ def test_get_root_parse_node(sample_json_string):
 
 
 def test_get_root_parse_node_no_content_type(sample_json_string):
-    with pytest.raises(Exception) as e_info:
+    with pytest.raises(Exception):
         factory = JsonParseNodeFactory()
         sample_json_string_bytes = sample_json_string.encode('utf-8')
-        root = factory.get_root_parse_node('', sample_json_string_bytes)
+        factory.get_root_parse_node('', sample_json_string_bytes)
 
 
 def test_get_root_parse_node_unsupported_content_type(sample_json_string):
-    with pytest.raises(Exception) as e_info:
+    with pytest.raises(Exception):
         factory = JsonParseNodeFactory()
         sample_json_string_bytes = sample_json_string.encode('utf-8')
-        root = factory.get_root_parse_node('application/xml', sample_json_string_bytes)
+        factory.get_root_parse_node('application/xml', sample_json_string_bytes)
 
 
 def test_get_root_parse_node_empty_json():
-    with pytest.raises(TypeError) as e_info:
+    with pytest.raises(TypeError):
         factory = JsonParseNodeFactory()
         sample_string_bytes = ''.encode('utf-8')
-        root = factory.get_root_parse_node('application/json', sample_string_bytes)
+        factory.get_root_parse_node('application/json', sample_string_bytes)
 
 
 def test_get_valid_content_type():
