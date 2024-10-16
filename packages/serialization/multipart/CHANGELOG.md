@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.4.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.4.1...microsoft-kiota-serialization-multipart-v1.4.3) (2024-10-16)
+
+
+### Bug Fixes
+
+* fixed deployment and cleanup readmes ([cd665ec](https://github.com/microsoft/kiota-python/commit/cd665ec58d1f853fc557ce70ed4f8424044c1274))
+* fixed deployment and cleanup readmes ([2def083](https://github.com/microsoft/kiota-python/commit/2def08330e17037c68dc3344676629886fb21870))
+* fixed type variable in enum writer method to align to reader methods ([d5ce1ec](https://github.com/microsoft/kiota-python/commit/d5ce1ec226b804dd949a2f3b52d1b0cb042fc062))
+* include licence file in distribution package. ([645af28](https://github.com/microsoft/kiota-python/commit/645af285a6f97848b190c51199fda9f541e9027a))
+
 ## [1.4.1](https://github.com/microsoft/kiota-python/compare/v1.4.0...v1.4.1) (2024-10-15)
 
 
