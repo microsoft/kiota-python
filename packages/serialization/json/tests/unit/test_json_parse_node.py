@@ -8,8 +8,6 @@ from pendulum import DateTime, FixedTimezone
 from kiota_serialization_json.json_parse_node import JsonParseNode
 from ..helpers import OfficeLocation, User
 
-url: str = "https://graph.microsoft.com/v1.0/$metadata#users/$entity"
-
 
 def test_get_str_value():
     parse_node = JsonParseNode("Diego Siciliani")
@@ -42,7 +40,7 @@ def test_get_float_value_from_float():
 @pytest.mark.parametrize("value", [0, 10, 100])
 def test_get_float_value(value: int):
     """
-    Consider an OpenAPI Specification using the type: number and format: float or double    
+    Consider an OpenAPI Specification using the type: number and format: float or double
     Note: The OpenAPI Specification also allows for the use of the type: integer and format: int32 or int64
 
     Consider an API with Price data [0, 0.5, 1, 1.5, 2] and so on
@@ -70,30 +68,30 @@ def test_get_datetime_value_returns_none_with_invalid_str(value: str):
 
 
 def test_get_datetime_value():
-    parse_node = JsonParseNode('2022-01-27T12:59:45.596117')
+    parse_node = JsonParseNode("2022-01-27T12:59:45.596117")
     result = parse_node.get_datetime_value()
     assert isinstance(result, datetime)
 
 
 def test_get_date_value():
-    parse_node = JsonParseNode('2015-04-20')
+    parse_node = JsonParseNode("2015-04-20")
     result = parse_node.get_date_value()
     assert isinstance(result, date)
-    assert str(result) == '2015-04-20'
+    assert str(result) == "2015-04-20"
 
 
 def test_get_time_value():
-    parse_node = JsonParseNode('12:59:45.596117')
+    parse_node = JsonParseNode("12:59:45.596117")
     result = parse_node.get_time_value()
     assert isinstance(result, time)
-    assert str(result) == '12:59:45.596117'
+    assert str(result) == "12:59:45.596117"
 
 
 def test_get_timedelta_value():
-    parse_node = JsonParseNode('PT30S')
+    parse_node = JsonParseNode("PT30S")
     result = parse_node.get_timedelta_value()
     assert isinstance(result, timedelta)
-    assert str(result) == '0:00:30'
+    assert str(result) == "0:00:30"
 
 
 def test_get_collection_of_primitive_values():
@@ -109,7 +107,7 @@ def test_get_collection_of_primitive_values_no_type():
 
 
 def test_get_bytes_value():
-    parse_node = JsonParseNode('U2Ftd2VsIGlzIHRoZSBiZXN0')
+    parse_node = JsonParseNode("U2Ftd2VsIGlzIHRoZSBiZXN0")
     result = parse_node.get_bytes_value()
     assert isinstance(result, bytes)
 
@@ -159,26 +157,29 @@ def test_get_object_value(user1_json):
     assert result.business_phones == ["+1 205 555 0108"]
     assert result.is_active is True
     assert result.mobile_phone is None
-    assert result.additional_data["additional_data"][
-        "@odata.context"] == "https://graph.microsoft.com/v1.0/$metadata#users/$entity"
+    assert (
+        result.additional_data["additional_data"]["@odata.context"] ==
+        "https://graph.microsoft.com/v1.0/$metadata#users/$entity"
+    )
     assert result.additional_data["additional_data"]["manager"] == {
-        "id": UUID('8f841f30-e6e3-439a-a812-ebd369559c36'),
+        "id": UUID("8f841f30-e6e3-439a-a812-ebd369559c36"),
         "updated_at":
         DateTime(2022, 1, 27, 12, 59, 45, 596117, tzinfo=FixedTimezone(0, name="+00:00")),
-        "is_active": True
+        "is_active": True,
     }
     assert result.additional_data["additional_data"]["approvers"] == [
         {
             "id":
-            UUID('8f841f30-e6e3-439a-a812-ebd369559c36'),
+            UUID("8f841f30-e6e3-439a-a812-ebd369559c36"),
             "updated_at":
             DateTime(2022, 1, 27, 12, 59, 45, 596117, tzinfo=FixedTimezone(0, name="+00:00")),
             "is_active":
-            True
-        }, {
+            True,
+        },
+        {
             "display_name": "John Doe",
             "age": 32
-        }
+        },
     ]
     assert result.additional_data["additional_data"]["data"] == {
         "groups": [{

@@ -1,7 +1,14 @@
 version: 2
 updates:
 - package-ecosystem: pip
-  directory: "/"
+  directories:
+    - "/packages/abstractions"
+    - "/packages/serialization/form"
+    - "/packages/serialization/json"
+    - "/packages/serialization/text"
+    - "/packages/serialization/multipart"
+    - "/packages/authentication/azure"
+    - "/packages/http/httpx"
   schedule:
     interval: daily
   open-pull-requests-limit: 10

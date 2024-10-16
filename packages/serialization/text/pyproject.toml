@@ -27,7 +27,7 @@ include = ["CHANGELOG.md", "LICENSE"]
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
 microsoft-kiota-abstractions = {path="../../abstractions/", develop=true}
-python-dateutil = "2.8.2"
+python-dateutil = "2.9.0.post0"
 
 [tool.poetry.group.dev.dependencies]
 yapf = "^0.40.2"
