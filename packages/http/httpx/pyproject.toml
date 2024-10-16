@@ -30,7 +30,7 @@ python = ">=3.8,<4.0"
 microsoft-kiota-abstractions = {path="../../abstractions/", develop=true}
 opentelemetry-api = ">=1.27.0"
 opentelemetry-sdk = ">=1.27.0"
-httpx = {extras = ["http2"], version = "^0.23.0"}
+httpx = {extras = ["http2"], version = ">=0.23,<0.28"}
 urllib3 = "^2.2.2"
 
 [tool.poetry.group.dev.dependencies]
