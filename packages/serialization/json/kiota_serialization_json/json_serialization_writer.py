@@ -14,6 +14,7 @@ T = TypeVar("T")
 U = TypeVar("U", bound=Parsable)
 K = TypeVar("K", bound=Enum)
 PRIMITIVE_TYPES = [bool, str, int, float, UUID, datetime, timedelta, date, time, bytes, Enum]
+PRIMITIVE_TYPES_WITH_NONE = PRIMITIVE_TYPES + [type(None)]
 
 
 class JsonSerializationWriter(SerializationWriter):
@@ -341,7 +342,7 @@ class JsonSerializationWriter(SerializationWriter):
         if key:
             self.writer[key] = None
         else:
-            self.value = "null"
+            self.value = None
 
     def __write_dict_value(self, key: Optional[str], value: Dict[str, Any]) -> None:
         """Writes the specified dictionary value to the stream with an optional given key.
@@ -474,7 +475,7 @@ class JsonSerializationWriter(SerializationWriter):
             elif all(isinstance(x, Enum) for x in value):
                 self.write_collection_of_enum_values(key, value)
             elif all(
-                any(isinstance(x, primitive_type) for primitive_type in PRIMITIVE_TYPES)
+                any(isinstance(x, primitive_type) for primitive_type in PRIMITIVE_TYPES_WITH_NONE)
                 for x in value
             ):
                 self.write_collection_of_primitive_values(key, value)
