@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
 from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
-from kiota_abstractions.serialization.parse_node_helper import ParseNodeHelper
 
 from . import User, User2
 

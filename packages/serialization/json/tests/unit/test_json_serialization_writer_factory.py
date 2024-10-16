@@ -13,13 +13,13 @@ def test_get_serialization_writer():
 
 
 def test_get_serialization_writer_no_content_type():
-    with pytest.raises(TypeError) as e_info:
+    with pytest.raises(TypeError):
         factory = JsonSerializationWriterFactory()
         factory.get_serialization_writer('')
 
 
 def test_get_serialization_writer_unsupported_content_type():
-    with pytest.raises(Exception) as e_info:
+    with pytest.raises(Exception):
         factory = JsonSerializationWriterFactory()
         factory.get_serialization_writer('application/xml')
 
