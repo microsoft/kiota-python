@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.6](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-text-v1.4.5...microsoft-kiota-serialization-text-v1.4.6) (2024-10-18)
+
+
+### Bug Fixes
+
+* fixes typing errors from integration tests for optional parameters ([87e036d](https://github.com/microsoft/kiota-python/commit/87e036d3dc56b2dfff9dd93134ea1aba66918b18))
+* fixes typing errors from integration tests for optional parameters ([caea6f9](https://github.com/microsoft/kiota-python/commit/caea6f9e43d60434d7088f0c6499a6ddb9d7dc14))
+
 ## [1.4.5](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-text-v1.4.4...microsoft-kiota-serialization-text-v1.4.5) (2024-10-16)
 
 
