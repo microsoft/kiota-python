@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Dict
+from typing import TYPE_CHECKING, Callable, Dict, Optional
 
 if TYPE_CHECKING:
     from . import Parsable, ParseNode
@@ -10,7 +10,7 @@ class ParseNodeHelper:
 
     @staticmethod
     def merge_deserializers_for_intersection_wrapper(
-        *targets: Parsable
+        *targets: Optional[Parsable]
     ) -> Dict[str, Callable[[ParseNode], None]]:
         """Merges a collection of parsable field deserializers into a single collection.
 
