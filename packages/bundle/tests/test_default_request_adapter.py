@@ -8,23 +8,15 @@ from kiota_abstractions.serialization.parse_node_factory_registry import ParseNo
 
 from kiota_abstractions.authentication.anonymous_authentication_provider import AnonymousAuthenticationProvider
 
-class DummyAsyncAzureTokenCredential:
-    """Helper to mock getting a token asynchronously."""
-
-    async def get_token(self, *args, **kwargs):
-        return {token :"This is a dummy token", expires_on:123}
-
-    async def close(self, *args):
-        pass
 
 def test_invalid_instantiation_without_authprovider():
     with pytest.raises(Exception):
-        adapter = DefaultRequestAdapter(None)
+        DefaultRequestAdapter(None)
 
 
 def test_seriliazers_are_registered():
     auth_provider = AnonymousAuthenticationProvider()
-    adapter = DefaultRequestAdapter(auth_provider)
+    DefaultRequestAdapter(auth_provider)
 
 
     seralizers = SerializationWriterFactoryRegistry().CONTENT_TYPE_ASSOCIATED_FACTORIES.keys()
