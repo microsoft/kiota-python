@@ -91,6 +91,18 @@
           "jsonpath": "$.tool.poetry.version"
         }
       ]
+    },
+    "packages/bundle": {
+      "component": "microsoft-kiota-bundle",
+      "release-type": "simple",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "pyproject.toml",
+          "jsonpath": "$.tool.poetry.version"
+        }
+      ]
     }
   },
   "plugins": [
@@ -104,7 +116,8 @@
         "microsoft-kiota-serialization-json", 
         "microsoft-kiota-serialization-form", 
         "microsoft-kiota-serialization-text",
-        "microsoft-kiota-serialization-multipart"
+        "microsoft-kiota-serialization-multipart",
+        "microsoft-kiota-bundle"
       ]
     }
   ],

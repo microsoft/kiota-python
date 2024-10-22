@@ -67,4 +67,9 @@ jobs:
           poetry install
           poetry publish --build
         working-directory: "./packages/serialization/multipart"
+      - name: Publish kiota_bundle to PyPI
+        run: |
+          poetry install
+          poetry publish --build
+        working-directory: "./packages/bundle"
   
