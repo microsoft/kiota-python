@@ -34,6 +34,11 @@
       "name": "serialization - multipart",
       "packageName": "kiota_serialization_multipart",
       "path": "./packages/serialization/multipart/"
+    },
+    {
+      "name": "bundle",
+      "packageName": "kiota_bundle",
+      "path": "./packages/bundle/"
     }
   ],
   "commands":[

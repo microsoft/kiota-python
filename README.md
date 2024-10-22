@@ -19,6 +19,7 @@ To learn more about Kiota, visit the [Kiota repository](https://github.com/micro
 | [Serialization - FORM](./packages/serialization/form/README.md)           | [![PyPI version](https://badge.fury.io/py/microsoft-kiota-serialization-form.svg)](https://badge.fury.io/pymicrosoft-kiota-serialization-form)      | [Changelog](./packages/serialization/form/CHANGELOG.md)        |
 | [Serialization - TEXT](./packages/serialization/text/README.md)           | [![PyPI version](https://badge.fury.io/py/microsoft-kiota-serialization-text.svg)](https://badge.fury.io/py/microsoft-kiota-serialization-text)     | [Changelog](./packages/serialization/text/CHANGELOG.md)        |
 | [Serialization - MULTIPART](./packages/serialization/multipart/README.md) | [![PyPI version](https://badge.fury.io/py/microsoft-kiota-serialization-multipart.svg)](https://badge.fury.io/py/microsoft-kiota-multipart)         | [Changelog](./packages/serialization/multipart/CHANGELOG.md)   |
+| [Bundle](./packages/bundle/README.md)                                     | [![PyPI version](https://badge.fury.io/py/microsoft-kiota-bundle.svg)](https://badge.fury.io/py/microsoft-kiota-bundle)                             | [Changelog](./packages/bundle/CHANGELOG.md)   |
 
 ## Contributing
 
