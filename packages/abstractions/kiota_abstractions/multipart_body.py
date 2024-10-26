@@ -113,13 +113,9 @@ class MultipartBody(Parsable, Generic[T]):
 
             writer.write_str_value("", f"--{self.boundary}")
             writer.write_str_value("Content-Type", f"{part_value[0]}")
-
-            if len(part_value) >= 3 or part_value[2] is not None:
-                # yapf: disable to compare with the following line
-                writer.write_str_value("Content-Disposition", f'form-data; name="{part_name}"; filename="{part_value[2]}"')
-            else:
-                writer.write_str_value("Content-Disposition", f'form-data; name="{part_name}"')
-
+            writer.write_str_value(
+                "Content-Disposition", self._get_comtent_disposition(part_name, part_value)
+            )
             self._add_new_line(writer)
 
             if isinstance(part_value[1], Parsable):
@@ -141,6 +137,13 @@ class MultipartBody(Parsable, Generic[T]):
 
     def _add_new_line(self, writer: SerializationWriter) -> None:
         writer.write_str_value("", "")
+
+    def _get_comtent_disposition(
+        self, part_name: str, part_value: Tuple[str, Any, Optional[str]]
+    ) -> str:
+        if len(part_value) >= 3 or part_value[2] is not None:
+            return f'form-data; name="{part_name}"; filename="{part_value[2]}"'
+        return f'form-data; name="{part_name}"'
 
     def _write_parsable(self, writer, part_value) -> None:
         if not self.request_adapter or not self.request_adapter.get_serialization_writer_factory():
