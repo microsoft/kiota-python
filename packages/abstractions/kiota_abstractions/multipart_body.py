@@ -24,22 +24,31 @@ class MultipartBody(Parsable, Generic[T]):
     """Represents a multipart body for a request or a response.
     Example usage:
         multipart = MultipartBody()
-        multipart.add_or_replace_part("file", "image/jpeg", open("image.jpg", "rb").read())
+        multipart.add_or_replace_part(
+            "file", "image/jpeg", open("image.jpg", "rb").read(), "image.jpg"
+        )
         multipart.add_or_replace_part("text", "text/plain", "Hello, World!")
         with open("output.txt", "w") as output_file:
             multipart.serialize(output_file)
     """
     boundary: str = str(uuid.uuid4())
-    parts: Dict[str, Tuple[str, Any]] = field(default_factory=dict)
+    parts: Dict[str, Tuple[str, Any, Optional[str]]] = field(default_factory=dict)
     request_adapter: Optional[RequestAdapter] = None
 
-    def add_or_replace_part(self, part_name: str, content_type: str, part_value: T) -> None:
+    def add_or_replace_part(
+        self,
+        part_name: str,
+        content_type: str,
+        part_value: T,
+        filename: Optional[str] = None
+    ) -> None:
         """Adds or replaces a part to the multipart body.
 
         Args:
             part_name (str): The name of the part to add or replace.
             content_type (str): The content type of the part.
             part_value (T): The value of the part.
+            filename (str, optional): The filename of the part only if part_name is "file".
 
         Returns:
             None
@@ -50,7 +59,7 @@ class MultipartBody(Parsable, Generic[T]):
             raise ValueError("Content type cannot be null")
         if not part_value:
             raise ValueError("Part value cannot be null")
-        value: Tuple[str, Any] = (content_type, part_value)
+        value: Tuple[str, Any, Optional[str]] = (content_type, part_value, filename)
         self.parts[self._normalize_part_name(part_name)] = value
 
     def get_part_value(self, part_name: str) -> Optional[T]:
@@ -104,7 +113,13 @@ class MultipartBody(Parsable, Generic[T]):
 
             writer.write_str_value("", f"--{self.boundary}")
             writer.write_str_value("Content-Type", f"{part_value[0]}")
-            writer.write_str_value("Content-Disposition", f'form-data; name="{part_name}"')
+
+            if len(part_value) >= 3 or part_value[2] is not None:
+                # yapf: disable to compare with the following line
+                writer.write_str_value("Content-Disposition", f'form-data; name="{part_name}"; filename="{part_value[2]}"')
+            else:
+                writer.write_str_value("Content-Disposition", f'form-data; name="{part_name}"')
+
             self._add_new_line(writer)
 
             if isinstance(part_value[1], Parsable):
