@@ -140,4 +140,4 @@ To run type checking using `mypy` across all projects, run the following in a po
 .\kiota-python.ps1 check-types
 ```
 
-__TIP__ Running `.\kiota-python.ps1 test` should give a hint of all available commands you can pass to the script to run across projects which can be configured this in [this file](.\projects-config.json).
+__TIP__ Running `.\kiota-python.ps1 test` should give a hint of all available commands you can pass to the script to run across projects which can be configured this in [this file](./projects-config.json).
