@@ -48,7 +48,7 @@ class MultipartBody(Parsable, Generic[T]):
             part_name (str): The name of the part to add or replace.
             content_type (str): The content type of the part.
             part_value (T): The value of the part.
-            filename (str, optional): The filename of the part only if part_name is "file".
+            filename (str, optional): The filename of the part.
 
         Returns:
             None
@@ -141,7 +141,7 @@ class MultipartBody(Parsable, Generic[T]):
     def _get_comtent_disposition(
         self, part_name: str, part_value: Tuple[str, Any, Optional[str]]
     ) -> str:
-        if len(part_value) >= 3 or part_value[2] is not None:
+        if len(part_value) >= 3 and part_value[2] is not None:
             return f'form-data; name="{part_name}"; filename="{part_value[2]}"'
         return f'form-data; name="{part_name}"'
 
