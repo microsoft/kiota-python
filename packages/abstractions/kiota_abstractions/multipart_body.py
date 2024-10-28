@@ -24,22 +24,31 @@ class MultipartBody(Parsable, Generic[T]):
     """Represents a multipart body for a request or a response.
     Example usage:
         multipart = MultipartBody()
-        multipart.add_or_replace_part("file", "image/jpeg", open("image.jpg", "rb").read())
+        multipart.add_or_replace_part(
+            "file", "image/jpeg", open("image.jpg", "rb").read(), "image.jpg"
+        )
         multipart.add_or_replace_part("text", "text/plain", "Hello, World!")
         with open("output.txt", "w") as output_file:
             multipart.serialize(output_file)
     """
     boundary: str = str(uuid.uuid4())
-    parts: Dict[str, Tuple[str, Any]] = field(default_factory=dict)
+    parts: Dict[str, Tuple[str, Any, Optional[str]]] = field(default_factory=dict)
     request_adapter: Optional[RequestAdapter] = None
 
-    def add_or_replace_part(self, part_name: str, content_type: str, part_value: T) -> None:
+    def add_or_replace_part(
+        self,
+        part_name: str,
+        content_type: str,
+        part_value: T,
+        filename: Optional[str] = None
+    ) -> None:
         """Adds or replaces a part to the multipart body.
 
         Args:
             part_name (str): The name of the part to add or replace.
             content_type (str): The content type of the part.
             part_value (T): The value of the part.
+            filename (str, optional): The filename of the part.
 
         Returns:
             None
@@ -50,7 +59,7 @@ class MultipartBody(Parsable, Generic[T]):
             raise ValueError("Content type cannot be null")
         if not part_value:
             raise ValueError("Part value cannot be null")
-        value: Tuple[str, Any] = (content_type, part_value)
+        value: Tuple[str, Any, Optional[str]] = (content_type, part_value, filename)
         self.parts[self._normalize_part_name(part_name)] = value
 
     def get_part_value(self, part_name: str) -> Optional[T]:
@@ -104,7 +113,9 @@ class MultipartBody(Parsable, Generic[T]):
 
             writer.write_str_value("", f"--{self.boundary}")
             writer.write_str_value("Content-Type", f"{part_value[0]}")
-            writer.write_str_value("Content-Disposition", f'form-data; name="{part_name}"')
+            writer.write_str_value(
+                "Content-Disposition", self._get_comtent_disposition(part_name, part_value)
+            )
             self._add_new_line(writer)
 
             if isinstance(part_value[1], Parsable):
@@ -126,6 +137,13 @@ class MultipartBody(Parsable, Generic[T]):
 
     def _add_new_line(self, writer: SerializationWriter) -> None:
         writer.write_str_value("", "")
+
+    def _get_comtent_disposition(
+        self, part_name: str, part_value: Tuple[str, Any, Optional[str]]
+    ) -> str:
+        if len(part_value) >= 3 and part_value[2] is not None:
+            return f'form-data; name="{part_name}"; filename="{part_value[2]}"'
+        return f'form-data; name="{part_name}"'
 
     def _write_parsable(self, writer, part_value) -> None:
         if not self.request_adapter or not self.request_adapter.get_serialization_writer_factory():

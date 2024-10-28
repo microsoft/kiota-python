@@ -77,3 +77,15 @@ def test_write_object_value_inverted(user_1, mock_request_adapter, mock_serializ
     content = serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == f'--{mock_multipart_body.boundary}'+'\r\nContent-Type: application/octet-stream\r\nContent-Disposition: form-data; name="img"\r\n\r\nHello world\r\n'+f'--{mock_multipart_body.boundary}'+'\r\nContent-Type: application/json\r\nContent-Disposition: form-data; name="test user"\r\n\r\n{"id": "eac79bd3-fd08-4abf-9df2-2565cf3a3845", "workDuration": "2:00:00", "birthDay": "2017-09-04", "startWorkTime": "00:00:00", "createdDateTime": "2022-01-27T12:59:45", "businessPhones": ["+1 412 555 0109"], "mobilePhone": null, "accountEnabled": false, "jobTitle": "Auditor", "manager": {"id": "eac79bd3-fd08-4abf-9df2-2565cf3a3845"}}\r\n'+f'--{mock_multipart_body.boundary}--\r\n'
+
+def test_write_object_value_with_filename(user_1, mock_request_adapter, mock_serialization_writer_factory, mock_multipart_body):
+    mock_request_adapter.get_serialization_writer_factory = Mock(return_value=mock_serialization_writer_factory)
+    mock_multipart_body.request_adapter = mock_request_adapter
+    mock_multipart_body.add_or_replace_part("test user", "application/json", user_1)
+    mock_multipart_body.add_or_replace_part("file", "application/octet-stream", b"Hello world", "file.txt")
+
+    serialization_writer = MultipartSerializationWriter()
+    serialization_writer.write_object_value("", mock_multipart_body, None)
+    content = serialization_writer.get_serialized_content()
+    content_string = content.decode('utf-8')
+    assert content_string == f'--{mock_multipart_body.boundary}'+'\r\nContent-Type: application/json\r\nContent-Disposition: form-data; name="test user"\r\n\r\n{"id": "eac79bd3-fd08-4abf-9df2-2565cf3a3845", "workDuration": "2:00:00", "birthDay": "2017-09-04", "startWorkTime": "00:00:00", "createdDateTime": "2022-01-27T12:59:45", "businessPhones": ["+1 412 555 0109"], "mobilePhone": null, "accountEnabled": false, "jobTitle": "Auditor", "manager": {"id": "eac79bd3-fd08-4abf-9df2-2565cf3a3845"}}\r\n'+f'--{mock_multipart_body.boundary}'+'\r\nContent-Type: application/octet-stream\r\nContent-Disposition: form-data; name="file"; filename="file.txt"\r\n\r\nHello world\r\n'+f'--{mock_multipart_body.boundary}--\r\n'
