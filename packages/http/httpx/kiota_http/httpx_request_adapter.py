@@ -11,6 +11,7 @@ from kiota_abstractions.api_client_builder import (
 )
 from kiota_abstractions.api_error import APIError
 from kiota_abstractions.authentication import AuthenticationProvider
+from kiota_abstractions.response_handler import RespondseHandler
 from kiota_abstractions.request_adapter import RequestAdapter, ResponseType
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import (
@@ -42,6 +43,7 @@ from kiota_http._exceptions import (
 from kiota_http.middleware.parameters_name_decoding_handler import ParametersNameDecodingHandler
 
 from ._version import VERSION
+from .httpx_request_response_logger import HttpxRequestResponseLogger
 from .kiota_client_factory import KiotaClientFactory
 from .middleware import ParametersNameDecodingHandler
 from .middleware.options import ParametersNameDecodingHandlerOption, ResponseHandlerOption
@@ -91,6 +93,7 @@ class HttpxRequestAdapter(RequestAdapter):
         if not observability_options:
             observability_options = ObservabilityOptions()
         self.observability_options = observability_options
+        self.logger = HttpxRequestResponseLogger()
 
     @property
     def base_url(self) -> str:
@@ -524,6 +527,20 @@ class HttpxRequestAdapter(RequestAdapter):
         )
 
         self.set_base_url_for_request_information(request_info)
+
+        self.logger.log_request({
+            "url": url,
+            "method": request.method,
+            "headers": headers,
+            "query_params": query_params,
+            "content": content,
+        })
+
+        self.logger.log_response({
+            "status_code": response.status_code,
+            "headers": dict(response.headers),
+            "content": response.text,
+        })
 
         additional_authentication_context = {}
         if claims:

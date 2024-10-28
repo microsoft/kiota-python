@@ -388,6 +388,10 @@ class JsonSerializationWriter(SerializationWriter):
         stream = json_string.encode('utf-8')
         return stream
 
+    @staticmethod
+    def serialize_object_to_json_string(obj: Dict[str, Any]) -> str:
+        return json.dumps(obj, indent=2)
+
     @property
     def on_before_object_serialization(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called before the object gets serialized.
