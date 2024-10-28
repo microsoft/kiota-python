@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.5.0...microsoft-kiota-abstractions-v1.6.0) (2024-10-28)
+
+
+### Features
+
+* add support for MultipartBody filename parameter ([50aa7e3](https://github.com/microsoft/kiota-python/commit/50aa7e3149e9c2b13360463e129a9db20e9987ab))
+
 ## [1.5.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.4.6...microsoft-kiota-abstractions-v1.5.0) (2024-10-22)
 
 
