@@ -50,6 +50,7 @@ The recommended commit types used are:
 - __build__ for build system changes (gradle updates, external dependency updates)
 - __ci__ for CI configuration file changes e.g. updating a pipeline
 - __chore__ for miscallaneous non-sdk changesin the repo e.g. removing an unused file
+
 Adding a an exclamation mark after the commit type (`feat!`) or footer with the prefix __BREAKING CHANGE:__ will cause an increment of the _major_ version.
 
 ## Working with source locally
@@ -140,4 +141,4 @@ To run type checking using `mypy` across all projects, run the following in a po
 .\kiota-python.ps1 check-types
 ```
 
-__TIP__ Running `.\kiota-python.ps1 test` should give a hint of all available commands you can pass to the script to run across projects which can be configured this in [this file](.\projects-config.json).
+__TIP__ Running `.\kiota-python.ps1 test` should give a hint of all available commands you can pass to the script to run across projects which can be configured this in [this file](./projects-config.json).
