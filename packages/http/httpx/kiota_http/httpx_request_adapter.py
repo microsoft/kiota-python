@@ -11,7 +11,7 @@ from kiota_abstractions.api_client_builder import (
 )
 from kiota_abstractions.api_error import APIError
 from kiota_abstractions.authentication import AuthenticationProvider
-from kiota_abstractions.request_adapter import RequestAdapter, ResponseType,PrimitiveType
+from kiota_abstractions.request_adapter import RequestAdapter, ResponseType, PrimitiveType
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import (
     Parsable,

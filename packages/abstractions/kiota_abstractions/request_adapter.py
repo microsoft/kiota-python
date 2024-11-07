@@ -12,7 +12,10 @@ from .store import BackingStoreFactory
 ResponseType = TypeVar("ResponseType")
 ModelType = TypeVar("ModelType", bound=Parsable)
 RequestType = TypeVar("RequestType")
-PrimitiveType = TypeVar("PrimitiveType", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
+PrimitiveType = TypeVar(
+    "PrimitiveType", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes
+)
+
 
 class RequestAdapter(ABC, Generic[RequestType]):
     """Service responsible for translating abstract Request Info into concrete native HTTP requests.
