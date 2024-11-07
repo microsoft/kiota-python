@@ -250,7 +250,7 @@ class HttpxRequestAdapter(RequestAdapter):
     async def send_collection_of_primitive_async(
         self,
         request_info: RequestInformation,
-        response_type: ResponseType,
+        response_type: type[ResponseType],
         error_map: Optional[Dict[str, type[ParsableFactory]]],
     ) -> Optional[List[ResponseType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the

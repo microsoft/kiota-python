@@ -139,7 +139,7 @@ class JsonParseNode(ParseNode):
                 return datetime_obj
         return None
 
-    def get_collection_of_primitive_values(self, primitive_type: Any) -> Optional[List[T]]:
+    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[List[T]]:
         """Gets the collection of primitive values of the node
         Args:
             primitive_type: The type of primitive to return.
@@ -161,7 +161,7 @@ class JsonParseNode(ParseNode):
             return list(map(func, json.loads(self._json_node)))
         return list(map(func, list(self._json_node)))
 
-    def get_collection_of_object_values(self, factory: ParsableFactory) -> Optional[List[U]]:
+    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[List[U]]:
         """Gets the collection of type U values from the json node
         Returns:
             List[U]: The collection of model object values of the node
