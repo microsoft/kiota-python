@@ -1,8 +1,9 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import date, datetime, time, timedelta
 from io import BytesIO
 from typing import Dict, Generic, List, Optional, TypeVar, Union
+from uuid import UUID
 
 from .request_information import RequestInformation
 from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
@@ -11,7 +12,7 @@ from .store import BackingStoreFactory
 ResponseType = TypeVar("ResponseType")
 ModelType = TypeVar("ModelType", bound=Parsable)
 RequestType = TypeVar("RequestType")
-
+PrimitiveType = TypeVar("PrimitiveType", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
 
 class RequestAdapter(ABC, Generic[RequestType]):
     """Service responsible for translating abstract Request Info into concrete native HTTP requests.
@@ -75,21 +76,21 @@ class RequestAdapter(ABC, Generic[RequestType]):
     async def send_collection_of_primitive_async(
         self,
         request_info: RequestInformation,
-        response_type: type[ResponseType],
+        response_type: type[PrimitiveType],
         error_map: Optional[Dict[str, type[ParsableFactory]]],
-    ) -> Optional[List[ResponseType]]:
+    ) -> Optional[List[PrimitiveType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
 
         Args:
             request_info (RequestInformation): the request info to execute.
-            response_type (ResponseType): the class of the response model to deserialize the
+            response_type (PrimitiveType): the class of the response model to deserialize the
             response into.
             error_map (Optional[Dict[str, type[ParsableFactory]]]): the error dict to use in
             case of a failed request.
 
         Returns:
-            Optional[List[ModelType]]: The deserialized response model collection.
+            Optional[List[PrimitiveType]]: The deserialized primitive collection.
         """
         pass
 
