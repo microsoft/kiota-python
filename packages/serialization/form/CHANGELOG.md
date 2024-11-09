@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.6.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.6.0...microsoft-kiota-serialization-form-v1.6.1) (2024-11-09)
+
+
+### Bug Fixes
+
+* fixes typing issues discovered from github api generation ([92cf4c5](https://github.com/microsoft/kiota-python/commit/92cf4c5a33e67406f8f38d255c1ed990d95a7892))
+* fixes typing issues discovered from github api generation ([6e68068](https://github.com/microsoft/kiota-python/commit/6e6806880b1fa0a43d63a97b937461d688e62ea0))
+
 ## [1.6.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.5.0...microsoft-kiota-serialization-form-v1.6.0) (2024-10-28)
 
 
