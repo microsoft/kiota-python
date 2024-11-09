@@ -167,7 +167,7 @@ class FormParseNode(ParseNode):
             return FormParseNode(self._fields[field_name])
         return None
 
-    def get_collection_of_primitive_values(self, primitive_type: type) -> Optional[List[T]]:
+    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[List[T]]:
         """Gets the collection of primitive values of the node
         Args:
             primitive_type: The type of primitive to return.
@@ -189,7 +189,7 @@ class FormParseNode(ParseNode):
             return result
         raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
 
-    def get_collection_of_object_values(self, factory: ParsableFactory) -> Optional[List[U]]:
+    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[List[U]]:
         raise Exception("Collection of object values is not supported with uri form encoding.")
 
     def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:

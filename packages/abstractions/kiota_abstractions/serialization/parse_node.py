@@ -118,7 +118,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_collection_of_primitive_values(self, primitive_type) -> Optional[List[T]]:
+    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[List[T]]:
         """Gets the collection of primitive values of the node
         Args:
             primitive_type: The type of primitive to return.
@@ -128,7 +128,7 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_collection_of_object_values(self, factory: ParsableFactory) -> Optional[List[U]]:
+    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[List[U]]:
         """Gets the collection of model object values of the node
         Args:
             factory (ParsableFactory): The factory to use to create the model object.

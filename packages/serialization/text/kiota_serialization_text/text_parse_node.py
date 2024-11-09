@@ -133,7 +133,7 @@ class TextParseNode(ParseNode):
             return datetime_obj.time()
         return None
 
-    def get_collection_of_primitive_values(self, primitive_type) -> List[T]:
+    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> List[T]:
         """Gets the collection of primitive values of the node
         Args:
             primitive_type: The type of primitive to return.
@@ -142,7 +142,7 @@ class TextParseNode(ParseNode):
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 
-    def get_collection_of_object_values(self, factory: ParsableFactory) -> List[U]:
+    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> List[U]:
         """Gets the collection of type U values from the text node
         Returns:
             List[U]: The collection of model object values of the node

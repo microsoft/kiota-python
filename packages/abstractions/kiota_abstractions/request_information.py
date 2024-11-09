@@ -28,7 +28,8 @@ if TYPE_CHECKING:
     from .request_adapter import RequestAdapter
 
 Url = str
-T = TypeVar("T", bound=Parsable)
+T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
+U = TypeVar("U", bound=Parsable)
 QueryParameters = TypeVar('QueryParameters')
 OBSERVABILITY_TRACER_NAME = "microsoft-python-kiota-abstractions"
 tracer = trace.get_tracer(OBSERVABILITY_TRACER_NAME, VERSION)
@@ -155,7 +156,7 @@ class RequestInformation:
         self,
         request_adapter: RequestAdapter,
         content_type: str,
-        values: Union[T, List[T]],
+        values: Union[U, List[U]],
     ) -> None:
         """Sets the request body from a model with the specified content type.
 
@@ -163,12 +164,12 @@ class RequestInformation:
             request_adapter (Optional[RequestAdapter]): The adapter service to get the serialization
             writer from.
             content_type (Optional[str]): the content type.
-            values (Union[T, List[T]]): the models.
+            values (Union[U, List[U]]): the models.
         """
         with tracer.start_as_current_span(
             self._create_parent_span_name("set_content_from_parsable")
         ) as span:
-            writer = self._get_serialization_writer(request_adapter, content_type, values, span)
+            writer = self._get_serialization_writer(request_adapter, content_type, span)
             if isinstance(values, MultipartBody):
                 content_type += f"; boundary={values.boundary}"
                 values.request_adapter = request_adapter
@@ -198,7 +199,7 @@ class RequestInformation:
         with tracer.start_as_current_span(
             self._create_parent_span_name("set_content_from_scalar")
         ) as span:
-            writer = self._get_serialization_writer(request_adapter, content_type, values, span)
+            writer = self._get_serialization_writer(request_adapter, content_type, span)
 
             if isinstance(values, list):
                 writer.writer = writer.write_collection_of_primitive_values(None, values)
@@ -255,7 +256,6 @@ class RequestInformation:
         self,
         request_adapter: Optional["RequestAdapter"],
         content_type: Optional[str],
-        values: Union[T, List[T]],
         parent_span: trace.Span,
     ):
         """_summary_
@@ -263,7 +263,6 @@ class RequestInformation:
         Args:
             request_adapter (RequestAdapter): _description_
             content_type (str): _description_
-            values (Union[T, List[T]]): _description_
         """
         _span = self._start_local_tracing_span("_get_serialization_writer", parent_span)
         try:
@@ -273,10 +272,6 @@ class RequestInformation:
                 raise exc
             if not content_type:
                 exc = ValueError("Content Type cannot be null")
-                _span.record_exception(exc)
-                raise exc
-            if not values:
-                exc = ValueError("Values cannot be null")
                 _span.record_exception(exc)
                 raise exc
             return request_adapter.get_serialization_writer_factory(

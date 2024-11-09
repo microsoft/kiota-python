@@ -11,7 +11,7 @@ from kiota_abstractions.api_client_builder import (
 )
 from kiota_abstractions.api_error import APIError
 from kiota_abstractions.authentication import AuthenticationProvider
-from kiota_abstractions.request_adapter import RequestAdapter, ResponseType
+from kiota_abstractions.request_adapter import RequestAdapter, ResponseType, PrimitiveType
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import (
     Parsable,
@@ -250,20 +250,20 @@ class HttpxRequestAdapter(RequestAdapter):
     async def send_collection_of_primitive_async(
         self,
         request_info: RequestInformation,
-        response_type: ResponseType,
+        response_type: type[PrimitiveType],
         error_map: Optional[Dict[str, type[ParsableFactory]]],
-    ) -> Optional[List[ResponseType]]:
+    ) -> Optional[List[PrimitiveType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
         Args:
             request_info (RequestInformation): the request info to execute.
-            response_type (ResponseType): the class of the response model
+            response_type (PrimitiveType): the class of the response model
             to deserialize the response into.
             error_map (Dict[str, type[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
         Returns:
-            Optional[List[ResponseType]]: he deserialized response model collection.
+            Optional[List[PrimitiveType]]: The deserialized primitive type collection.
         """
         parent_span = self.start_tracing_span(request_info, "send_collection_of_primitive_async")
         try:
