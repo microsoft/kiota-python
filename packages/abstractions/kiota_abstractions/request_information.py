@@ -301,7 +301,10 @@ class RequestInformation:
             timezone_info = value.tzinfo
             if timezone_info is None:
                 timezone_info = timezone.utc
-            temp_date_with_tz_info = datetime(value.year, value.month, value.day, value.hour, value.minute, value.second, value.microsecond, timezone_info)
+            temp_date_with_tz_info = datetime(
+                value.year, value.month, value.day, value.hour, value.minute, value.second,
+                value.microsecond, timezone_info
+            )
             sanitized_value = temp_date_with_tz_info.isoformat("T")
         elif any([isinstance(value, UUID), isinstance(value, date), isinstance(value, time)]):
             sanitized_value = str(value)
