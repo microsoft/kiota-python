@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.6.1...microsoft-kiota-abstractions-v1.6.2) (2024-11-11)
+
+
+### Bug Fixes
+
+* fixes date-time in requests to align with std-uritemplate 2.0.0 ([58be436](https://github.com/microsoft/kiota-python/commit/58be43668cd55e4a3adb8ad01181841ca4e14a40))
+* fixes date-time in requests to align with std-uritemplate 2.0.0 ([35ff436](https://github.com/microsoft/kiota-python/commit/35ff4364bfa00cb828c5f233da039a76a808e43d))
+
 ## [1.6.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.6.0...microsoft-kiota-abstractions-v1.6.1) (2024-11-09)
 
 
