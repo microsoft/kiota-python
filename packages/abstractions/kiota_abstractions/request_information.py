@@ -298,7 +298,7 @@ class RequestInformation:
         elif isinstance(value, list) and all(isinstance(x, Enum) for x in value):
             sanitized_value = ','.join([x.value for x in value])
         elif isinstance(value, datetime):
-            sanitized_value = value
+            sanitized_value = value.astimezone().isoformat("T")
         elif any([isinstance(value, UUID), isinstance(value, date), isinstance(value, time)]):
             sanitized_value = str(value)
         return sanitized_value
