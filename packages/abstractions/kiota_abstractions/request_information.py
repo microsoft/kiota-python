@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from dataclasses import fields, is_dataclass
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from enum import Enum
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, TypeVar, Union
@@ -298,7 +298,14 @@ class RequestInformation:
         elif isinstance(value, list) and all(isinstance(x, Enum) for x in value):
             sanitized_value = ','.join([x.value for x in value])
         elif isinstance(value, datetime):
-            sanitized_value = value
+            timezone_info = value.tzinfo
+            if timezone_info is None:
+                timezone_info = timezone.utc
+            temp_date_with_tz_info = datetime(
+                value.year, value.month, value.day, value.hour, value.minute, value.second,
+                value.microsecond, timezone_info
+            )
+            sanitized_value = temp_date_with_tz_info.isoformat("T")
         elif any([isinstance(value, UUID), isinstance(value, date), isinstance(value, time)]):
             sanitized_value = str(value)
         return sanitized_value
