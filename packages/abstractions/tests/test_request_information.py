@@ -202,7 +202,7 @@ def test_sets_datetime_values_in_path_parameters():
     """
     request_info = RequestInformation(Method.GET, "https://example.com/daysFrom/{startDate}")
     request_info.path_parameters["startDate"] = datetime(year=2020, month=8, day=1, hour=0, minute=20, second=0, microsecond=0)
-    assert request_info.url == "https://example.com/daysFrom/2020-08-01T00%3A20%3A00%2B03%3A00"
+    assert request_info.url == "https://example.com/daysFrom/2020-08-01T00%3A20%3A00%2B00%3A00"
 
 def test_sets_int_values_in_path_parameters():
     """Tests setting int values values in path parameters
