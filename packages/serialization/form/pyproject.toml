@@ -29,7 +29,7 @@ microsoft-kiota-abstractions = {path="../../abstractions/", develop=true}
 pendulum = ">=3.0.0b1"
 
 [tool.poetry.group.dev.dependencies]
-yapf = "^0.40.2"
+yapf = ">=0.40.2,<0.44.0"
 isort = "^5.13.2"
 pylint = "^3.2.7"
 mypy = "^1.11.2"
