@@ -14,6 +14,8 @@ import httpx
 from .middleware import BaseMiddleware
 from .options import RetryHandlerOption
 
+RETRY_ATTEMPT = "Retry-Attempt"
+
 
 class RetryHandler(BaseMiddleware):
     """
@@ -71,20 +73,21 @@ class RetryHandler(BaseMiddleware):
         Sends the http request object to the next middleware or retries the request if necessary.
         """
         response = None
-        retry_count = 0
-
         _span = self._create_observability_span(request, "RetryHandler_send")
         current_options = self._get_current_options(request)
         _span.set_attribute("com.microsoft.kiota.handler.retry.enable", True)
         _span.end()
         retry_valid = current_options.should_retry
-        _retry_span = self._create_observability_span(
-            request, f"RetryHandler_send - attempt {retry_count}"
-        )
+
         while retry_valid:
             response = await super().send(request, transport)
-            _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
             # check that max retries has not been hit
+            retry_count = 0 if RETRY_ATTEMPT not in response.request.headers else int(
+                response.request.headers[RETRY_ATTEMPT]
+            )
+            _retry_span = self._create_observability_span(
+                request, f"RetryHandler_send - attempt {retry_count}"
+            )
             retry_valid = self.check_retry_valid(retry_count, current_options)
 
             # Get the delay time between retries
@@ -97,13 +100,14 @@ class RetryHandler(BaseMiddleware):
                 time.sleep(delay)
                 # increment the count for retries
                 retry_count += 1
-                request.headers.update({'retry-attempt': f'{retry_count}'})
+                request.headers.update({RETRY_ATTEMPT: f'{retry_count}'})
+                _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
                 _retry_span.set_attribute('http.request.resend_count', retry_count)
                 continue
+            _retry_span.end()
             break
         if response is None:
             response = await super().send(request, transport)
-        _retry_span.end()
         return response
 
     def _get_current_options(self, request: httpx.Request) -> RetryHandlerOption:
@@ -165,7 +169,7 @@ class RetryHandler(BaseMiddleware):
             return True
         return False
 
-    def get_delay_time(self, retry_count, response=None, delay=0):
+    def get_delay_time(self, retry_count, response=None, delay=RetryHandlerOption.DEFAULT_DELAY):
         """
         Get the time in seconds to delay between retry attempts.
         Respects a retry-after header in the response if provided
