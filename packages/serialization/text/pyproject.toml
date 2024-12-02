@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "microsoft-kiota-serialization-text"
-version = "1.6.2"
+version = "1.6.3"
 description = "Core abstractions for kiota generated libraries in Python"
 authors = ["Microsoft <graphtooling+python@microsoft.com>"]
 license = "MIT"
