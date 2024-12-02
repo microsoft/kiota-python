@@ -224,9 +224,10 @@ async def test_returns_same_status_code_if_delay_greater_than_max_delay():
             return httpx.Response(200, )
         return httpx.Response(
             TOO_MANY_REQUESTS,
-            headers={RETRY_AFTER: "20"},
+            headers={RETRY_AFTER: "200"}, # value exceeds max delay of 180 secs
         )
 
+    # Retry-after value takes precedence over the RetryHandlerOption value specified here
     handler = RetryHandler(RetryHandlerOption(10, 1, True))
     request = httpx.Request(
         'GET',

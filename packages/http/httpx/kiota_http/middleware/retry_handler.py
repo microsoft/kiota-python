@@ -95,7 +95,7 @@ class RetryHandler(BaseMiddleware):
             # Check if the request needs to be retried based on the response method
             # and status code
             should_retry = self.should_retry(request, current_options, response)
-            if all([should_retry, retry_valid, delay < max_delay]):
+            if all([should_retry, retry_valid, delay < RetryHandlerOption.MAX_DELAY]):
                 time.sleep(delay)
                 end_time = time.time()
                 max_delay -= (end_time - start_time)
