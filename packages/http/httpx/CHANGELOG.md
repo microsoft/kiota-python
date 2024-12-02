@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.6.2...microsoft-kiota-http-v1.6.3) (2024-12-02)
+
+
+### Bug Fixes
+
+* Ensure calculated retry delay validated against correct maximum value of 180 secs ([886f28e](https://github.com/microsoft/kiota-python/commit/886f28e47e38831c3cb55da2e790d73f81d33181))
+* Ensures retry count is incremented based on value in retry-attempt header ([c655fa2](https://github.com/microsoft/kiota-python/commit/c655fa253294bf3b8f65be1b991a93ce0890a46a))
+* Fixes retry handler exponential back-off to consider the delay specified in the retry handler option ([fd87c67](https://github.com/microsoft/kiota-python/commit/fd87c67d599add9e59f48db76a23dd367376b3e1))
+
 ## [1.6.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.6.1...microsoft-kiota-http-v1.6.2) (2024-11-11)
 
 
