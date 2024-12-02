@@ -78,12 +78,10 @@ class RetryHandler(BaseMiddleware):
         _span.set_attribute("com.microsoft.kiota.handler.retry.enable", True)
         _span.end()
         retry_valid = current_options.should_retry
-        max_delay = current_options.max_delay
         _retry_span = self._create_observability_span(
             request, f"RetryHandler_send - attempt {retry_count}"
         )
         while retry_valid:
-            start_time = time.time()
             response = await super().send(request, transport)
             _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
             # check that max retries has not been hit
@@ -97,8 +95,6 @@ class RetryHandler(BaseMiddleware):
             should_retry = self.should_retry(request, current_options, response)
             if all([should_retry, retry_valid, delay < RetryHandlerOption.MAX_DELAY]):
                 time.sleep(delay)
-                end_time = time.time()
-                max_delay -= (end_time - start_time)
                 # increment the count for retries
                 retry_count += 1
                 request.headers.update({'retry-attempt': f'{retry_count}'})
