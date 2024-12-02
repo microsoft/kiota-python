@@ -14,6 +14,8 @@ import httpx
 from .middleware import BaseMiddleware
 from .options import RetryHandlerOption
 
+RETRY_ATTEMPT = "Retry-Attempt"
+
 
 class RetryHandler(BaseMiddleware):
     """
@@ -71,43 +73,41 @@ class RetryHandler(BaseMiddleware):
         Sends the http request object to the next middleware or retries the request if necessary.
         """
         response = None
-        retry_count = 0
-
         _span = self._create_observability_span(request, "RetryHandler_send")
         current_options = self._get_current_options(request)
         _span.set_attribute("com.microsoft.kiota.handler.retry.enable", True)
         _span.end()
         retry_valid = current_options.should_retry
-        max_delay = current_options.max_delay
-        _retry_span = self._create_observability_span(
-            request, f"RetryHandler_send - attempt {retry_count}"
-        )
+
         while retry_valid:
-            start_time = time.time()
             response = await super().send(request, transport)
-            _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
             # check that max retries has not been hit
+            retry_count = 0 if RETRY_ATTEMPT not in response.request.headers else int(
+                response.request.headers[RETRY_ATTEMPT]
+            )
+            _retry_span = self._create_observability_span(
+                request, f"RetryHandler_send - attempt {retry_count}"
+            )
             retry_valid = self.check_retry_valid(retry_count, current_options)
 
             # Get the delay time between retries
-            delay = self.get_delay_time(retry_count, response)
+            delay = self.get_delay_time(retry_count, response, current_options.max_delay)
 
             # Check if the request needs to be retried based on the response method
             # and status code
             should_retry = self.should_retry(request, current_options, response)
-            if all([should_retry, retry_valid, delay < max_delay]):
+            if all([should_retry, retry_valid, delay < RetryHandlerOption.MAX_DELAY]):
                 time.sleep(delay)
-                end_time = time.time()
-                max_delay -= (end_time - start_time)
                 # increment the count for retries
                 retry_count += 1
-                request.headers.update({'retry-attempt': f'{retry_count}'})
+                request.headers.update({RETRY_ATTEMPT: f'{retry_count}'})
+                _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
                 _retry_span.set_attribute('http.request.resend_count', retry_count)
                 continue
+            _retry_span.end()
             break
         if response is None:
             response = await super().send(request, transport)
-        _retry_span.end()
         return response
 
     def _get_current_options(self, request: httpx.Request) -> RetryHandlerOption:
@@ -169,7 +169,7 @@ class RetryHandler(BaseMiddleware):
             return True
         return False
 
-    def get_delay_time(self, retry_count, response=None):
+    def get_delay_time(self, retry_count, response=None, delay=RetryHandlerOption.DEFAULT_DELAY):
         """
         Get the time in seconds to delay between retry attempts.
         Respects a retry-after header in the response if provided
@@ -178,15 +178,15 @@ class RetryHandler(BaseMiddleware):
         retry_after = self._get_retry_after(response)
         if retry_after:
             return retry_after
-        return self._get_delay_time_exp_backoff(retry_count)
+        return self._get_delay_time_exp_backoff(retry_count, delay)
 
-    def _get_delay_time_exp_backoff(self, retry_count):
+    def _get_delay_time_exp_backoff(self, retry_count, delay):
         """
         Get time in seconds to delay between retry attempts based on an exponential
         backoff value.
         """
         exp_backoff_value = self.backoff_factor * +(2**(retry_count - 1))
-        backoff_value = exp_backoff_value + (random.randint(0, 1000) / 1000)
+        backoff_value = exp_backoff_value + (random.randint(0, 1000) / 1000) + delay
 
         backoff = min(self.backoff_max, backoff_value)
         return backoff
