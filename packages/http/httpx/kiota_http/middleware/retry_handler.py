@@ -88,7 +88,7 @@ class RetryHandler(BaseMiddleware):
             retry_valid = self.check_retry_valid(retry_count, current_options)
 
             # Get the delay time between retries
-            delay = self.get_delay_time(retry_count, response)
+            delay = self.get_delay_time(retry_count, response, current_options.max_delay)
 
             # Check if the request needs to be retried based on the response method
             # and status code
@@ -165,7 +165,7 @@ class RetryHandler(BaseMiddleware):
             return True
         return False
 
-    def get_delay_time(self, retry_count, response=None):
+    def get_delay_time(self, retry_count, response=None, delay=0):
         """
         Get the time in seconds to delay between retry attempts.
         Respects a retry-after header in the response if provided
@@ -174,15 +174,15 @@ class RetryHandler(BaseMiddleware):
         retry_after = self._get_retry_after(response)
         if retry_after:
             return retry_after
-        return self._get_delay_time_exp_backoff(retry_count)
+        return self._get_delay_time_exp_backoff(retry_count, delay)
 
-    def _get_delay_time_exp_backoff(self, retry_count):
+    def _get_delay_time_exp_backoff(self, retry_count, delay):
         """
         Get time in seconds to delay between retry attempts based on an exponential
         backoff value.
         """
         exp_backoff_value = self.backoff_factor * +(2**(retry_count - 1))
-        backoff_value = exp_backoff_value + (random.randint(0, 1000) / 1000)
+        backoff_value = exp_backoff_value + (random.randint(0, 1000) / 1000) + delay
 
         backoff = min(self.backoff_max, backoff_value)
         return backoff
