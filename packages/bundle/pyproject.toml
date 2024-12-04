@@ -21,7 +21,7 @@ classifiers = [
 ]
 homepage = "https://github.com/microsoft/kiota#readme"
 repository = "https://github.com/microsoft/kiota-python"
-documentation = "https://microsoft.github.io/kiota/"
+documentation = "https://learn.microsoft.com/openapi/kiota/"
 packages = [{include = "kiota_bundle"}]
 
 [tool.poetry.dependencies]
