@@ -394,7 +394,7 @@ async def test_retries_on_cae_failure(
             {
                 "claims": (
                     "eyJhY2Nlc3NfdG9rZW4iOnsibmJmIjp7ImVzc2VudGlhbCI6dHJ1ZSwgInZhbH"
-                    "VlIjoiMTYwNDEwNjY1MSJ9fX0"
+                    "VlIjoiMTYwNDEwNjY1MSJ9fX0="
                 )
             },
         ),
