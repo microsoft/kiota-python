@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.5](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.6.4...microsoft-kiota-bundle-v1.6.5) (2024-12-05)
+
+
+### Bug Fixes
+
+* outdated documentation links ([f298ba2](https://github.com/microsoft/kiota-python/commit/f298ba2cf9d6fa3874bc248873f7270fb9499b7f))
+
 ## [1.6.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.6.3...microsoft-kiota-bundle-v1.6.4) (2024-12-04)
 
 

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.5](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.6.4...microsoft-kiota-authentication-azure-v1.6.5) (2024-12-05)
+
+
+### Bug Fixes
+
+* outdated documentation links ([f298ba2](https://github.com/microsoft/kiota-python/commit/f298ba2cf9d6fa3874bc248873f7270fb9499b7f))
+
 ## [1.6.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.6.3...microsoft-kiota-authentication-azure-v1.6.4) (2024-12-04)
 
 
