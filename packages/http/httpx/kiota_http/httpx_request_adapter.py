@@ -564,10 +564,10 @@ class HttpxRequestAdapter(RequestAdapter):
             if auth_header_value.casefold().startswith(
                 self.BEARER_AUTHENTICATION_SCHEME.casefold()
             ):
-                claims_match = re.search('claims="(.+)"', auth_header_value)
+                claims_match = re.search('claims="([^"]+)"', auth_header_value)
                 if not claims_match:
                     raise ValueError("Unable to parse claims from response")
-                response_claims = claims_match.group().split('="')[1]
+                response_claims = claims_match.group(1)
                 parent_span.add_event(AUTHENTICATE_CHALLENGED_EVENT_KEY)
                 parent_span.set_attribute("http.retry_count", 1)
                 return await self.get_http_response_message(
