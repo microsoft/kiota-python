@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "microsoft-kiota-http"
-version = "1.6.3"
+version = "1.6.5"
 description = "Core abstractions for kiota generated libraries in Python"
 authors = ["Microsoft <graphtooling+python@microsoft.com>"]
 license = "MIT"
@@ -21,7 +21,7 @@ classifiers = [
 ]
 homepage = "https://github.com/microsoft/kiota#readme"
 repository = "https://github.com/microsoft/kiota-python"
-documentation = "https://microsoft.github.io/kiota/"
+documentation = "https://learn.microsoft.com/openapi/kiota/"
 packages = [{include = "kiota_http"}]
 
 [tool.poetry.dependencies]
@@ -29,7 +29,7 @@ python = ">=3.8,<4.0"
 microsoft-kiota-abstractions = {path="../../abstractions/", develop=true}
 opentelemetry-api = ">=1.27.0"
 opentelemetry-sdk = ">=1.27.0"
-httpx = {extras = ["http2"], version = ">=0.23,<0.28"}
+httpx = {extras = ["http2"], version = ">=0.28"}
 urllib3 = "^2.2.2"
 
 [tool.poetry.group.dev.dependencies]

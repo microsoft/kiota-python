@@ -91,7 +91,7 @@ def test_enable_backing_store(request_adapter):
 
 @pytest.mark.asyncio
 async def test_get_root_parse_node(request_adapter, simple_success_response):
-    assert simple_success_response.text == '{"message": "Success!"}'
+    assert simple_success_response.text == '{"message":"Success!"}'
     assert simple_success_response.status_code == 200
     content_type = request_adapter.get_response_content_type(simple_success_response)
     assert content_type == "application/json"
@@ -118,7 +118,7 @@ async def test_get_root_parse_node_no_content_type_header_return_null(
 @pytest.mark.asyncio
 async def test_does_not_throw_failed_responses_on_success(request_adapter, simple_success_response):
     try:
-        assert simple_success_response.text == '{"message": "Success!"}'
+        assert simple_success_response.text == '{"message":"Success!"}'
         assert simple_success_response.status_code == 200
         content_type = request_adapter.get_response_content_type(simple_success_response)
         assert content_type == "application/json"
@@ -130,7 +130,7 @@ async def test_does_not_throw_failed_responses_on_success(request_adapter, simpl
 async def test_throw_failed_responses_null_error_map(
     request_adapter, simple_error_response, mock_otel_span
 ):
-    assert simple_error_response.text == '{"error": "not found"}'
+    assert simple_error_response.text == '{"error":"not found"}'
     assert simple_error_response.status_code == 404
     content_type = request_adapter.get_response_content_type(simple_error_response)
     assert content_type == "application/json"
@@ -149,7 +149,7 @@ async def test_throw_failed_responses_null_error_map(
 async def test_throw_failed_responses_no_error_class(
     request_adapter, simple_error_response, mock_error_500_map, mock_otel_span
 ):
-    assert simple_error_response.text == '{"error": "not found"}'
+    assert simple_error_response.text == '{"error":"not found"}'
     assert simple_error_response.status_code == 404
     content_type = request_adapter.get_response_content_type(simple_error_response)
     assert content_type == "application/json"
