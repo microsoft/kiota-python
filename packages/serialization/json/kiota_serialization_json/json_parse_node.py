@@ -312,7 +312,8 @@ class JsonParseNode(ParseNode):
             try:
                 if self.__is_four_digit_number(value):
                     return value
-
+                if value.isdigit():
+                    return value
                 datetime_obj = pendulum.parse(value)
                 if isinstance(datetime_obj, pendulum.Duration):
                     return datetime_obj.as_timedelta()
