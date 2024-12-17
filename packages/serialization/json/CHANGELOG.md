@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.7](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.6.6...microsoft-kiota-serialization-json-v1.6.7) (2024-12-17)
+
+
+### Bug Fixes
+
+* numerical strings parsing ([ab1a6c1](https://github.com/microsoft/kiota-python/commit/ab1a6c11bd41139220dc5c6fc75979c8ea8475b5))
+
 ## [1.6.6](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.6.5...microsoft-kiota-serialization-json-v1.6.6) (2024-12-05)
 
 
