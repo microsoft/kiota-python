@@ -139,6 +139,25 @@ def test_get_anythin_does_not_convert_numeric_chars_to_datetime():
     assert result == "1212"
 
 
+def test_get_anythin_does_not_convert_any_length_numeric_chars_to_datetime():
+    parse_node = JsonParseNode("1212")
+    result1 = parse_node.try_get_anything("1212")
+    parse_node_two = JsonParseNode("-PT15M")
+    result2 = parse_node_two.try_get_anything("-PT15M")
+    parse_node_three = JsonParseNode("20081008")
+    result3 = parse_node_three.try_get_anything("20081008")
+    parse_node_four = JsonParseNode("1011317")
+    result4 = parse_node_four.try_get_anything("1011317")
+    assert isinstance(result1, str)
+    assert result1 == "1212"
+    assert isinstance(result2, str)
+    assert result2 == "-PT15M"
+    assert isinstance(result3, str)
+    assert result3 == "20081008"
+    assert isinstance(result4, str)
+    assert result4 == "1011317"
+
+
 def test_get_anythin_does_convert_date_string_to_datetime():
     parse_node = JsonParseNode("2023-10-05T14:48:00.000Z")
     result = parse_node.try_get_anything("2023-10-05T14:48:00.000Z")
