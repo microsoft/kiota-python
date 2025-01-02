@@ -607,7 +607,7 @@ class HttpxRequestAdapter(RequestAdapter):
         }
 
         if url.port is not None:
-            otel_attributes["http.port"] = url.port
+            otel_attributes["http.port"] = str(url.port)
 
         if self.observability_options.include_euii_attributes:
             otel_attributes.update({URL_FULL: url.geturl()})
