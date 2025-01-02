@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.8](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.6.7...microsoft-kiota-http-v1.6.8) (2025-01-02)
+
+
+### Bug Fixes
+
+* opentelemetry warning ([6909e86](https://github.com/microsoft/kiota-python/commit/6909e86d9df2e496107f414ebeb7ff1dc8a8de38))
+* opentelemetry warning ([e2b3ae7](https://github.com/microsoft/kiota-python/commit/e2b3ae7ff81b18fe1250a1d104ed41ca3d5cb897))
+
 ## [1.6.7](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.6.6...microsoft-kiota-http-v1.6.7) (2024-12-17)
 
 
