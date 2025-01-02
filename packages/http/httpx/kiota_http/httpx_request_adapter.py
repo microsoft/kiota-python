@@ -601,11 +601,13 @@ class HttpxRequestAdapter(RequestAdapter):
 
         otel_attributes = {
             HTTP_REQUEST_METHOD: method.value,
-            "http.port": url.port,
             SERVER_ADDRESS: url.hostname,
             URL_SCHEME: url.scheme,
             "url.uri_template": request_info.url_template,
         }
+
+        if url.port is not None:
+            otel_attributes["http.port"] = str(url.port)
 
         if self.observability_options.include_euii_attributes:
             otel_attributes.update({URL_FULL: url.geturl()})
