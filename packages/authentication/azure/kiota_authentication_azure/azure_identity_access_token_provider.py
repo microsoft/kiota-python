@@ -1,7 +1,7 @@
 import base64
 import inspect
 from pickle import TRUE
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional, Union
 from urllib.parse import urlparse
 
 from kiota_abstractions.authentication import AccessTokenProvider, AllowedHostsValidator
@@ -32,7 +32,7 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
     def __init__(
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
-        options: Optional[Dict],
+        options: Optional[dict],
         scopes: List[str] = [],
         allowed_hosts: List[str] = [],
         is_cae_enabled: bool = True,
@@ -54,7 +54,7 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
     async def get_authorization_token(
         self,
         uri: str,
-        additional_authentication_context: Dict[str, Any] = {},
+        additional_authentication_context: dict[str, Any] = {},
     ) -> str:
         """This method is called by the BaseBearerTokenAuthenticationProvider class to get the
         access token.

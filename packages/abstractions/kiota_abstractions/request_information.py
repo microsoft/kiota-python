@@ -9,7 +9,7 @@ from dataclasses import fields, is_dataclass
 from datetime import date, datetime, time, timedelta, timezone
 from enum import Enum
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, TypeVar, Union
 from urllib.parse import unquote
 from uuid import UUID
 
@@ -47,23 +47,23 @@ class RequestInformation:
         self,
         method: Optional[Method] = None,
         url_template: Optional[str] = None,
-        path_parameters: Dict[str, Any] = {}
+        path_parameters: dict[str, Any] = {}
     ) -> None:
         """Creates a new instance of the RequestInformation class.
 
         Args:
             method (Method): The request method.
             url_template (str): The given url template.
-            path_parameters (Dict[str, Any], optional): Path parameters
+            path_parameters (dict[str, Any], optional): Path parameters
             for the request. Defaults to {}.
         """
         # The uri of the request
         self.__uri: Optional[Url] = None
 
-        self.__request_options: Dict[str, RequestOption] = {}
+        self.__request_options: dict[str, RequestOption] = {}
 
         # The path parameters for the current request
-        self.path_parameters: Dict[str, Any] = path_parameters
+        self.path_parameters: dict[str, Any] = path_parameters
 
         # The URL template for the request
         self.url_template: Optional[str] = url_template
@@ -72,7 +72,7 @@ class RequestInformation:
         self.http_method: Optional[Method] = method
 
         # The query parameters for the request
-        self.query_parameters: Dict[str, Any] = {}
+        self.query_parameters: dict[str, Any] = {}
 
         # The Request Headers
         self.headers: HeadersCollection = HeadersCollection()
@@ -108,7 +108,7 @@ class RequestInformation:
         if not self.url_template:
             raise Exception("Url Template cannot be null")
 
-        data: Dict[str, Any] = {}
+        data: dict[str, Any] = {}
         for key, val in self.query_parameters.items():
             val = self._get_sanitized_value(val)
             data[key] = val
@@ -129,14 +129,14 @@ class RequestInformation:
         self.path_parameters.clear()
 
     @property
-    def request_headers(self) -> Optional[Dict]:
+    def request_headers(self) -> Optional[dict]:
         final = {}
         for key, values in self.headers.get_all().items():
             final[key] = ', '.join(values)
         return final
 
     @property
-    def request_options(self) -> Dict[str, RequestOption]:
+    def request_options(self) -> dict[str, RequestOption]:
         """Gets the request options for the request."""
         return self.__request_options
 
@@ -205,7 +205,7 @@ class RequestInformation:
                 writer.writer = writer.write_collection_of_primitive_values(None, values)
                 span.set_attribute(self.REQUEST_TYPE_KEY, "[]")
             else:
-                function_values: Dict[type, Callable] = {
+                function_values: dict[type, Callable] = {
                     bool: writer.write_bool_value,
                     str: writer.write_str_value,
                     int: writer.write_int_value,

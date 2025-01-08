@@ -8,7 +8,7 @@ from __future__ import annotations
 import io
 import uuid
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Tuple, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Tuple, TypeVar
 
 from .serialization import Parsable
 
@@ -32,7 +32,7 @@ class MultipartBody(Parsable, Generic[T]):
             multipart.serialize(output_file)
     """
     boundary: str = str(uuid.uuid4())
-    parts: Dict[str, Tuple[str, Any, Optional[str]]] = field(default_factory=dict)
+    parts: dict[str, Tuple[str, Any, Optional[str]]] = field(default_factory=dict)
     request_adapter: Optional[RequestAdapter] = None
 
     def add_or_replace_part(
@@ -82,11 +82,11 @@ class MultipartBody(Parsable, Generic[T]):
             raise ValueError("Part name cannot be null")
         return self.parts.pop(self._normalize_part_name(part_name), None) is not None
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         raise NotImplementedError()

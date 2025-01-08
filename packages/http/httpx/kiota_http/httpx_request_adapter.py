@@ -2,7 +2,7 @@
 from __future__ import annotations
 import re
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
+from typing import Any, List, Optional, TypeVar, Union
 from urllib import parse
 
 from kiota_abstractions.api_client_builder import (
@@ -160,7 +160,7 @@ class HttpxRequestAdapter(RequestAdapter):
         self,
         request_info: RequestInformation,
         parsable_factory: ParsableFactory[ModelType],
-        error_map: Optional[Dict[str, type[ParsableFactory]]],
+        error_map: Optional[dict[str, type[ParsableFactory]]],
     ) -> Optional[ModelType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model.
@@ -168,7 +168,7 @@ class HttpxRequestAdapter(RequestAdapter):
             request_info (RequestInformation): the request info to execute.
             parsable_factory (ParsableFactory): the class of the response model
             to deserialize the response into.
-            error_map (Dict[str, type[ParsableFactory]]): the error dict to use in
+            error_map (dict[str, type[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
         Returns:
@@ -205,7 +205,7 @@ class HttpxRequestAdapter(RequestAdapter):
         self,
         request_info: RequestInformation,
         parsable_factory: ParsableFactory,
-        error_map: Optional[Dict[str, type[ParsableFactory]]],
+        error_map: Optional[dict[str, type[ParsableFactory]]],
     ) -> Optional[List[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
@@ -213,7 +213,7 @@ class HttpxRequestAdapter(RequestAdapter):
             request_info (RequestInformation): the request info to execute.
             parsable_factory (ParsableFactory): the class of the response model
             to deserialize the response into.
-            error_map (Dict[str, type[ParsableFactory]]): the error dict to use in
+            error_map (dict[str, type[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
         Returns:
@@ -252,7 +252,7 @@ class HttpxRequestAdapter(RequestAdapter):
         self,
         request_info: RequestInformation,
         response_type: type[PrimitiveType],
-        error_map: Optional[Dict[str, type[ParsableFactory]]],
+        error_map: Optional[dict[str, type[ParsableFactory]]],
     ) -> Optional[List[PrimitiveType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
@@ -260,7 +260,7 @@ class HttpxRequestAdapter(RequestAdapter):
             request_info (RequestInformation): the request info to execute.
             response_type (PrimitiveType): the class of the response model
             to deserialize the response into.
-            error_map (Dict[str, type[ParsableFactory]]): the error dict to use in
+            error_map (dict[str, type[ParsableFactory]]): the error dict to use in
             case of a failed request.
 
         Returns:
@@ -299,7 +299,7 @@ class HttpxRequestAdapter(RequestAdapter):
         self,
         request_info: RequestInformation,
         response_type: str,
-        error_map: Optional[Dict[str, type[ParsableFactory]]],
+        error_map: Optional[dict[str, type[ParsableFactory]]],
     ) -> Optional[ResponseType]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
@@ -307,7 +307,7 @@ class HttpxRequestAdapter(RequestAdapter):
             request_info (RequestInformation): the request info to execute.
             response_type (str): the class name of the response model to deserialize the
             response into.
-            error_map (Dict[str, type[ParsableFactory]]): the error dict to use in case
+            error_map (dict[str, type[ParsableFactory]]): the error dict to use in case
             of a failed request.
 
         Returns:
@@ -360,14 +360,14 @@ class HttpxRequestAdapter(RequestAdapter):
             parent_span.end()
 
     async def send_no_response_content_async(
-        self, request_info: RequestInformation, error_map: Optional[Dict[str,
+        self, request_info: RequestInformation, error_map: Optional[dict[str,
                                                                          type[ParsableFactory]]]
     ) -> None:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized primitive response model.
         Args:
             request_info (RequestInformation):the request info to execute.
-            error_map (Dict[str, type[ParsableFactory]]): the error dict to use in case
+            error_map (dict[str, type[ParsableFactory]]): the error dict to use in case
             of a failed request.
         """
         parent_span = self.start_tracing_span(request_info, "send_no_response_content_async")
@@ -427,7 +427,7 @@ class HttpxRequestAdapter(RequestAdapter):
     async def throw_failed_responses(
         self,
         response: httpx.Response,
-        error_map: Optional[Dict[str, type[ParsableFactory]]],
+        error_map: Optional[dict[str, type[ParsableFactory]]],
         parent_span: trace.Span,
         attribute_span: trace.Span,
     ) -> None:
@@ -655,13 +655,13 @@ class HttpxRequestAdapter(RequestAdapter):
             parent_span.end()
 
     def _error_class_not_in_error_mapping(
-        self, error_map: Dict[str, type[ParsableFactory]], status_code: int
+        self, error_map: dict[str, type[ParsableFactory]], status_code: int
     ) -> bool:
         """Helper function to check if the error class corresponding to a response status code
         is not in the error mapping.
 
         Args:
-            error_map (Dict[str, type[ParsableFactory]]): The error mapping.
+            error_map (dict[str, type[ParsableFactory]]): The error mapping.
             status_code (int): The response status code.
 
         Returns:

@@ -1,7 +1,7 @@
 import base64
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, List, Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.serialization import Parsable, SerializationWriter
@@ -186,10 +186,10 @@ class TextSerializationWriter(SerializationWriter):
         """
         self.write_str_value(key, 'null')
 
-    def write_additional_data_value(self, value: Dict[str, Any]) -> None:
+    def write_additional_data_value(self, value: dict[str, Any]) -> None:
         """Writes the specified additional data to the stream.
         Args:
-            value (Dict[str, Any]): he additional data to be written.
+            value (dict[str, Any]): he additional data to be written.
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 

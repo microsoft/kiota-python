@@ -4,7 +4,7 @@ import base64
 import json
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, List, Optional, TypeVar
 from uuid import UUID
 
 import pendulum
@@ -22,7 +22,7 @@ class JsonSerializationWriter(SerializationWriter):
     PROPERTY_SEPARATOR: str = ','
 
     def __init__(self) -> None:
-        self.writer: Dict = {}
+        self.writer: dict = {}
         self.value: Any = None
 
         self._on_start_object_serialization: Optional[Callable[[Parsable, SerializationWriter],
@@ -256,13 +256,13 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = result
 
     def __write_collection_of_dict_values(
-        self, key: Optional[str], values: Optional[List[Dict[str, Any]]]
+        self, key: Optional[str], values: Optional[List[dict[str, Any]]]
     ) -> None:
         """Writes the specified collection of dictionary values to the stream with an optional
             given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values (Optional[List[Dict[str, Any]]]): The collection of dictionary values
+            values (Optional[List[dict[str, Any]]]): The collection of dictionary values
             to be written.
         """
         if isinstance(values, list):
@@ -344,11 +344,11 @@ class JsonSerializationWriter(SerializationWriter):
         else:
             self.value = None
 
-    def __write_dict_value(self, key: Optional[str], value: Dict[str, Any]) -> None:
+    def __write_dict_value(self, key: Optional[str], value: dict[str, Any]) -> None:
         """Writes the specified dictionary value to the stream with an optional given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            value (Dict[str, Any]): The dictionary value to be written.
+            value (dict[str, Any]): The dictionary value to be written.
         """
         if isinstance(value, dict):
             temp_writer: JsonSerializationWriter = self._create_new_writer()
@@ -359,10 +359,10 @@ class JsonSerializationWriter(SerializationWriter):
             else:
                 self.value = temp_writer.writer
 
-    def write_additional_data_value(self, value: Dict[str, Any]) -> None:
+    def write_additional_data_value(self, value: dict[str, Any]) -> None:
         """Writes the specified additional data to the stream.
         Args:
-            value (Dict[str, Any]): The additional data to be written.
+            value (dict[str, Any]): The additional data to be written.
         """
         if isinstance(value, dict):
             for key, val in value.items():

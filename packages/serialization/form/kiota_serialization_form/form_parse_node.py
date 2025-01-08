@@ -4,7 +4,7 @@ import warnings
 from collections import defaultdict
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Callable, List, Optional, TypeVar
 from urllib.parse import unquote_plus
 from uuid import UUID
 
@@ -333,7 +333,7 @@ class FormParseNode(ParseNode):
         new_node.on_after_assign_field_values = self.on_after_assign_field_values
         return new_node
 
-    def _get_fields(self, raw_value: str) -> Dict[str, str]:
+    def _get_fields(self, raw_value: str) -> dict[str, str]:
         fields = raw_value.split('&')
         field_values = defaultdict(list)
         for field in fields:
@@ -344,7 +344,7 @@ class FormParseNode(ParseNode):
                 field_values[key].append(value)
 
         # Convert lists to comma-separated strings
-        result: Dict[str, str] = {}
+        result: dict[str, str] = {}
         for key in field_values:
             result[key] = ','.join(field_values[key])
         return result

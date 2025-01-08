@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any, List
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from kiota_abstractions.request_information import RequestInformation
@@ -56,7 +56,7 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
     async def authenticate_request(
         self,
         request: RequestInformation,
-        additional_authentication_context: Dict[str, Any] = {}
+        additional_authentication_context: dict[str, Any] = {}
     ) -> None:
         """
         Ensures that the API key is placed in the correct location for a request.

@@ -4,7 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Generic, List, Optional, Tuple, TypeVar
 from uuid import uuid4
 
 from .backed_model import BackedModel
@@ -18,8 +18,8 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
 
     def __init__(self) -> None:
 
-        self.__subscriptions: Dict[str, Callable[[str, Any, Any], None]] = {}
-        self.__store: Dict[str, Tuple[bool, Any]] = {}
+        self.__subscriptions: dict[str, Callable[[str, Any, Any], None]] = {}
+        self.__store: dict[str, Tuple[bool, Any]] = {}
         self.__initialization_completed: bool = False
         self.__return_only_changed_values: bool = False
 

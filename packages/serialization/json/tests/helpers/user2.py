@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 
 from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
 
@@ -10,7 +10,7 @@ T = TypeVar('T')
 
 @dataclass
 class User2(Parsable):
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=dict)
     id: Optional[int] = None
     display_name: Optional[str] = None
     age: Optional[int] = None
@@ -28,11 +28,11 @@ class User2(Parsable):
             raise TypeError("parse_node cannot be null")
         return User2()
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         return {

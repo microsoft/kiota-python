@@ -4,7 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Dict
+from typing import Any
 
 from ..request_information import RequestInformation
 from .authentication_provider import AuthenticationProvider
@@ -20,7 +20,7 @@ class AnonymousAuthenticationProvider(AuthenticationProvider):
     async def authenticate_request(
         self,
         request: RequestInformation,
-        additional_authentication_context: Dict[str, Any] = {}
+        additional_authentication_context: dict[str, Any] = {}
     ) -> None:
         """Authenticates the provided request information
 

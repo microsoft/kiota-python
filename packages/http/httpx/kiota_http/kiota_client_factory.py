@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from kiota_abstractions.request_option import RequestOption
 
@@ -45,14 +45,14 @@ class KiotaClientFactory:
     @staticmethod
     def create_with_default_middleware(
         client: Optional[httpx.AsyncClient] = None,
-        options: Optional[Dict[str, RequestOption]] = None
+        options: Optional[dict[str, RequestOption]] = None
     ) -> httpx.AsyncClient:
         """Constructs native HTTP AsyncClient(httpx.AsyncClient) instances configured with
         a custom transport loaded with a default pipeline of middleware.
 
         Args:
-            options (Optional[Dict[str, RequestOption]]): The request options to use when
-            instantiating default middleware. Defaults to Dict[str, RequestOption]=None.
+            options (Optional[dict[str, RequestOption]]): The request options to use when
+            instantiating default middleware. Defaults to dict[str, RequestOption]=None.
 
         Returns:
             httpx.AsycClient: An instance of the AsyncClient object
@@ -80,7 +80,7 @@ class KiotaClientFactory:
         return KiotaClientFactory._load_middleware_to_client(kiota_async_client, middleware)
 
     @staticmethod
-    def get_default_middleware(options: Optional[Dict[str, RequestOption]]) -> List[BaseMiddleware]:
+    def get_default_middleware(options: Optional[dict[str, RequestOption]]) -> List[BaseMiddleware]:
         """
         Helper method that returns a list of default middleware instantiated with
         appropriate options

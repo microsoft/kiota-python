@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 from unittest.mock import Mock
 
 import pytest
@@ -34,7 +34,7 @@ class MockAccessTokenProvider(AccessTokenProvider):
         self.token = None
 
     async def get_authorization_token(
-        self, url: str, additional_authentication_context: Dict[str, Any] = {}
+        self, url: str, additional_authentication_context: dict[str, Any] = {}
     ) -> str:
         return "SomeToken"
 
@@ -45,7 +45,7 @@ class MockAccessTokenProvider(AccessTokenProvider):
 @dataclass
 class MockEntity(Parsable, AdditionalDataHolder, BackedModel):
     # Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=dict)
     # Stores model information.
     backing_store: BackingStore = field(
         default_factory=BackingStoreFactorySingleton(backing_store_factory=None
@@ -74,12 +74,12 @@ class MockEntity(Parsable, AdditionalDataHolder, BackedModel):
             raise TypeError("parse_node cannot be null.")
         return MockEntity()
 
-    def get_field_deserializers(self, ) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self, ) -> dict[str, Callable[[ParseNode], None]]:
         """
         The deserialization information for the current model
-        Returns: Dict[str, Callable[[ParseNode], None]]
+        Returns: dict[str, Callable[[ParseNode], None]]
         """
-        fields: Dict[str, Callable[[Any], None]] = {
+        fields: dict[str, Callable[[Any], None]] = {
             "@odata.type":
             lambda n: setattr(self, 'odata_type', n.get_str_value()),
             "id":

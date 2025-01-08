@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Dict, TypeVar
+from typing import TYPE_CHECKING, Callable, TypeVar
 
 T = TypeVar("T")
 
@@ -16,11 +16,11 @@ class Parsable(ABC):
     """
 
     @abstractmethod
-    def get_field_deserializers(self) -> Dict[str, Callable[['ParseNode'], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[['ParseNode'], None]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         pass

@@ -1,5 +1,4 @@
 import re
-from typing import Dict
 
 from .serialization_writer import SerializationWriter
 from .serialization_writer_factory import SerializationWriterFactory
@@ -9,7 +8,7 @@ class SerializationWriterFactoryRegistry(SerializationWriterFactory):
     """This factory holds a list of all the registered factories for the various types of nodes.
     """
     # List of factories that are registered by content type.
-    CONTENT_TYPE_ASSOCIATED_FACTORIES: Dict[str, SerializationWriterFactory] = {}
+    CONTENT_TYPE_ASSOCIATED_FACTORIES: dict[str, SerializationWriterFactory] = {}
 
     __instance = None
 

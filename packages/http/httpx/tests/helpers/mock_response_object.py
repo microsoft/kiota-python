@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, List, Optional, TypeVar
 
 from kiota_abstractions.serialization import (
     AdditionalDataHolder,
@@ -29,7 +29,7 @@ class MockResponseObject(Parsable, AdditionalDataHolder):
         self._is_active: Optional[bool] = None
         self._age: Optional[int] = None
         self._gpa: Optional[float] = None
-        self._additional_data: Dict[str, Any] = {}
+        self._additional_data: dict[str, Any] = {}
 
     @property
     def id(self):
@@ -112,11 +112,11 @@ class MockResponseObject(Parsable, AdditionalDataHolder):
         self._gpa = new_gpa
 
     @property
-    def additional_data(self) -> Dict[str, Any]:
+    def additional_data(self) -> dict[str, Any]:
         return self._additional_data
 
     @additional_data.setter
-    def additional_data(self, data: Dict[str, Any]) -> None:
+    def additional_data(self, data: dict[str, Any]) -> None:
         self._additional_data = data
 
     def get_object_value(self, model_class):
@@ -145,11 +145,11 @@ class MockResponseObject(Parsable, AdditionalDataHolder):
             raise Exception("parse_node cannot be undefined")
         return MockResponseObject()
 
-    def get_field_deserializers(self) -> Optional[Dict[str, Callable[[ParseNode], None]]]:
+    def get_field_deserializers(self) -> Optional[dict[str, Callable[[ParseNode], None]]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         pass

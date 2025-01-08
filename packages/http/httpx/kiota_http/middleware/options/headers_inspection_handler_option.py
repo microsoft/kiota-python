@@ -3,8 +3,6 @@
 # Licensed under the MIT License.
 # See License in the project root for license information.
 # ------------------------------------
-from typing import Dict
-
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_option import RequestOption
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Set, Union
+from typing import List, Set, Union
 
 
 class HeadersCollection():
@@ -8,7 +8,7 @@ class HeadersCollection():
     SINGLE_VALUE_HEADERS: Set[str] = {"content-type", "content-encoding", "content-length"}
 
     def __init__(self) -> None:
-        self._headers: Dict[str, Set[str]] = {}
+        self._headers: dict[str, Set[str]] = {}
 
     def try_get(self, key: str) -> Union[bool, Set[str]]:
         """Gets the header values corresponding to a specific header name.
@@ -27,11 +27,11 @@ class HeadersCollection():
             return values
         return False
 
-    def get_all(self) -> Dict[str, Set[str]]:
+    def get_all(self) -> dict[str, Set[str]]:
         """Get all headers and values stored so far.
 
         Returns:
-            Dict[str, str]: The headers
+            dict[str, str]: The headers
         """
         return self._headers
 
@@ -76,7 +76,7 @@ class HeadersCollection():
         """Adds the specified headers to the collection.
 
         Args:
-            headers (Dict[str, str]): The headers to add.
+            headers (dict[str, str]): The headers to add.
         """
         if not headers:
             raise ValueError("Headers cannot be null")

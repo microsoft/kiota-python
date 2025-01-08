@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, List, Optional, TypeVar
 from uuid import UUID
 
 from .parsable import Parsable
@@ -190,10 +190,10 @@ class SerializationWriter(ABC):
         pass
 
     @abstractmethod
-    def write_additional_data_value(self, value: Dict[str, Any]) -> None:
+    def write_additional_data_value(self, value: dict[str, Any]) -> None:
         """Writes the specified additional data to the stream.
         Args:
-            value (Dict[str, Any]): he additional data to be written.
+            value (dict[str, Any]): he additional data to be written.
         """
         pass
 
