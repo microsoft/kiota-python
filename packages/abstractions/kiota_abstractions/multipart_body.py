@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import io
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Tuple, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Optional, TypeVar
 
 from .serialization import Parsable
 
@@ -32,7 +33,7 @@ class MultipartBody(Parsable, Generic[T]):
             multipart.serialize(output_file)
     """
     boundary: str = str(uuid.uuid4())
-    parts: dict[str, Tuple[str, Any, Optional[str]]] = field(default_factory=dict)
+    parts: dict[str, tuple[str, Any, Optional[str]]] = field(default_factory=dict)
     request_adapter: Optional[RequestAdapter] = None
 
     def add_or_replace_part(
@@ -59,7 +60,7 @@ class MultipartBody(Parsable, Generic[T]):
             raise ValueError("Content type cannot be null")
         if not part_value:
             raise ValueError("Part value cannot be null")
-        value: Tuple[str, Any, Optional[str]] = (content_type, part_value, filename)
+        value: tuple[str, Any, Optional[str]] = (content_type, part_value, filename)
         self.parts[self._normalize_part_name(part_name)] = value
 
     def get_part_value(self, part_name: str) -> Optional[T]:
@@ -139,7 +140,7 @@ class MultipartBody(Parsable, Generic[T]):
         writer.write_str_value("", "")
 
     def _get_comtent_disposition(
-        self, part_name: str, part_value: Tuple[str, Any, Optional[str]]
+        self, part_name: str, part_value: tuple[str, Any, Optional[str]]
     ) -> str:
         if len(part_value) >= 3 and part_value[2] is not None:
             return f'form-data; name="{part_name}"; filename="{part_value[2]}"'

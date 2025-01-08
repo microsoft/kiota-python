@@ -29,6 +29,7 @@ from kiota_serialization_text.text_parse_node_factory import TextParseNodeFactor
 from kiota_serialization_text.text_serialization_writer_factory import (
     TextSerializationWriterFactory,
 )
+
 """
 The default client request adapter.
 """

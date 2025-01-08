@@ -4,7 +4,8 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Callable, Generic, Optional, Tuple, TypeVar
+from collections.abc import Callable
+from typing import Any, Generic, Optional, TypeVar
 from uuid import uuid4
 
 from .backed_model import BackedModel
@@ -19,7 +20,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
     def __init__(self) -> None:
 
         self.__subscriptions: dict[str, Callable[[str, Any, Any], None]] = {}
-        self.__store: dict[str, Tuple[bool, Any]] = {}
+        self.__store: dict[str, tuple[bool, Any]] = {}
         self.__initialization_completed: bool = False
         self.__return_only_changed_values: bool = False
 
@@ -112,12 +113,12 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             self.__subscriptions[sub](key, old_value, value_to_add)
             # sub(key, old_value, value_to_add)
 
-    def enumerate_(self) -> list[Tuple[str, Any]]:
+    def enumerate_(self) -> list[tuple[str, Any]]:
         """Enumerate the values in the store based on the ReturnOnlyChangedValues configuration
         value
 
         Returns:
-            list[Tuple[str, Any]]: A collection of changed values or the whole store based on the
+            list[tuple[str, Any]]: A collection of changed values or the whole store based on the
             ReturnOnlyChangedValues configuration value.
         """
 

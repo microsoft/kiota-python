@@ -1,5 +1,6 @@
 """HTTPX client request adapter."""
 from __future__ import annotations
+
 import re
 from datetime import datetime
 from typing import Any, Optional, TypeVar, Union
@@ -11,7 +12,7 @@ from kiota_abstractions.api_client_builder import (
 )
 from kiota_abstractions.api_error import APIError
 from kiota_abstractions.authentication import AuthenticationProvider
-from kiota_abstractions.request_adapter import RequestAdapter, ResponseType, PrimitiveType
+from kiota_abstractions.request_adapter import PrimitiveType, RequestAdapter, ResponseType
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import (
     Parsable,
@@ -25,12 +26,12 @@ from kiota_abstractions.serialization import (
 from kiota_abstractions.store import BackingStoreFactory, BackingStoreFactorySingleton
 from opentelemetry import trace
 from opentelemetry.semconv.attributes.http_attributes import (
-    HTTP_RESPONSE_STATUS_CODE,
     HTTP_REQUEST_METHOD,
+    HTTP_RESPONSE_STATUS_CODE,
 )
 from opentelemetry.semconv.attributes.network_attributes import NETWORK_PROTOCOL_NAME
 from opentelemetry.semconv.attributes.server_attributes import SERVER_ADDRESS
-from opentelemetry.semconv.attributes.url_attributes import URL_SCHEME, URL_FULL
+from opentelemetry.semconv.attributes.url_attributes import URL_FULL, URL_SCHEME
 
 import httpx
 from kiota_http._exceptions import (

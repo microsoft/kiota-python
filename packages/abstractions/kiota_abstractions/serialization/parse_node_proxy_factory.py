@@ -4,7 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Callable
+from collections.abc import Callable
 
 from .parsable import Parsable
 from .parse_node import ParseNode

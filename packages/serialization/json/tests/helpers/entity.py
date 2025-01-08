@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Optional
+from collections.abc import Callable
+from typing import Optional
 from uuid import UUID
 
 from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter

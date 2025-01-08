@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import base64
+from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Optional, TypeVar
 from urllib.parse import quote_plus
 from uuid import UUID
 

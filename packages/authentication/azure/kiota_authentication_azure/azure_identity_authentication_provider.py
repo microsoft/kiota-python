@@ -28,7 +28,7 @@ class AzureIdentityAuthenticationProvider(BaseBearerTokenAuthenticationProvider)
             options (Optional[dict]): The options to use for authentication.
             scopes (list[str], optional): The scopes to use for authentication.
                 Defaults to an empty list.
-            allowed_hosts (Set[str], optional): The allowed hosts to use for
+            allowed_hosts (set[str], optional): The allowed hosts to use for
                 authentication.
         """
         super().__init__(

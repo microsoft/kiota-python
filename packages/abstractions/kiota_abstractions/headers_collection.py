@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-from typing import Set, Union
+from typing import Union
 
 
 class HeadersCollection():
     "Represents a collection of request/response headers"
-    SINGLE_VALUE_HEADERS: Set[str] = {"content-type", "content-encoding", "content-length"}
+    SINGLE_VALUE_HEADERS: set[str] = {"content-type", "content-encoding", "content-length"}
 
     def __init__(self) -> None:
-        self._headers: dict[str, Set[str]] = {}
+        self._headers: dict[str, set[str]] = {}
 
-    def try_get(self, key: str) -> Union[bool, Set[str]]:
+    def try_get(self, key: str) -> Union[bool, set[str]]:
         """Gets the header values corresponding to a specific header name.
 
         Args:
             key (str): Header key.
 
         Returns:
-            Union[bool, Set[str]]: The header values for the specified header key or False.
+            Union[bool, set[str]]: The header values for the specified header key or False.
         """
         if not key:
             raise ValueError("Header name cannot be null")
@@ -27,7 +27,7 @@ class HeadersCollection():
             return values
         return False
 
-    def get_all(self) -> dict[str, Set[str]]:
+    def get_all(self) -> dict[str, set[str]]:
         """Get all headers and values stored so far.
 
         Returns:
@@ -35,14 +35,14 @@ class HeadersCollection():
         """
         return self._headers
 
-    def get(self, header_name: str) -> Set[str]:
+    def get(self, header_name: str) -> set[str]:
         """Get header values corresponding to a specific header.
         
         Args:
             header_name (str): Header key.
 
         Returns:
-            Set[str]: Values for the header key
+            set[str]: Values for the header key
         """
         if not header_name:
             raise ValueError("Header name cannot be null")
@@ -123,7 +123,7 @@ class HeadersCollection():
         """Gets the number of headers present in the collection."""
         return len(self._headers)
 
-    def remove_value(self, header_name: str, header_value: str) -> Union[bool, Set[str]]:
+    def remove_value(self, header_name: str, header_value: str) -> Union[bool, set[str]]:
         """Removes the specified value from the header with the specified name.
 
         Args:
@@ -147,7 +147,7 @@ class HeadersCollection():
 
         return False
 
-    def remove(self, header_name: str) -> Union[bool, Set[str]]:
+    def remove(self, header_name: str) -> Union[bool, set[str]]:
         """Removes the header with the specified name.
 
         Args:

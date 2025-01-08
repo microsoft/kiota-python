@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import io
+from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.multipart_body import MultipartBody

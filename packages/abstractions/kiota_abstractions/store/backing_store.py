@@ -5,7 +5,8 @@
 # ------------------------------------------------------------------------------
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Generic, Optional, Tuple, TypeVar
+from collections.abc import Callable
+from typing import Any, Generic, Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -39,12 +40,12 @@ class BackingStore(ABC, Generic[T]):
         pass
 
     @abstractmethod
-    def enumerate_(self) -> list[Tuple[str, Any]]:
+    def enumerate_(self) -> list[tuple[str, Any]]:
         """Enumerates all the values stored in the backing store. Values will be filtered if
         "ReturnOnlyChangedValues" is true.
 
         Returns:
-            list[Tuple[str, Any]]: The values available in the backing store.
+            list[tuple[str, Any]]: The values available in the backing store.
         """
         pass
 

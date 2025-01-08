@@ -5,11 +5,12 @@
 # ------------------------------------
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import fields, is_dataclass
 from datetime import date, datetime, time, timedelta, timezone
 from enum import Enum
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Optional, TypeVar, Union
 from urllib.parse import unquote
 from uuid import UUID
 

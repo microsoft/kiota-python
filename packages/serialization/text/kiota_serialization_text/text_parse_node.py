@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import base64
+from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Callable, Optional, TypeVar
+from typing import Optional, TypeVar
 from uuid import UUID
 
 from dateutil import parser

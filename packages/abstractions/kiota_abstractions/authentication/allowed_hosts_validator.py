@@ -1,4 +1,3 @@
-from typing import Set
 from urllib.parse import urlparse
 
 
@@ -17,7 +16,7 @@ class AllowedHostsValidator:
         if not isinstance(allowed_hosts, list):
             raise TypeError("Allowed hosts must be a list of strings")
 
-        self.allowed_hosts: Set[str] = {x.lower() for x in allowed_hosts}
+        self.allowed_hosts: set[str] = {x.lower() for x in allowed_hosts}
 
     def get_allowed_hosts(self) -> list[str]:
         """Gets the list of valid hosts.  If the list is empty, all hosts are valid.
