@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Set, Union
+from typing import Set, Union
 
 
 class HeadersCollection():
@@ -84,12 +84,12 @@ class HeadersCollection():
             for value in values:
                 self.add(key, value)
 
-    def add(self, header_name: str, header_values: Union[str, List[str]]) -> None:
+    def add(self, header_name: str, header_values: Union[str, list[str]]) -> None:
         """Adds values to the header with the specified name.
 
         Args:
             header_name (str): The name of the header to add values to.
-            header_values (List[str]): The values to add to the header.
+            header_values (list[str]): The values to add to the header.
         """
         if not header_name:
             raise ValueError("Header name cannot be null")
@@ -112,10 +112,10 @@ class HeadersCollection():
             else:
                 self._headers[header_name] = {header_values}
 
-    def keys(self) -> List[str]:
+    def keys(self) -> list[str]:
         """Gets the header names present in the collection.
         Returns:
-            List[str]: The header names present in the collection.
+            list[str]: The header names present in the collection.
         """
         return list(self._headers.keys())
 

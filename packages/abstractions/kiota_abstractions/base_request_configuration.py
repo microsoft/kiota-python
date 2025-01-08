@@ -4,7 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------
 from dataclasses import dataclass
-from typing import Generic, List, Optional, TypeVar
+from typing import Generic, Optional, TypeVar
 from warnings import warn
 
 from .headers_collection import HeadersCollection
@@ -21,7 +21,7 @@ class RequestConfiguration(Generic[QueryParameters]):
     # Request headers
     headers: HeadersCollection = HeadersCollection()
     # Request options
-    options: Optional[List[RequestOption]] = None
+    options: Optional[list[RequestOption]] = None
     # Request query parameters
     query_parameters: Optional[QueryParameters] = None
 

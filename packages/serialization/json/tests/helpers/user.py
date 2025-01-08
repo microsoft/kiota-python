@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.serialization import (
@@ -24,7 +24,7 @@ class User(Parsable, AdditionalDataHolder):
     office_location: Optional[OfficeLocation] = None
     updated_at: Optional[datetime] = None
     birthday: Optional[date] = None
-    business_phones: Optional[List[str]] = None
+    business_phones: Optional[list[str]] = None
     mobile_phone: Optional[str] = None
     is_active: Optional[bool] = None
 

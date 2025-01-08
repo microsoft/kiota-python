@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, Optional
 
 from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
 
@@ -14,7 +14,7 @@ class UnionType(Parsable):
     composed_type1: Optional[User] = None
     composed_type2: Optional[User2] = None
     string_value: Optional[str] = None
-    composed_type3: Optional[List[User]] = None
+    composed_type3: Optional[list[User]] = None
 
     @staticmethod
     def create_from_discriminator_value(parse_node: Optional[ParseNode] = None) -> UnionType:

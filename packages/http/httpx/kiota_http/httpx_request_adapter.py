@@ -2,7 +2,7 @@
 from __future__ import annotations
 import re
 from datetime import datetime
-from typing import Any, List, Optional, TypeVar, Union
+from typing import Any, Optional, TypeVar, Union
 from urllib import parse
 
 from kiota_abstractions.api_client_builder import (
@@ -206,7 +206,7 @@ class HttpxRequestAdapter(RequestAdapter):
         request_info: RequestInformation,
         parsable_factory: ParsableFactory,
         error_map: Optional[dict[str, type[ParsableFactory]]],
-    ) -> Optional[List[ModelType]]:
+    ) -> Optional[list[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
         Args:
@@ -239,7 +239,7 @@ class HttpxRequestAdapter(RequestAdapter):
             )
             root_node = await self.get_root_parse_node(response, parent_span, parent_span)
             if root_node:
-                result: Optional[List[ModelType]
+                result: Optional[list[ModelType]
                                  ] = root_node.get_collection_of_object_values(parsable_factory)
                 parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, result.__class__.__name__)
                 _deserialized_span.end()
@@ -253,7 +253,7 @@ class HttpxRequestAdapter(RequestAdapter):
         request_info: RequestInformation,
         response_type: type[PrimitiveType],
         error_map: Optional[dict[str, type[ParsableFactory]]],
-    ) -> Optional[List[PrimitiveType]]:
+    ) -> Optional[list[PrimitiveType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
         Args:
@@ -264,7 +264,7 @@ class HttpxRequestAdapter(RequestAdapter):
             case of a failed request.
 
         Returns:
-            Optional[List[PrimitiveType]]: The deserialized primitive type collection.
+            Optional[list[PrimitiveType]]: The deserialized primitive type collection.
         """
         parent_span = self.start_tracing_span(request_info, "send_collection_of_primitive_async")
         try:

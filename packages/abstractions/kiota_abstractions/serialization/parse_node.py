@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Callable, Optional, TypeVar
 from uuid import UUID
 
 from .parsable import Parsable
@@ -118,31 +118,31 @@ class ParseNode(ABC):
         pass
 
     @abstractmethod
-    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[List[T]]:
+    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[list[T]]:
         """Gets the collection of primitive values of the node
         Args:
             primitive_type: The type of primitive to return.
         Returns:
-            List[T]: The collection of primitive values
+            list[T]: The collection of primitive values
         """
         pass
 
     @abstractmethod
-    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[List[U]]:
+    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
         """Gets the collection of model object values of the node
         Args:
             factory (ParsableFactory): The factory to use to create the model object.
         Returns:
-            List[U]: The collection of model object values of the node
+            list[U]: The collection of model object values of the node
         """
         pass
 
     @abstractmethod
-    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[list[K]]:
         """Gets the collection of enum values of the node
 
         Returns:
-            List[K]: The collection of enum values
+            list[K]: The collection of enum values
         """
         pass
 

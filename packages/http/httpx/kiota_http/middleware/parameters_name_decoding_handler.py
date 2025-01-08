@@ -1,6 +1,3 @@
-from typing import List
-from urllib.parse import urlparse
-
 from kiota_abstractions.request_option import RequestOption
 
 import httpx
@@ -81,7 +78,7 @@ class ParametersNameDecodingHandler(BaseMiddleware):
             return current_options
         return self.options
 
-    def decode_uri_encoded_string(self, original: str, characters_to_decode: List[str]) -> str:
+    def decode_uri_encoded_string(self, original: str, characters_to_decode: list[str]) -> str:
         """Decodes a uri encoded url string"""
         if not original or not characters_to_decode:
             return original

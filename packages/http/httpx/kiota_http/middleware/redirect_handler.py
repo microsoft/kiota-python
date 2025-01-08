@@ -71,7 +71,7 @@ class RedirectHandler(BaseMiddleware):
         _enable_span.end()
 
         max_redirect = current_options.max_redirect
-        history: typing.List[httpx.Request] = []
+        history: list[httpx.Request] = []
 
         while max_redirect >= 0:
             _redirect_span = self._create_observability_span(

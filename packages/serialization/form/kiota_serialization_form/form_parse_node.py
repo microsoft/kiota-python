@@ -4,7 +4,7 @@ import warnings
 from collections import defaultdict
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 from urllib.parse import unquote_plus
 from uuid import UUID
 
@@ -167,12 +167,12 @@ class FormParseNode(ParseNode):
             return FormParseNode(self._fields[field_name])
         return None
 
-    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[List[T]]:
+    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[list[T]]:
         """Gets the collection of primitive values of the node
         Args:
             primitive_type: The type of primitive to return.
         Returns:
-            List[T]: The collection of primitive values
+            list[T]: The collection of primitive values
         """
         if not primitive_type:
             raise Exception("Primitive type for deserialization cannot be null")
@@ -180,7 +180,7 @@ class FormParseNode(ParseNode):
         primitive_types = {bool, str, int, float, UUID, datetime, timedelta, date, time, bytes}
         if primitive_type in primitive_types:
             items = self._node.split(',')
-            result: List[T] = []
+            result: list[T] = []
             for item in items:
                 current_parse_node = self._create_new_node(item)
                 method_name = f"get_{primitive_type.__name__.lower()}_value"
@@ -189,13 +189,13 @@ class FormParseNode(ParseNode):
             return result
         raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
 
-    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[List[U]]:
+    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
         raise Exception("Collection of object values is not supported with uri form encoding.")
 
-    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[list[K]]:
         """Gets the collection of enum values of the node
         Returns:
-            List[K]: The collection of enum values
+            list[K]: The collection of enum values
         """
         values = self._node.split(',')
         if values:

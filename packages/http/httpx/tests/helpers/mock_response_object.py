@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 
 from kiota_abstractions.serialization import (
     AdditionalDataHolder,
@@ -24,7 +24,7 @@ class MockResponseObject(Parsable, AdditionalDataHolder):
         self._office_location: Optional[OfficeLocation] = None
         self._updated_at: Optional[datetime] = None
         self._birthday: Optional[date] = None
-        self._business_phones: Optional[List[str]] = None
+        self._business_phones: Optional[list[str]] = None
         self._mobile_phone: Optional[str] = None
         self._is_active: Optional[bool] = None
         self._age: Optional[int] = None

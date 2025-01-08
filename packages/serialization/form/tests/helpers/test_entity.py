@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, time
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.serialization import (
@@ -20,7 +20,7 @@ T = TypeVar('T')
 class TestEntity(Parsable, AdditionalDataHolder):
     additional_data: dict[str, Any] = field(default_factory=dict)
     id: Optional[UUID] = None
-    device_names: Optional[List[str]] = None
+    device_names: Optional[list[str]] = None
     numbers: Optional[TestEnum] = None
     work_duration: Optional[timedelta] = None
     birthday: Optional[date] = None

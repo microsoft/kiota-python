@@ -1,7 +1,7 @@
 import base64
 import inspect
 from pickle import TRUE
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union
 from urllib.parse import urlparse
 
 from kiota_abstractions.authentication import AccessTokenProvider, AllowedHostsValidator
@@ -33,8 +33,8 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
         options: Optional[dict],
-        scopes: List[str] = [],
-        allowed_hosts: List[str] = [],
+        scopes: list[str] = [],
+        allowed_hosts: list[str] = [],
         is_cae_enabled: bool = True,
     ) -> None:
         if not credentials:

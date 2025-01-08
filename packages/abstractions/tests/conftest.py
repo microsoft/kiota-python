@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 from unittest.mock import Mock
 
 import pytest
@@ -56,11 +56,11 @@ class MockEntity(Parsable, AdditionalDataHolder, BackedModel):
     # The OdataType property
     odata_type: str = "#microsoft.graph.mockEntity"
     # The telephone numbers for the user. NOTE: Although this is a string collection, only one number can be set for this property. Read-only for users synced from on-premises directory. Returned by default. Supports $filter (eq, not, ge, le, startsWith).
-    business_phones: Optional[List[str]] = None
+    business_phones: Optional[list[str]] = None
     # The user or contact that is this user&apos;s manager. Read-only. (HTTP Methods: GET, PUT, DELETE.). Supports $expand.
     manager: Optional[MockEntity] = None
     # The user or contact that is this user& works with.
-    colleagues: Optional[List[MockEntity]] = None
+    colleagues: Optional[list[MockEntity]] = None
 
     @staticmethod
     def create_from_discriminator_value(parse_node: Optional[ParseNode] = None):
@@ -118,7 +118,7 @@ class TestEnum(Enum):
     
 @dataclass
 class QueryParams:
-    dataset: Union[TestEnum, List[TestEnum]]
+    dataset: Union[TestEnum, list[TestEnum]]
 
 @pytest.fixture
 def mock_user():

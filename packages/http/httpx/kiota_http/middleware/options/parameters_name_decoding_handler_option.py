@@ -1,5 +1,3 @@
-from typing import List
-
 from kiota_abstractions.request_option import RequestOption
 
 
@@ -10,14 +8,14 @@ class ParametersNameDecodingHandlerOption(RequestOption):
     PARAMETERS_NAME_DECODING_HANDLER_OPTION_KEY = "ParametersNameDecodingHandlerOption"
 
     def __init__(
-        self, enable: bool = True, characters_to_decode: List[str] = [".", "-", "~", "$"]
+        self, enable: bool = True, characters_to_decode: list[str] = [".", "-", "~", "$"]
     ) -> None:
         """To create an instance of ParametersNameDecodingHandlerOptions
 
         Args:
             enable (bool, optional): - Whether to decode the specified characters in the
             request query parameters names. Defaults to True.
-            characters_to_decode (List[str], optional):- The characters to decode.
+            characters_to_decode (list[str], optional):- The characters to decode.
             Defaults to [".", "-", "~", "$"].
         """
         self._enable = enable
@@ -39,7 +37,7 @@ class ParametersNameDecodingHandlerOption(RequestOption):
         return self._characters_to_decode
 
     @characters_to_decode.setter
-    def characters_to_decode(self, value: List[str]):
+    def characters_to_decode(self, value: list[str]):
         self._characters_to_decode = value
 
     @staticmethod

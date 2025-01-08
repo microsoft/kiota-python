@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 
 from enum import Enum
-from typing import Any, List
+from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from kiota_abstractions.request_information import RequestInformation
@@ -33,7 +33,7 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
         key_location: KeyLocation,
         api_key: str,
         parameter_name: str,
-        allowed_hosts: List[str] = [],
+        allowed_hosts: list[str] = [],
     ) -> None:
         if not isinstance(key_location, KeyLocation):
             err = "key_location can only be 'query_parameter' or 'header'"

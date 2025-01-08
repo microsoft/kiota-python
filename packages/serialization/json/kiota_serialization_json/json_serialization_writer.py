@@ -4,7 +4,7 @@ import base64
 import json
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 from uuid import UUID
 
 import pendulum
@@ -194,13 +194,13 @@ class JsonSerializationWriter(SerializationWriter):
                 raise ValueError("Invalid time string value found")
 
     def write_collection_of_primitive_values(
-        self, key: Optional[str], values: Optional[List[T]]
+        self, key: Optional[str], values: Optional[list[T]]
     ) -> None:
         """Writes the specified collection of primitive values to the stream with an optional
         given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values (Optional[List[T]]): The collection of primitive values to be written.
+            values (Optional[list[T]]): The collection of primitive values to be written.
         """
         if isinstance(values, list):
             result = []
@@ -215,13 +215,13 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = result
 
     def write_collection_of_object_values(
-        self, key: Optional[str], values: Optional[List[U]]
+        self, key: Optional[str], values: Optional[list[U]]
     ) -> None:
         """Writes the specified collection of model objects to the stream with an optional
         given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values (Optional[List[U]]): The collection of model objects to be written.
+            values (Optional[list[U]]): The collection of model objects to be written.
         """
         if isinstance(values, list):
             obj_list = []
@@ -236,12 +236,12 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = obj_list
 
     def write_collection_of_enum_values(
-        self, key: Optional[str], values: Optional[List[K]]
+        self, key: Optional[str], values: Optional[list[K]]
     ) -> None:
         """Writes the specified collection of enum values to the stream with an optional given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values (Optional[List[K]]): The enum values to be written.
+            values (Optional[list[K]]): The enum values to be written.
         """
         if isinstance(values, list):
             result = []
@@ -256,13 +256,13 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = result
 
     def __write_collection_of_dict_values(
-        self, key: Optional[str], values: Optional[List[dict[str, Any]]]
+        self, key: Optional[str], values: Optional[list[dict[str, Any]]]
     ) -> None:
         """Writes the specified collection of dictionary values to the stream with an optional
             given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values (Optional[List[dict[str, Any]]]): The collection of dictionary values
+            values (Optional[list[dict[str, Any]]]): The collection of dictionary values
             to be written.
         """
         if isinstance(values, list):

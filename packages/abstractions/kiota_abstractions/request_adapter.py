@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
-from typing import Generic, List, Optional, TypeVar, Union
+from typing import Generic, Optional, TypeVar, Union
 from uuid import UUID
 
 from .request_information import RequestInformation
@@ -59,7 +59,7 @@ class RequestAdapter(ABC, Generic[RequestType]):
         request_info: RequestInformation,
         parsable_factory: ParsableFactory[ModelType],
         error_map: Optional[dict[str, type[ParsableFactory]]],
-    ) -> Optional[List[ModelType]]:
+    ) -> Optional[list[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
 
@@ -81,7 +81,7 @@ class RequestAdapter(ABC, Generic[RequestType]):
         request_info: RequestInformation,
         response_type: type[PrimitiveType],
         error_map: Optional[dict[str, type[ParsableFactory]]],
-    ) -> Optional[List[PrimitiveType]]:
+    ) -> Optional[list[PrimitiveType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
         deserialized response model collection.
 
@@ -93,7 +93,7 @@ class RequestAdapter(ABC, Generic[RequestType]):
             case of a failed request.
 
         Returns:
-            Optional[List[PrimitiveType]]: The deserialized primitive collection.
+            Optional[list[PrimitiveType]]: The deserialized primitive collection.
         """
         pass
 
