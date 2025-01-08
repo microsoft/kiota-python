@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Optional, TypeVar
+from collections.abc import Callable
 
 from kiota_abstractions.serialization import (
     AdditionalDataHolder,
