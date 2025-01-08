@@ -64,6 +64,7 @@ class HttpxRequestAdapter(RequestAdapter):
     BEARER_AUTHENTICATION_SCHEME = "Bearer"
     RESPONSE_AUTH_HEADER = "WWW-Authenticate"
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         authentication_provider: AuthenticationProvider,

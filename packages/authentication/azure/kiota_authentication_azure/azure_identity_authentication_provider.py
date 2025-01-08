@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 class AzureIdentityAuthenticationProvider(BaseBearerTokenAuthenticationProvider):
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],

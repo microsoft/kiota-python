@@ -28,6 +28,7 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
     CLAIMS_KEY = "claims"
     LOCALHOST_STRINGS = {"localhost", "[::1]", "::1", "127.0.0.1"}
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
