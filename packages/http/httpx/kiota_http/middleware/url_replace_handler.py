@@ -1,5 +1,5 @@
 from kiota_abstractions.request_option import RequestOption
-from opentelemetry.semconv.attributes.url_attributes import (URL_FULL)
+from opentelemetry.semconv.attributes.url_attributes import URL_FULL
 
 import httpx
 

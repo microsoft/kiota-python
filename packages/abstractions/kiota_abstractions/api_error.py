@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Optional
 
 
 @dataclass
@@ -8,7 +8,7 @@ class APIError(Exception):
 
     message: Optional[str] = None
     response_status_code: Optional[int] = None
-    response_headers: Optional[Dict[str, str]] = None
+    response_headers: Optional[dict[str, str]] = None
 
     def __str__(self) -> str:
         error = getattr(self, "error", None)

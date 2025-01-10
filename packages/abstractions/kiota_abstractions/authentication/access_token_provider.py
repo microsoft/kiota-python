@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any
 
 from .allowed_hosts_validator import AllowedHostsValidator
 
@@ -16,7 +16,7 @@ class AccessTokenProvider(ABC):
 
     @abstractmethod
     async def get_authorization_token(
-        self, uri: str, additional_authentication_context: Dict[str, Any] = {}
+        self, uri: str, additional_authentication_context: dict[str, Any] = {}
     ) -> str:
         """This method is called by the BaseBearerTokenAuthenticationProvider class to get the
         access token.

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from kiota_abstractions.authentication import BaseBearerTokenAuthenticationProvider
 
@@ -11,12 +11,13 @@ if TYPE_CHECKING:
 
 class AzureIdentityAuthenticationProvider(BaseBearerTokenAuthenticationProvider):
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
-        options: Optional[Dict] = None,
-        scopes: List[str] = [],
-        allowed_hosts: List[str] = [],
+        options: Optional[dict] = None,
+        scopes: list[str] = [],
+        allowed_hosts: list[str] = [],
         is_cae_enabled: bool = True,
     ) -> None:
         """[summary]
@@ -25,9 +26,9 @@ class AzureIdentityAuthenticationProvider(BaseBearerTokenAuthenticationProvider)
             credentials (Union["TokenCredential", "AsyncTokenCredential"]): The
                 tokenCredential implementation to use for authentication.
             options (Optional[dict]): The options to use for authentication.
-            scopes (List[str], optional): The scopes to use for authentication.
+            scopes (list[str], optional): The scopes to use for authentication.
                 Defaults to an empty list.
-            allowed_hosts (Set[str], optional): The allowed hosts to use for
+            allowed_hosts (set[str], optional): The allowed hosts to use for
                 authentication.
         """
         super().__init__(

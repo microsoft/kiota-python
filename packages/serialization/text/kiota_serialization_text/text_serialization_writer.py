@@ -1,7 +1,8 @@
 import base64
+from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.serialization import Parsable, SerializationWriter
@@ -113,34 +114,34 @@ class TextSerializationWriter(SerializationWriter):
             self.write_str_value(key, str(value))
 
     def write_collection_of_primitive_values(
-        self, key: Optional[str], values: Optional[List[T]]
+        self, key: Optional[str], values: Optional[list[T]]
     ) -> None:
         """Writes the specified collection of primitive values to the stream with an optional
         given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values (Optional[List[T]]): The collection of primitive values to be written.
+            values (Optional[list[T]]): The collection of primitive values to be written.
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 
     def write_collection_of_object_values(
-        self, key: Optional[str], values: Optional[List[U]]
+        self, key: Optional[str], values: Optional[list[U]]
     ) -> None:
         """Writes the specified collection of model objects to the stream with an optional
         given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values (Optional[List[U]]): The collection of model objects to be written.
+            values (Optional[list[U]]): The collection of model objects to be written.
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 
     def write_collection_of_enum_values(
-        self, key: Optional[str], values: Optional[List[K]]
+        self, key: Optional[str], values: Optional[list[K]]
     ) -> None:
         """Writes the specified collection of enum values to the stream with an optional given key.
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            values Optional[List[K]): The enum values to be written.
+            values Optional[list[K]): The enum values to be written.
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 
@@ -186,10 +187,10 @@ class TextSerializationWriter(SerializationWriter):
         """
         self.write_str_value(key, 'null')
 
-    def write_additional_data_value(self, value: Dict[str, Any]) -> None:
+    def write_additional_data_value(self, value: dict[str, Any]) -> None:
         """Writes the specified additional data to the stream.
         Args:
-            value (Dict[str, Any]): he additional data to be written.
+            value (dict[str, Any]): he additional data to be written.
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 

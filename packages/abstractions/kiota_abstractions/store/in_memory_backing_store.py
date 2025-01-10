@@ -4,7 +4,8 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, TypeVar
+from collections.abc import Callable
+from typing import Any, Generic, Optional, TypeVar
 from uuid import uuid4
 
 from .backed_model import BackedModel
@@ -18,8 +19,8 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
 
     def __init__(self) -> None:
 
-        self.__subscriptions: Dict[str, Callable[[str, Any, Any], None]] = {}
-        self.__store: Dict[str, Tuple[bool, Any]] = {}
+        self.__subscriptions: dict[str, Callable[[str, Any, Any], None]] = {}
+        self.__store: dict[str, tuple[bool, Any]] = {}
         self.__initialization_completed: bool = False
         self.__return_only_changed_values: bool = False
 
@@ -112,12 +113,12 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             self.__subscriptions[sub](key, old_value, value_to_add)
             # sub(key, old_value, value_to_add)
 
-    def enumerate_(self) -> List[Tuple[str, Any]]:
+    def enumerate_(self) -> list[tuple[str, Any]]:
         """Enumerate the values in the store based on the ReturnOnlyChangedValues configuration
         value
 
         Returns:
-            List[Tuple[str, Any]]: A collection of changed values or the whole store based on the
+            list[tuple[str, Any]]: A collection of changed values or the whole store based on the
             ReturnOnlyChangedValues configuration value.
         """
 
@@ -131,11 +132,11 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             return [(key, val[1]) for key, val in keyval_pairs if val[0] is True]
         return [(key, val[1]) for key, val in keyval_pairs]
 
-    def enumerate_keys_for_values_changed_to_null(self) -> List[str]:
+    def enumerate_keys_for_values_changed_to_null(self) -> list[str]:
         """Enumerate the values in the store that have changed to None
 
         Returns:
-            List[str]: A collection of strings containing keys changed to None
+            list[str]: A collection of strings containing keys changed to None
         """
         return [key for key, val in self.__store.items() if val[0] and val[1] is None]
 

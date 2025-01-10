@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Optional
 from uuid import UUID
 
 from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
@@ -24,11 +25,11 @@ class Entity(Parsable):
             raise ValueError("parse_node cannot be undefined")
         return Entity()
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         return {

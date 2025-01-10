@@ -4,9 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Callable
-
-from ..serialization import Parsable, ParseNodeFactory, ParseNodeProxyFactory
+from ..serialization import ParseNodeFactory, ParseNodeProxyFactory
 from .backed_model import BackedModel
 
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from typing import Dict
 
 from .parse_node import ParseNode
 from .parse_node_factory import ParseNodeFactory
@@ -10,7 +9,7 @@ from .parse_node_factory import ParseNodeFactory
 class ParseNodeFactoryRegistry(ParseNodeFactory):
     """Holds a list of all the registered factories for the various types of nodes
     """
-    CONTENT_TYPE_ASSOCIATED_FACTORIES: Dict[str, ParseNodeFactory] = {}
+    CONTENT_TYPE_ASSOCIATED_FACTORIES: dict[str, ParseNodeFactory] = {}
 
     __instance = None
 

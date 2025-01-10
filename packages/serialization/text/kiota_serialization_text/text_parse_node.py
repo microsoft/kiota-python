@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import base64
+from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, Generic, List, Optional, TypeVar
+from typing import Optional, TypeVar
 from uuid import UUID
 
 from dateutil import parser
@@ -133,26 +134,26 @@ class TextParseNode(ParseNode):
             return datetime_obj.time()
         return None
 
-    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> List[T]:
+    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> list[T]:
         """Gets the collection of primitive values of the node
         Args:
             primitive_type: The type of primitive to return.
         Returns:
-            List[T]: The collection of primitive values
+            list[T]: The collection of primitive values
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 
-    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> List[U]:
+    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> list[U]:
         """Gets the collection of type U values from the text node
         Returns:
-            List[U]: The collection of model object values of the node
+            list[U]: The collection of model object values of the node
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 
-    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[list[K]]:
         """Gets the collection of enum values of the text node
         Returns:
-            List[K]: The collection of enum values
+            list[K]: The collection of enum values
         """
         raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
 

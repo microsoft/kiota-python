@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Optional, TypeVar
+from collections.abc import Callable
 
 from kiota_abstractions.serialization import (
     AdditionalDataHolder,
@@ -24,12 +25,12 @@ class User(Parsable, AdditionalDataHolder):
     office_location: Optional[OfficeLocation] = None
     updated_at: Optional[datetime] = None
     birthday: Optional[date] = None
-    business_phones: Optional[List[str]] = None
+    business_phones: Optional[list[str]] = None
     mobile_phone: Optional[str] = None
     is_active: Optional[bool] = None
     age: Optional[int] = None
     gpa: Optional[float] = None
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=dict)
 
     @staticmethod
     def create_from_discriminator_value(parse_node: Optional[ParseNode] = None) -> User:
@@ -43,11 +44,11 @@ class User(Parsable, AdditionalDataHolder):
             raise Exception("parse_node cannot be undefined")
         return User()
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         return {

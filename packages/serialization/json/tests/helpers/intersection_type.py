@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any, Optional
 
 from kiota_abstractions.serialization import (
     AdditionalDataHolder,
@@ -16,11 +17,11 @@ from . import User, User2
 
 @dataclass
 class InterSectionType(AdditionalDataHolder, Parsable):
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=dict)
     composed_type1: Optional[User] = None
     composed_type2: Optional[User2] = None
     string_value: Optional[str] = None
-    composed_type3: Optional[List[User]] = None
+    composed_type3: Optional[list[User]] = None
 
     @staticmethod
     def create_from_discriminator_value(parse_node: Optional[ParseNode] = None) -> InterSectionType:
@@ -44,11 +45,11 @@ class InterSectionType(AdditionalDataHolder, Parsable):
 
         return result
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         if self.composed_type1 or self.composed_type2:

@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-from typing import Dict, List, Set, Union
+from typing import Union
 
 
 class HeadersCollection():
     "Represents a collection of request/response headers"
-    SINGLE_VALUE_HEADERS: Set[str] = {"content-type", "content-encoding", "content-length"}
+    SINGLE_VALUE_HEADERS: set[str] = {"content-type", "content-encoding", "content-length"}
 
     def __init__(self) -> None:
-        self._headers: Dict[str, Set[str]] = {}
+        self._headers: dict[str, set[str]] = {}
 
-    def try_get(self, key: str) -> Union[bool, Set[str]]:
+    def try_get(self, key: str) -> Union[bool, set[str]]:
         """Gets the header values corresponding to a specific header name.
 
         Args:
             key (str): Header key.
 
         Returns:
-            Union[bool, Set[str]]: The header values for the specified header key or False.
+            Union[bool, set[str]]: The header values for the specified header key or False.
         """
         if not key:
             raise ValueError("Header name cannot be null")
@@ -27,22 +27,22 @@ class HeadersCollection():
             return values
         return False
 
-    def get_all(self) -> Dict[str, Set[str]]:
+    def get_all(self) -> dict[str, set[str]]:
         """Get all headers and values stored so far.
 
         Returns:
-            Dict[str, str]: The headers
+            dict[str, str]: The headers
         """
         return self._headers
 
-    def get(self, header_name: str) -> Set[str]:
+    def get(self, header_name: str) -> set[str]:
         """Get header values corresponding to a specific header.
         
         Args:
             header_name (str): Header key.
 
         Returns:
-            Set[str]: Values for the header key
+            set[str]: Values for the header key
         """
         if not header_name:
             raise ValueError("Header name cannot be null")
@@ -76,7 +76,7 @@ class HeadersCollection():
         """Adds the specified headers to the collection.
 
         Args:
-            headers (Dict[str, str]): The headers to add.
+            headers (dict[str, str]): The headers to add.
         """
         if not headers:
             raise ValueError("Headers cannot be null")
@@ -84,12 +84,12 @@ class HeadersCollection():
             for value in values:
                 self.add(key, value)
 
-    def add(self, header_name: str, header_values: Union[str, List[str]]) -> None:
+    def add(self, header_name: str, header_values: Union[str, list[str]]) -> None:
         """Adds values to the header with the specified name.
 
         Args:
             header_name (str): The name of the header to add values to.
-            header_values (List[str]): The values to add to the header.
+            header_values (list[str]): The values to add to the header.
         """
         if not header_name:
             raise ValueError("Header name cannot be null")
@@ -112,10 +112,10 @@ class HeadersCollection():
             else:
                 self._headers[header_name] = {header_values}
 
-    def keys(self) -> List[str]:
+    def keys(self) -> list[str]:
         """Gets the header names present in the collection.
         Returns:
-            List[str]: The header names present in the collection.
+            list[str]: The header names present in the collection.
         """
         return list(self._headers.keys())
 
@@ -123,7 +123,7 @@ class HeadersCollection():
         """Gets the number of headers present in the collection."""
         return len(self._headers)
 
-    def remove_value(self, header_name: str, header_value: str) -> Union[bool, Set[str]]:
+    def remove_value(self, header_name: str, header_value: str) -> Union[bool, set[str]]:
         """Removes the specified value from the header with the specified name.
 
         Args:
@@ -147,7 +147,7 @@ class HeadersCollection():
 
         return False
 
-    def remove(self, header_name: str) -> Union[bool, Set[str]]:
+    def remove(self, header_name: str) -> Union[bool, set[str]]:
         """Removes the header with the specified name.
 
         Args:

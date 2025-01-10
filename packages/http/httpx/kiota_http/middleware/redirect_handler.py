@@ -1,9 +1,7 @@
 import typing
 
 from kiota_abstractions.request_option import RequestOption
-from opentelemetry.semconv.attributes.http_attributes import (
-    HTTP_RESPONSE_STATUS_CODE,
-)
+from opentelemetry.semconv.attributes.http_attributes import HTTP_RESPONSE_STATUS_CODE
 
 import httpx
 
@@ -19,7 +17,7 @@ class RedirectHandler(BaseMiddleware):
     """Middlware that allows us to define the redirect policy for all requests
     """
 
-    DEFAULT_REDIRECT_STATUS_CODES: typing.Set[int] = {
+    DEFAULT_REDIRECT_STATUS_CODES: set[int] = {
         301,  # Moved Permanently
         302,  # Found
         303,  # See Other
@@ -33,7 +31,7 @@ class RedirectHandler(BaseMiddleware):
     def __init__(self, options: RedirectHandlerOption = RedirectHandlerOption()) -> None:
         super().__init__()
         self.options = options
-        self.redirect_on_status_codes: typing.Set[int] = self.DEFAULT_REDIRECT_STATUS_CODES
+        self.redirect_on_status_codes: set[int] = self.DEFAULT_REDIRECT_STATUS_CODES
 
     def increment(self, response, max_redirect, history) -> bool:
         """Increment the redirect attempts for this request.
@@ -71,7 +69,7 @@ class RedirectHandler(BaseMiddleware):
         _enable_span.end()
 
         max_redirect = current_options.max_redirect
-        history: typing.List[httpx.Request] = []
+        history: list[httpx.Request] = []
 
         while max_redirect >= 0:
             _redirect_span = self._create_observability_span(

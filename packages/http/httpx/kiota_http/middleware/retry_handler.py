@@ -2,12 +2,9 @@ import datetime
 import random
 import time
 from email.utils import parsedate_to_datetime
-from typing import FrozenSet, Set, Type
 
 from kiota_abstractions.request_option import RequestOption
-from opentelemetry.semconv.attributes.http_attributes import (
-    HTTP_RESPONSE_STATUS_CODE,
-)
+from opentelemetry.semconv.attributes.http_attributes import HTTP_RESPONSE_STATUS_CODE
 
 import httpx
 
@@ -53,20 +50,20 @@ class RetryHandler(BaseMiddleware):
     # 429 - Too many requests
     # 503 - Service unavailable
     # 504 - Gateway timeout
-    DEFAULT_RETRY_STATUS_CODES: Set[int] = {429, 503, 504}
+    DEFAULT_RETRY_STATUS_CODES: set[int] = {429, 503, 504}
 
-    DEFAULT_ALLOWED_METHODS: FrozenSet[str] = frozenset(
+    DEFAULT_ALLOWED_METHODS: frozenset[str] = frozenset(
         ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
     )
 
     def __init__(self, options: RetryHandlerOption = RetryHandlerOption()) -> None:
         super().__init__()
-        self.allowed_methods: FrozenSet[str] = self.DEFAULT_ALLOWED_METHODS
+        self.allowed_methods: frozenset[str] = self.DEFAULT_ALLOWED_METHODS
         self.backoff_factor: float = self.DEFAULT_BACKOFF_FACTOR
         self.backoff_max: int = self.MAXIMUM_BACKOFF
         self.options = options
         self.respect_retry_after_header: bool = self.options.DEFAULT_SHOULD_RETRY  # type:ignore
-        self.retry_on_status_codes: Set[int] = self.DEFAULT_RETRY_STATUS_CODES
+        self.retry_on_status_codes: set[int] = self.DEFAULT_RETRY_STATUS_CODES
 
     async def send(self, request: httpx.Request, transport: httpx.AsyncBaseTransport):
         """

@@ -1,4 +1,3 @@
-from typing import List, Set
 from urllib.parse import urlparse
 
 
@@ -7,31 +6,31 @@ class AllowedHostsValidator:
     a host is valid before authenticating a request
     """
 
-    def __init__(self, allowed_hosts: List[str]) -> None:
+    def __init__(self, allowed_hosts: list[str]) -> None:
         """Creates a new AllowedHostsValidator object with provided values.
 
         Args:
-            allowed_hosts (List[str]): A list of valid hosts.  If the list is empty, all hosts
+            allowed_hosts (list[str]): A list of valid hosts.  If the list is empty, all hosts
             are valid.
         """
         if not isinstance(allowed_hosts, list):
             raise TypeError("Allowed hosts must be a list of strings")
 
-        self.allowed_hosts: Set[str] = {x.lower() for x in allowed_hosts}
+        self.allowed_hosts: set[str] = {x.lower() for x in allowed_hosts}
 
-    def get_allowed_hosts(self) -> List[str]:
+    def get_allowed_hosts(self) -> list[str]:
         """Gets the list of valid hosts.  If the list is empty, all hosts are valid.
 
         Returns:
-            List[str]: A list of valid hosts.  If the list is empty, all hosts are valid.
+            list[str]: A list of valid hosts.  If the list is empty, all hosts are valid.
         """
         return list(self.allowed_hosts)
 
-    def set_allowed_hosts(self, allowed_hosts: List[str]) -> None:
+    def set_allowed_hosts(self, allowed_hosts: list[str]) -> None:
         """Sets the list of valid hosts.  If the list is empty, all hosts are valid.
 
         Args:
-            allowed_hosts (List[str]): A list of valid hosts.  If the list is empty, all hosts
+            allowed_hosts (list[str]): A list of valid hosts.  If the list is empty, all hosts
             are valid
         """
         if not isinstance(allowed_hosts, list):

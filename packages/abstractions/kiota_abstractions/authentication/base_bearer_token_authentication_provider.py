@@ -4,7 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Dict
+from typing import Any
 
 from ..headers_collection import HeadersCollection
 from ..request_information import RequestInformation
@@ -24,7 +24,7 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
     async def authenticate_request(
         self,
         request: RequestInformation,
-        additional_authentication_context: Dict[str, Any] = {}
+        additional_authentication_context: dict[str, Any] = {}
     ) -> None:
         """Authenticates the provided RequestInformation instance using the provided
         authorization token

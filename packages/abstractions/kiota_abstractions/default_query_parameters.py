@@ -4,7 +4,6 @@
 # See License in the project root for license information.
 # ------------------------------------
 from dataclasses import dataclass
-from typing import List, Optional
 from warnings import warn
 
 

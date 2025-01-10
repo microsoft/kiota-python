@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Optional
 
 from kiota_abstractions.request_option import RequestOption
 
@@ -45,14 +45,14 @@ class KiotaClientFactory:
     @staticmethod
     def create_with_default_middleware(
         client: Optional[httpx.AsyncClient] = None,
-        options: Optional[Dict[str, RequestOption]] = None
+        options: Optional[dict[str, RequestOption]] = None
     ) -> httpx.AsyncClient:
         """Constructs native HTTP AsyncClient(httpx.AsyncClient) instances configured with
         a custom transport loaded with a default pipeline of middleware.
 
         Args:
-            options (Optional[Dict[str, RequestOption]]): The request options to use when
-            instantiating default middleware. Defaults to Dict[str, RequestOption]=None.
+            options (Optional[dict[str, RequestOption]]): The request options to use when
+            instantiating default middleware. Defaults to dict[str, RequestOption]=None.
 
         Returns:
             httpx.AsycClient: An instance of the AsyncClient object
@@ -65,14 +65,14 @@ class KiotaClientFactory:
 
     @staticmethod
     def create_with_custom_middleware(
-        middleware: Optional[List[BaseMiddleware]],
+        middleware: Optional[list[BaseMiddleware]],
         client: Optional[httpx.AsyncClient] = None,
     ) -> httpx.AsyncClient:
         """Constructs native HTTP AsyncClient(httpx.AsyncClient) instances configured with
         a custom pipeline of middleware.
 
         Args:
-            middleware(List[BaseMiddleware]): Custom middleware list that will be used to create
+            middleware(list[BaseMiddleware]): Custom middleware list that will be used to create
             a middleware pipeline. The middleware should be arranged in the order in which they will
             modify the request.
         """
@@ -80,7 +80,7 @@ class KiotaClientFactory:
         return KiotaClientFactory._load_middleware_to_client(kiota_async_client, middleware)
 
     @staticmethod
-    def get_default_middleware(options: Optional[Dict[str, RequestOption]]) -> List[BaseMiddleware]:
+    def get_default_middleware(options: Optional[dict[str, RequestOption]]) -> list[BaseMiddleware]:
         """
         Helper method that returns a list of default middleware instantiated with
         appropriate options
@@ -143,7 +143,7 @@ class KiotaClientFactory:
 
     @staticmethod
     def create_middleware_pipeline(
-        middleware: Optional[List[BaseMiddleware]], transport: httpx.AsyncBaseTransport
+        middleware: Optional[list[BaseMiddleware]], transport: httpx.AsyncBaseTransport
     ) -> MiddlewarePipeline:
         """
         Helper method that constructs a middleware_pipeline with the specified middleware
@@ -156,7 +156,7 @@ class KiotaClientFactory:
 
     @staticmethod
     def _load_middleware_to_client(
-        client: httpx.AsyncClient, middleware: Optional[List[BaseMiddleware]]
+        client: httpx.AsyncClient, middleware: Optional[list[BaseMiddleware]]
     ) -> httpx.AsyncClient:
         current_transport = client._transport
         client._transport = KiotaClientFactory._replace_transport_with_custom_kiota_transport(
@@ -177,7 +177,7 @@ class KiotaClientFactory:
 
     @staticmethod
     def _replace_transport_with_custom_kiota_transport(
-        current_transport: httpx.AsyncBaseTransport, middleware: Optional[List[BaseMiddleware]]
+        current_transport: httpx.AsyncBaseTransport, middleware: Optional[list[BaseMiddleware]]
     ) -> AsyncKiotaTransport:
         middleware_pipeline = KiotaClientFactory.create_middleware_pipeline(
             middleware, current_transport

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, TypeVar
+from typing import Any, Optional, TypeVar
 
 from .serialization import Parsable, ParsableFactory
 
@@ -13,12 +13,12 @@ class ResponseHandler(ABC):
 
     @abstractmethod
     async def handle_response_async(
-        self, response: NativeResponseType, error_map: Optional[Dict[str, ParsableFactory]]
+        self, response: NativeResponseType, error_map: Optional[dict[str, ParsableFactory]]
     ) -> Any:
         """Callback method that is invoked when a response is received.
         Args:
             response (NativeResponseType): The type of the native response object.
-            error_map (Optional[Dict[str, ParsableFactory]]]): the error dict to use
+            error_map (Optional[dict[str, ParsableFactory]]]): the error dict to use
             in case of a failed request.
         Returns:
             Any: The deserialized response.

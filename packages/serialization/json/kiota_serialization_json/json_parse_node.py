@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 import re
 import warnings
+from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Optional, TypeVar
 from uuid import UUID
 
 import pendulum
@@ -139,12 +140,12 @@ class JsonParseNode(ParseNode):
                 return datetime_obj
         return None
 
-    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[List[T]]:
+    def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[list[T]]:
         """Gets the collection of primitive values of the node
         Args:
             primitive_type: The type of primitive to return.
         Returns:
-            List[T]: The collection of primitive values
+            list[T]: The collection of primitive values
         """
 
         primitive_types = {bool, str, int, float, UUID, datetime, timedelta, date, time, bytes}
@@ -161,10 +162,10 @@ class JsonParseNode(ParseNode):
             return list(map(func, json.loads(self._json_node)))
         return list(map(func, list(self._json_node)))
 
-    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[List[U]]:
+    def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
         """Gets the collection of type U values from the json node
         Returns:
-            List[U]: The collection of model object values of the node
+            list[U]: The collection of model object values of the node
         """
         if isinstance(self._json_node, list):
             return list(
@@ -175,10 +176,10 @@ class JsonParseNode(ParseNode):
             )
         return []
 
-    def get_collection_of_enum_values(self, enum_class: K) -> Optional[List[K]]:
+    def get_collection_of_enum_values(self, enum_class: K) -> Optional[list[K]]:
         """Gets the collection of enum values of the json node
         Returns:
-            List[K]: The collection of enum values
+            list[K]: The collection of enum values
         """
         if isinstance(self._json_node, list):
             return list(

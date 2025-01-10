@@ -4,8 +4,8 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Any, Callable, Generic, List, Tuple, TypeVar
-
+from typing import Any, Generic, TypeVar
+from collections.abc import Callable
 import pytest
 
 from kiota_abstractions.store import BackingStoreFactorySingleton, InMemoryBackingStoreFactory
@@ -32,10 +32,10 @@ class MockTestBackingStore(BackingStore, Generic[T]):
     def clear(self) -> None:
         self.store.clear()
 
-    def enumerate_(self) -> List[Tuple[str, Any]]:
+    def enumerate_(self) -> list[tuple[str, Any]]:
         return list(self.store.values())
 
-    def enumerate_keys_for_values_changed_to_null(self) -> List[str]:
+    def enumerate_keys_for_values_changed_to_null(self) -> list[str]:
         return list(k for k, v in self.store if v is None)
 
     def subscribe(

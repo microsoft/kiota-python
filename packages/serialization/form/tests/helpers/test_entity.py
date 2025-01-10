@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, time
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from collections.abc import Callable
+from typing import Any, Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.serialization import (
@@ -18,9 +19,9 @@ T = TypeVar('T')
 
 @dataclass
 class TestEntity(Parsable, AdditionalDataHolder):
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=dict)
     id: Optional[UUID] = None
-    device_names: Optional[List[str]] = None
+    device_names: Optional[list[str]] = None
     numbers: Optional[TestEnum] = None
     work_duration: Optional[timedelta] = None
     birthday: Optional[date] = None
@@ -41,11 +42,11 @@ class TestEntity(Parsable, AdditionalDataHolder):
             raise TypeError("parse_node cannot be null")
         return TestEntity()
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         return {

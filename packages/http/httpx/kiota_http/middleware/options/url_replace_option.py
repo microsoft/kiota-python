@@ -1,5 +1,3 @@
-from typing import Dict
-
 from kiota_abstractions.request_option import RequestOption
 
 
@@ -9,13 +7,13 @@ class UrlReplaceHandlerOption(RequestOption):
 
     URL_REPLACE_HANDLER_OPTION_KEY = "UrlReplaceHandlerOption"
 
-    def __init__(self, enabled: bool = True, replacement_pairs: Dict[str, str] = {}) -> None:
+    def __init__(self, enabled: bool = True, replacement_pairs: dict[str, str] = {}) -> None:
         """Creates an instance of url replace option.
 
         Args:
             enabled (bool, optional): Whether to enable the url replace handler.
             Defaults to True.
-            replacement_pairs (Dict[str, str], optional): Dictionary of values
+            replacement_pairs (dict[str, str], optional): dictionary of values
             to replace. Defaults to {}.
         """
         self._enabled = enabled
@@ -36,7 +34,7 @@ class UrlReplaceHandlerOption(RequestOption):
         return self._replacement_pairs
 
     @replacement_pairs.setter
-    def replacement_pairs(self, value: Dict[str, str]):
+    def replacement_pairs(self, value: dict[str, str]):
         self._replacement_pairs = value
 
     @staticmethod
