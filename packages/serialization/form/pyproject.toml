@@ -33,7 +33,7 @@ isort = "^5.13.2"
 pylint = "^3.2.7"
 mypy = "^1.11.2"
 pytest = "^8.3.2"
-pytest-asyncio = "^0.24.0"
+pytest-asyncio = ">=0.24,<0.26"
 poetry-plugin-mono-repo-deps = "^0.2.1"
 types-python-dateutil = "^2.9.0.20240906"
 
