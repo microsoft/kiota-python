@@ -36,7 +36,7 @@ isort = "^5.13.2"
 pylint = "^3.2.7"
 mypy = "^1.11.2"
 pytest = "^8.3.2"
-pytest-asyncio = "^0.24.0"
+pytest-asyncio = ">=0.24,<0.26"
 pytest-mock = "^3.14.0"
 poetry-plugin-mono-repo-deps = "^0.2.1"
 
