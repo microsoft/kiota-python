@@ -1,7 +1,8 @@
 from __future__ import annotations
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from kiota_abstractions.serialization import AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Optional, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from .error_details import ErrorDetails
@@ -10,12 +11,12 @@ if TYPE_CHECKING:
 @dataclass
 class MainError(AdditionalDataHolder, Parsable):
     # Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=dict)
 
     # The code property
     code: Optional[str] = None
     # The details property
-    details: Optional[List[ErrorDetails]] = None
+    details: Optional[list[ErrorDetails]] = None
     # The structure of this object is service-specific
     inner_error: Optional[InnerError] = None
     # The message property
@@ -34,10 +35,10 @@ class MainError(AdditionalDataHolder, Parsable):
             raise TypeError("parse_node cannot be null.")
         return MainError()
     
-    def get_field_deserializers(self,) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self,) -> dict[str, Callable[[ParseNode], None]]:
         """
         The deserialization information for the current model
-        Returns: Dict[str, Callable[[ParseNode], None]]
+        Returns: dict[str, Callable[[ParseNode], None]]
         """
         from .error_details import ErrorDetails
         from .inner_error import InnerError
@@ -45,7 +46,7 @@ class MainError(AdditionalDataHolder, Parsable):
         from .error_details import ErrorDetails
         from .inner_error import InnerError
 
-        fields: Dict[str, Callable[[Any], None]] = {
+        fields: dict[str, Callable[[Any], None]] = {
             "code": lambda n : setattr(self, 'code', n.get_str_value()),
             "details": lambda n : setattr(self, 'details', n.get_collection_of_object_values(ErrorDetails)),
             "innerError": lambda n : setattr(self, 'inner_error', n.get_object_value(InnerError)),

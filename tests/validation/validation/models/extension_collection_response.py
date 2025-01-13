@@ -1,7 +1,8 @@
 from __future__ import annotations
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from kiota_abstractions.serialization import AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Optional, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from .extension import Extension
@@ -9,12 +10,12 @@ if TYPE_CHECKING:
 @dataclass
 class ExtensionCollectionResponse(AdditionalDataHolder, Parsable):
     # Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=dict)
 
     # The OdataNextLink property
     odata_next_link: Optional[str] = None
     # The value property
-    value: Optional[List[Extension]] = None
+    value: Optional[list[Extension]] = None
     
     @staticmethod
     def create_from_discriminator_value(parse_node: ParseNode) -> ExtensionCollectionResponse:
@@ -27,16 +28,16 @@ class ExtensionCollectionResponse(AdditionalDataHolder, Parsable):
             raise TypeError("parse_node cannot be null.")
         return ExtensionCollectionResponse()
     
-    def get_field_deserializers(self,) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self,) -> dict[str, Callable[[ParseNode], None]]:
         """
         The deserialization information for the current model
-        Returns: Dict[str, Callable[[ParseNode], None]]
+        Returns: dict[str, Callable[[ParseNode], None]]
         """
         from .extension import Extension
 
         from .extension import Extension
 
-        fields: Dict[str, Callable[[Any], None]] = {
+        fields: dict[str, Callable[[Any], None]] = {
             "@odata.nextLink": lambda n : setattr(self, 'odata_next_link', n.get_str_value()),
             "value": lambda n : setattr(self, 'value', n.get_collection_of_object_values(Extension)),
         }
