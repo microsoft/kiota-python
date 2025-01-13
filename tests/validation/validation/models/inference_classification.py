@@ -53,9 +53,6 @@ class InferenceClassification(Entity, Parsable):
         if writer is None:
             raise TypeError("writer cannot be null.")
         super().serialize(writer)
-        from .entity import Entity
-        from .inference_classification_override import InferenceClassificationOverride
-
         writer.write_collection_of_object_values("overrides", self.overrides)
     
 

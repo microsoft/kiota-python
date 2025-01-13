@@ -92,12 +92,6 @@ class MailFolder(Entity, Parsable):
         if writer is None:
             raise TypeError("writer cannot be null.")
         super().serialize(writer)
-        from .entity import Entity
-        from .message import Message
-        from .message_rule import MessageRule
-        from .multi_value_legacy_extended_property import MultiValueLegacyExtendedProperty
-        from .single_value_legacy_extended_property import SingleValueLegacyExtendedProperty
-
         writer.write_int_value("childFolderCount", self.child_folder_count)
         writer.write_collection_of_object_values("childFolders", self.child_folders)
         writer.write_str_value("displayName", self.display_name)

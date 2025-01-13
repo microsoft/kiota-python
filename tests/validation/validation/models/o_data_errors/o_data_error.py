@@ -49,8 +49,6 @@ class ODataError(APIError, AdditionalDataHolder, Parsable):
         """
         if writer is None:
             raise TypeError("writer cannot be null.")
-        from .main_error import MainError
-
         writer.write_object_value("error", self.error)
         writer.write_additional_data_value(self.additional_data)
     

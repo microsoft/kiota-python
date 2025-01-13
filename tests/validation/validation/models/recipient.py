@@ -48,8 +48,6 @@ class Recipient(AdditionalDataHolder, Parsable):
         """
         if writer is None:
             raise TypeError("writer cannot be null.")
-        from .email_address import EmailAddress
-
         writer.write_object_value("emailAddress", self.email_address)
         writer.write_additional_data_value(self.additional_data)
     

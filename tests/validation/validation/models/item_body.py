@@ -51,8 +51,6 @@ class ItemBody(AdditionalDataHolder, Parsable):
         """
         if writer is None:
             raise TypeError("writer cannot be null.")
-        from .body_type import BodyType
-
         writer.write_str_value("content", self.content)
         writer.write_enum_value("contentType", self.content_type)
         writer.write_additional_data_value(self.additional_data)

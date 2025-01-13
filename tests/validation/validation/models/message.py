@@ -168,18 +168,6 @@ class Message(OutlookItem, Parsable):
         if writer is None:
             raise TypeError("writer cannot be null.")
         super().serialize(writer)
-        from .attachment import Attachment
-        from .extension import Extension
-        from .followup_flag import FollowupFlag
-        from .importance import Importance
-        from .inference_classification_type import InferenceClassificationType
-        from .internet_message_header import InternetMessageHeader
-        from .item_body import ItemBody
-        from .multi_value_legacy_extended_property import MultiValueLegacyExtendedProperty
-        from .outlook_item import OutlookItem
-        from .recipient import Recipient
-        from .single_value_legacy_extended_property import SingleValueLegacyExtendedProperty
-
         writer.write_collection_of_object_values("attachments", self.attachments)
         writer.write_collection_of_object_values("bccRecipients", self.bcc_recipients)
         writer.write_object_value("body", self.body)

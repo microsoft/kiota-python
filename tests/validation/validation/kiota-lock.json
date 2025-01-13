@@ -2,7 +2,7 @@
   "descriptionHash": "3DC72B5983908CB42E339F1D48A1BC8C0AE0770120FA8B34C3720F9542528E5E8658FF0D371EAFFFB66493724EEFC1D12FB138D0DF1F63D8AA202485F8A3F5E4",
   "descriptionLocation": "https://raw.githubusercontent.com/microsoftgraph/msgraph-sdk-powershell/dev/openApiDocs/v1.0/Mail.yml",
   "lockFileVersion": "1.0.0",
-  "kiotaVersion": "1.22.0",
+  "kiotaVersion": "1.23.0",
   "clientClassName": "ValidationClient",
   "typeAccessModifier": "Public",
   "clientNamespaceName": "validation",

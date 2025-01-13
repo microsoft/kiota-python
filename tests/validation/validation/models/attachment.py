@@ -63,8 +63,6 @@ class Attachment(Entity, Parsable):
         if writer is None:
             raise TypeError("writer cannot be null.")
         super().serialize(writer)
-        from .entity import Entity
-
         writer.write_str_value("contentType", self.content_type)
         writer.write_bool_value("isInline", self.is_inline)
         writer.write_datetime_value("lastModifiedDateTime", self.last_modified_date_time)

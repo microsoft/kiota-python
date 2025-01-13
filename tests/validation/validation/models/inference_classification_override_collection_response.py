@@ -51,8 +51,6 @@ class InferenceClassificationOverrideCollectionResponse(AdditionalDataHolder, Pa
         """
         if writer is None:
             raise TypeError("writer cannot be null.")
-        from .inference_classification_override import InferenceClassificationOverride
-
         writer.write_str_value("@odata.nextLink", self.odata_next_link)
         writer.write_collection_of_object_values("value", self.value)
         writer.write_additional_data_value(self.additional_data)
