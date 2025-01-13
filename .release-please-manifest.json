@@ -1,10 +1,10 @@
 {
-  "packages/abstractions": "1.6.8",
-  "packages/authentication/azure": "1.6.8",
-  "packages/http/httpx": "1.6.8",
-  "packages/serialization/json": "1.6.8",
-  "packages/serialization/form": "1.6.8",
-  "packages/serialization/text": "1.6.8",
-  "packages/serialization/multipart": "1.6.8",
-  "packages/bundle": "1.6.8"
+  "packages/abstractions": "1.7.0",
+  "packages/authentication/azure": "1.7.0",
+  "packages/http/httpx": "1.7.0",
+  "packages/serialization/json": "1.7.0",
+  "packages/serialization/form": "1.7.0",
+  "packages/serialization/text": "1.7.0",
+  "packages/serialization/multipart": "1.7.0",
+  "packages/bundle": "1.7.0"
 }
