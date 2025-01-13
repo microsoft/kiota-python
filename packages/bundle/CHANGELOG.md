@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.6.8...microsoft-kiota-bundle-v1.7.0) (2025-01-13)
+
+
+### Features
+
+* drop support for python 3.8 ([63e157b](https://github.com/microsoft/kiota-python/commit/63e157b2f90d92e360e94670fdaf01095f81e5c8))
+* drop support for python 3.8 ([59f284b](https://github.com/microsoft/kiota-python/commit/59f284bb4dff90e468a97c15f2b9bba2fde529db))
+
 ## [1.6.8](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.6.7...microsoft-kiota-bundle-v1.6.8) (2025-01-02)
 
 

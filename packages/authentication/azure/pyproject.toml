@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "microsoft-kiota-authentication-azure"
-version = "1.6.8"
+version = "1.7.0"
 description = "Core abstractions for kiota generated libraries in Python"
 authors = ["Microsoft <graphtooling+python@microsoft.com>"]
 license = "MIT"
@@ -36,9 +36,9 @@ isort = "^5.13.2"
 pylint = "^3.2.7"
 mypy = "^1.11.2"
 pytest = "^8.3.2"
-pytest-asyncio = "^0.24.0"
+pytest-asyncio = ">=0.24,<0.26"
 pytest-mock = "^3.14.0"
-poetry-plugin-mono-repo-deps = "^0.2.1"
+poetry-plugin-mono-repo-deps = ">=0.2.1,<0.4.0"
 
 [mypy]
 warn_unused_configs = true
