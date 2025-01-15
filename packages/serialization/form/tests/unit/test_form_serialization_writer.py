@@ -10,7 +10,7 @@ from ..helpers import TestEntity, TestEnum
 @pytest.fixture
 def user_1():
     user = TestEntity()
-    user.created_date_time = datetime.fromisoformat("2022-01-27T12:59:45.596117")
+    user.created_date_time = datetime.fromisoformat("2022-01-27T12:59:45.596117+00:00")
     user.work_duration  = timedelta(seconds=7200)
     user.birthday = date(year=2000,month=9,day=4)
     user.start_work_time = time(hour=8, minute=0, second=0)
