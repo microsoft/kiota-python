@@ -9,10 +9,11 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
-import pendulum
+from kiota_abstractions.utils import parseTimeDeltaFromIsoFormat
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
-T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
+T = TypeVar("T", bool, str, int, float, UUID,
+            datetime, timedelta, date, time, bytes)
 
 U = TypeVar("U", bound=Parsable)
 
@@ -28,8 +29,10 @@ class JsonParseNode(ParseNode):
                 to initialize the node with
         """
         self._json_node = node
-        self._on_before_assign_field_values: Optional[Callable[[Parsable], None]] = None
-        self._on_after_assign_field_values: Optional[Callable[[Parsable], None]] = None
+        self._on_before_assign_field_values: Optional[Callable[[
+            Parsable], None]] = None
+        self._on_after_assign_field_values: Optional[Callable[[
+            Parsable], None]] = None
 
     def get_child_node(self, identifier: str) -> Optional[ParseNode]:
         """Gets a new parse node for the given identifier
@@ -96,8 +99,8 @@ class JsonParseNode(ParseNode):
             if len(self._json_node) < 10:
                 return None
 
-            datetime_obj = pendulum.parse(self._json_node, exact=True)
-            if isinstance(datetime_obj, pendulum.DateTime):
+            datetime_obj = datetime.fromisoformat(self._json_node)
+            if isinstance(datetime_obj, datetime):
                 return datetime_obj
         return None
 
@@ -109,9 +112,10 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, timedelta):
             return self._json_node
         if isinstance(self._json_node, str):
-            datetime_obj = pendulum.parse(self._json_node, exact=True)
-            if isinstance(datetime_obj, pendulum.Duration):
-                return datetime_obj.as_timedelta()
+            try:
+                return parseTimeDeltaFromIsoFormat(self._json_node)
+            except ValueError:
+                return None
         return None
 
     def get_date_value(self) -> Optional[date]:
@@ -122,8 +126,8 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, date):
             return self._json_node
         if isinstance(self._json_node, str):
-            datetime_obj = pendulum.parse(self._json_node, exact=True)
-            if isinstance(datetime_obj, pendulum.Date):
+            datetime_obj = date.fromisoformat(self._json_node)
+            if isinstance(datetime_obj, date):
                 return datetime_obj
         return None
 
@@ -135,8 +139,8 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, time):
             return self._json_node
         if isinstance(self._json_node, str):
-            datetime_obj = pendulum.parse(self._json_node, exact=True)
-            if isinstance(datetime_obj, pendulum.Time):
+            datetime_obj = time.fromisoformat(self._json_node)
+            if isinstance(datetime_obj, time):
                 return datetime_obj
         return None
 
@@ -148,15 +152,18 @@ class JsonParseNode(ParseNode):
             list[T]: The collection of primitive values
         """
 
-        primitive_types = {bool, str, int, float, UUID, datetime, timedelta, date, time, bytes}
+        primitive_types = {bool, str, int, float, UUID,
+                           datetime, timedelta, date, time, bytes}
 
         def func(item):
             generic_type = primitive_type if primitive_type else type(item)
             current_parse_node = self._create_new_node(item)
             if generic_type in primitive_types:
-                method = getattr(current_parse_node, f'get_{generic_type.__name__.lower()}_value')
+                method = getattr(current_parse_node, f'get_{
+                                 generic_type.__name__.lower()}_value')
                 return method()
-            raise Exception(f"Encountered an unknown type during deserialization {generic_type}")
+            raise Exception(
+                f"Encountered an unknown type during deserialization {generic_type}")
 
         if isinstance(self._json_node, str):
             return list(map(func, json.loads(self._json_node)))
@@ -170,7 +177,8 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, list):
             return list(
                 map(
-                    lambda x: self._create_new_node(x).get_object_value(factory),  # type: ignore
+                    lambda x: self._create_new_node(
+                        x).get_object_value(factory),  # type: ignore
                     self._json_node,
                 )
             )
@@ -184,7 +192,8 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, list):
             return list(
                 map(
-                    lambda x: self._create_new_node(x).get_enum_value(enum_class),  # type: ignore
+                    lambda x: self._create_new_node(
+                        x).get_enum_value(enum_class),  # type: ignore
                     self._json_node
                 )
             )
@@ -291,7 +300,8 @@ class JsonParseNode(ParseNode):
                 field_deserializer = field_deserializers[field_name]
                 field_deserializer(JsonParseNode(field_value))
             elif item_additional_data is not None:
-                item_additional_data[field_name] = self.try_get_anything(field_value)
+                item_additional_data[field_name] = self.try_get_anything(
+                    field_value)
             else:
                 warnings.warn(
                     f"Found additional property {field_name} to \
@@ -315,9 +325,7 @@ class JsonParseNode(ParseNode):
                     return value
                 if value.isdigit():
                     return value
-                datetime_obj = pendulum.parse(value)
-                if isinstance(datetime_obj, pendulum.Duration):
-                    return datetime_obj.as_timedelta()
+                datetime_obj = datetime.fromisoformat(value)
                 return datetime_obj
             except ValueError:
                 pass
@@ -325,8 +333,21 @@ class JsonParseNode(ParseNode):
                 return UUID(value)
             except:
                 pass
+            try:
+                return parseTimeDeltaFromIsoFormat(value)
+            except ValueError:
+                pass
+            try:
+                return date.fromisoformat(value)
+            except ValueError:
+                pass
+            try:
+                return time.fromisoformat(value)
+            except ValueError:
+                pass
             return value
-        raise ValueError(f"Unexpected additional value type {type(value)} during deserialization.")
+        raise ValueError(f"Unexpected additional value type {
+                         type(value)} during deserialization.")
 
     def _create_new_node(self, node: Any) -> JsonParseNode:
         new_node: JsonParseNode = JsonParseNode(node)

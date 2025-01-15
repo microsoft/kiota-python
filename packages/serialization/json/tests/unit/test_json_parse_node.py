@@ -161,8 +161,8 @@ def test_get_anythin_does_not_convert_any_length_numeric_chars_to_datetime():
 def test_get_anythin_does_convert_date_string_to_datetime():
     parse_node = JsonParseNode("2023-10-05T14:48:00.000Z")
     result = parse_node.try_get_anything("2023-10-05T14:48:00.000Z")
-    assert isinstance(result, pendulum.DateTime)
-    assert result == pendulum.parse("2023-10-05T14:48:00.000Z")
+    assert isinstance(result, datetime)
+    assert result == datetime.fromisoformat("2023-10-05T14:48:00.000Z")
 
 
 def test_get_object_value(user1_json):
