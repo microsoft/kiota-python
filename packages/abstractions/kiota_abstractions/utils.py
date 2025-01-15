@@ -65,10 +65,12 @@ _ISO8601_DURATION_PATTERN = re.compile(
 )
 
 
-def parse_timedelta_from_iso_format(text: str) -> timedelta | None:
+def parse_timedelta_from_iso_format(text: str) -> timedelta:
+    """Parses a ISO8601 duration string into a timedelta object."""
+
     m = _ISO8601_DURATION_PATTERN.match(text)
     if not m:
-        return None
+        raise ValueError(f"Invalid ISO8601 duration string: {text}")
 
     weeks = float(m.group("weeks").replace(",", ".").replace("W", "")) if m.group("weeks") else 0
     years = float(m.group("years").replace(",", ".").replace("Y", "")) if m.group("years") else 0
@@ -79,16 +81,16 @@ def parse_timedelta_from_iso_format(text: str) -> timedelta | None:
                     ) if m.group("minutes") else 0
     seconds = float(m.group("seconds").replace(",", ".").replace("S", "")
                     ) if m.group("seconds") else 0
+    _have_date = years or months or days
+    _have_time = hours or minutes or seconds
+    if weeks and (_have_date or _have_time):
+        raise ValueError("Combining weeks with other date/time parts is not supported")
 
-    if weeks and (years or months or days or hours or minutes or seconds):
-        raise ValueError("Invalid duration string")
-
+    _total_days = (years * 365) + (months * 30) + days
     return timedelta(
-        years=years,
-        months=months,
-        weeks=weeks,
-        days=days,
+        days=_total_days,
         hours=hours,
         minutes=minutes,
-        seconds=seconds
+        seconds=seconds,
+        weeks=weeks,
     )
