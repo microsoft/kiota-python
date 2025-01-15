@@ -1,7 +1,7 @@
 from uuid import UUID
 
 import pytest
-from dateutil import parser
+from datetime import date, datetime
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 from kiota_serialization_text.text_serialization_writer import TextSerializationWriter
@@ -101,7 +101,7 @@ def test_write_uuid_value_with_key():
 
 def test_write_datetime_value():
     text_serialization_writer = TextSerializationWriter()
-    text_serialization_writer.write_datetime_value("", parser.parse('2022-01-27T12:59:45.596117'))
+    text_serialization_writer.write_datetime_value("", datetime.fromisoformat('2022-01-27T12:59:45.596117'))
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == "2022-01-27T12:59:45.596117"
@@ -111,7 +111,7 @@ def test_write_datetime_value_with_key():
     with pytest.raises(Exception) as e_info:
         text_serialization_writer = TextSerializationWriter()
         text_serialization_writer.write_datetime_value(
-            "updatedAt", parser.parse('2022-01-27T12:59:45.596117')
+            "updatedAt", datetime.fromisoformat('2022-01-27T12:59:45.596117')
         )
 
 
@@ -119,7 +119,7 @@ def test_write_timedelta_value():
     text_serialization_writer = TextSerializationWriter()
     text_serialization_writer.write_timedelta_value(
         "",
-        parser.parse('2022-01-27T12:59:45.596117') - parser.parse('2022-01-27T10:59:45.596117')
+        datetime.fromisoformat('2022-01-27T12:59:45.596117') - datetime.fromisoformat('2022-01-27T10:59:45.596117')
     )
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
@@ -131,13 +131,13 @@ def test_write_timedelta_value_with_key():
         text_serialization_writer = TextSerializationWriter()
         text_serialization_writer.write_timedelta_value(
             "diff",
-            parser.parse('2022-01-27T12:59:45.596117') - parser.parse('2022-01-27T10:59:45.596117')
+            datetime.fromisoformat('2022-01-27T12:59:45.596117') - datetime.fromisoformat('2022-01-27T10:59:45.596117')
         )
 
 
 def test_write_date_value():
     text_serialization_writer = TextSerializationWriter()
-    text_serialization_writer.write_date_value("", parser.parse("2000-09-04").date())
+    text_serialization_writer.write_date_value("", date.fromisoformat("2000-09-04").date())
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == "2000-09-04"
@@ -146,14 +146,14 @@ def test_write_date_value():
 def test_write_date_value_with_key():
     with pytest.raises(Exception) as e_info:
         text_serialization_writer = TextSerializationWriter()
-        text_serialization_writer.write_date_value("birthday", parser.parse("2000-09-04").date())
+        text_serialization_writer.write_date_value("birthday", date.fromisoformat("2000-09-04").date())
 
 
 def test_write_time_value():
     text_serialization_writer = TextSerializationWriter()
     text_serialization_writer.write_time_value(
         "",
-        parser.parse('2022-01-27T12:59:45.596117').time()
+        datetime.fromisoformat('2022-01-27T12:59:45.596117').time()
     )
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
@@ -165,7 +165,7 @@ def test_write_time_value_with_key():
         text_serialization_writer = TextSerializationWriter()
         text_serialization_writer.write_time_value(
             "time",
-            parser.parse('2022-01-27T12:59:45.596117').time()
+            datetime.fromisoformat('2022-01-27T12:59:45.596117').time()
         )
 
 
