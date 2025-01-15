@@ -12,8 +12,7 @@ from uuid import UUID
 from kiota_abstractions.utils import parse_timedelta_from_iso_format
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
-T = TypeVar("T", bool, str, int, float, UUID,
-            datetime, timedelta, date, time, bytes)
+T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
 
 U = TypeVar("U", bound=Parsable)
 
@@ -29,10 +28,8 @@ class JsonParseNode(ParseNode):
                 to initialize the node with
         """
         self._json_node = node
-        self._on_before_assign_field_values: Optional[Callable[[
-            Parsable], None]] = None
-        self._on_after_assign_field_values: Optional[Callable[[
-            Parsable], None]] = None
+        self._on_before_assign_field_values: Optional[Callable[[Parsable], None]] = None
+        self._on_after_assign_field_values: Optional[Callable[[Parsable], None]] = None
 
     def get_child_node(self, identifier: str) -> Optional[ParseNode]:
         """Gets a new parse node for the given identifier
@@ -152,8 +149,7 @@ class JsonParseNode(ParseNode):
             list[T]: The collection of primitive values
         """
 
-        primitive_types = {bool, str, int, float, UUID,
-                           datetime, timedelta, date, time, bytes}
+        primitive_types = {bool, str, int, float, UUID, datetime, timedelta, date, time, bytes}
 
         def func(item):
             generic_type = primitive_type if primitive_type else type(item)
@@ -161,8 +157,7 @@ class JsonParseNode(ParseNode):
             if generic_type in primitive_types:
                 method = getattr(current_parse_node, f'get_{generic_type.__name__.lower()}_value')
                 return method()
-            raise Exception(
-                f"Encountered an unknown type during deserialization {generic_type}")
+            raise Exception(f"Encountered an unknown type during deserialization {generic_type}")
 
         if isinstance(self._json_node, str):
             return list(map(func, json.loads(self._json_node)))
@@ -176,8 +171,7 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, list):
             return list(
                 map(
-                    lambda x: self._create_new_node(
-                        x).get_object_value(factory),  # type: ignore
+                    lambda x: self._create_new_node(x).get_object_value(factory),  # type: ignore
                     self._json_node,
                 )
             )
@@ -191,8 +185,7 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, list):
             return list(
                 map(
-                    lambda x: self._create_new_node(
-                        x).get_enum_value(enum_class),  # type: ignore
+                    lambda x: self._create_new_node(x).get_enum_value(enum_class),  # type: ignore
                     self._json_node
                 )
             )
@@ -299,8 +292,7 @@ class JsonParseNode(ParseNode):
                 field_deserializer = field_deserializers[field_name]
                 field_deserializer(JsonParseNode(field_value))
             elif item_additional_data is not None:
-                item_additional_data[field_name] = self.try_get_anything(
-                    field_value)
+                item_additional_data[field_name] = self.try_get_anything(field_value)
             else:
                 warnings.warn(
                     f"Found additional property {field_name} to \
