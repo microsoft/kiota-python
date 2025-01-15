@@ -159,8 +159,7 @@ class JsonParseNode(ParseNode):
             generic_type = primitive_type if primitive_type else type(item)
             current_parse_node = self._create_new_node(item)
             if generic_type in primitive_types:
-                method = getattr(current_parse_node, f'get_{
-                                 generic_type.__name__.lower()}_value')
+                method = getattr(current_parse_node, f'get_{generic_type.__name__.lower()}_value')
                 return method()
             raise Exception(
                 f"Encountered an unknown type during deserialization {generic_type}")

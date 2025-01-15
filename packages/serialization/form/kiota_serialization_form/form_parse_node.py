@@ -181,8 +181,7 @@ class FormParseNode(ParseNode):
                 method = getattr(current_parse_node, method_name)
                 result.append(method())
             return result
-        raise Exception(f"Encountered an unknown type during deserialization {
-                        primitive_type}")
+        raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
 
     def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
         raise Exception(
