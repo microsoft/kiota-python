@@ -2,7 +2,6 @@ from uuid import UUID
 from urllib.parse import unquote_plus
 import pytest
 
-import pendulum
 from datetime import datetime, timedelta, date, time
 from kiota_serialization_form.form_serialization_writer import FormSerializationWriter
 from ..helpers import TestEntity, TestEnum
@@ -11,7 +10,7 @@ from ..helpers import TestEntity, TestEnum
 @pytest.fixture
 def user_1():
     user = TestEntity()
-    user.created_date_time = pendulum.parse("2022-01-27T12:59:45.596117")
+    user.created_date_time = datetime.fromisoformat("2022-01-27T12:59:45.596117")
     user.work_duration  = timedelta(seconds=7200)
     user.birthday = date(year=2000,month=9,day=4)
     user.start_work_time = time(hour=8, minute=0, second=0)
@@ -112,7 +111,7 @@ def test_write_time_value():
     form_serialization_writer = FormSerializationWriter()
     form_serialization_writer.write_time_value(
         "time",
-        pendulum.parse('2022-01-27T12:59:45.596117').time()
+        datetime.fromisoformat('2022-01-27T12:59:45.596117').time()
     )
     content = form_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')

@@ -1,9 +1,8 @@
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID
 
 import pytest
 
-import pendulum
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter
 
 from ..helpers import OfficeLocation, User, User2
@@ -12,7 +11,7 @@ from ..helpers import OfficeLocation, User, User2
 @pytest.fixture
 def user_1():
     user = User()
-    user.updated_at = pendulum.parse("2022-01-27T12:59:45.596117")
+    user.updated_at = datetime(2022,1,27,12,59,45,596117).fromisoformat("2022-01-27T12:59:45.596117")
     user.is_active = True
     user.id = UUID("8f841f30-e6e3-439a-a812-ebd369559c36")
     return user
@@ -92,7 +91,7 @@ def test_write_uuid_value_with_invalid_string():
 def test_write_datetime_value():
     json_serialization_writer = JsonSerializationWriter()
     json_serialization_writer.write_datetime_value(
-        "updatedAt", pendulum.parse('2022-01-27T12:59:45.596117')
+        "updatedAt", datetime.fromisoformat('2022-01-27T12:59:45.596117')
     )
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
@@ -118,8 +117,8 @@ def test_write_timedelta_value():
     json_serialization_writer = JsonSerializationWriter()
     json_serialization_writer.write_timedelta_value(
         "diff", (
-            pendulum.parse('2022-01-27T12:59:45.596117') -
-            pendulum.parse('2022-01-27T10:59:45.596117')
+            datetime.fromisoformat('2022-01-27T12:59:45.596117') -
+            datetime.fromisoformat('2022-01-27T10:59:45.596117')
         ).as_timedelta()
     )
     content = json_serialization_writer.get_serialized_content()
@@ -144,7 +143,7 @@ def test_write_timedelta_value_invalid_string():
 
 def test_write_date_value():
     json_serialization_writer = JsonSerializationWriter()
-    json_serialization_writer.write_date_value("birthday", pendulum.parse("2000-09-04").date())
+    json_serialization_writer.write_date_value("birthday", date(2000,9,4))
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == '{"birthday": "2000-09-04"}'
@@ -169,7 +168,7 @@ def test_write_time_value():
     json_serialization_writer = JsonSerializationWriter()
     json_serialization_writer.write_time_value(
         "time",
-        pendulum.parse('2022-01-27T12:59:45.596117').time()
+        datetime.fromisoformat('2022-01-27T12:59:45.596117').time()
     )
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
