@@ -137,7 +137,7 @@ def test_write_timedelta_value_with_key():
 
 def test_write_date_value():
     text_serialization_writer = TextSerializationWriter()
-    text_serialization_writer.write_date_value("", date.fromisoformat("2000-09-04").date())
+    text_serialization_writer.write_date_value("", date.fromisoformat("2000-09-04"))
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == "2000-09-04"
@@ -146,7 +146,7 @@ def test_write_date_value():
 def test_write_date_value_with_key():
     with pytest.raises(Exception) as e_info:
         text_serialization_writer = TextSerializationWriter()
-        text_serialization_writer.write_date_value("birthday", date.fromisoformat("2000-09-04").date())
+        text_serialization_writer.write_date_value("birthday", date.fromisoformat("2000-09-04"))
 
 
 def test_write_time_value():
