@@ -3,6 +3,7 @@ import sys
 import re
 from datetime import timedelta
 
+
 def lazy_import(name):
     """Lazily imports a python module given its absolute path.
 
@@ -39,21 +40,23 @@ def lazy_import(name):
 
     return module
 
+
 # https://en.wikipedia.org/wiki/ISO_8601#Durations
 # PnYnMnDTnHnMnS
 # PnW
 # P<date>T<time>
 _ISO8601_DURATION_PATTERN = re.compile(
-        r'P'  # starts with 'P'
-        r'(?:(\d+)Y)?'  # years
-        r'(?:(\d+)M)?'  # months
-        r'(?:(\d+)W)?'  # weeks
-        r'(?:(\d+)D)?'  # days
-        r'(?:T'  # time part starts with 'T'
-        r'(?:(\d+)H)?'  # hours
-        r'(?:(\d+)M)?'  # minutes
-        r'(?:(\d+)S)?)?'  # seconds
-    )
+    r'P'  # starts with 'P'
+    r'(?:(\d+)Y)?'  # years
+    r'(?:(\d+)M)?'  # months
+    r'(?:(\d+)W)?'  # weeks
+    r'(?:(\d+)D)?'  # days
+    r'(?:T'  # time part starts with 'T'
+    r'(?:(\d+)H)?'  # hours
+    r'(?:(\d+)M)?'  # minutes
+    r'(?:(\d+)S)?)?'  # seconds
+)
+
 
 def parseTimeDeltaFromIsoFormat(duration_str):
     """Parses an ISO 8601 duration string into a timedelta object.

@@ -12,7 +12,8 @@ from uuid import UUID
 from kiota_abstractions.utils import parseTimeDeltaFromIsoFormat
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
-T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
+T = TypeVar("T", bool, str, int, float, UUID,
+            datetime, timedelta, date, time, bytes)
 
 U = TypeVar("U", bound=Parsable)
 
@@ -26,8 +27,10 @@ class FormParseNode(ParseNode):
         self._raw_value = raw_value
         self._node = unquote_plus(raw_value)
         self._fields = self._get_fields(raw_value)
-        self._on_before_assign_field_values: Optional[Callable[[Parsable], None]] = None
-        self._on_after_assign_field_values: Optional[Callable[[Parsable], None]] = None
+        self._on_before_assign_field_values: Optional[Callable[[
+            Parsable], None]] = None
+        self._on_after_assign_field_values: Optional[Callable[[
+            Parsable], None]] = None
 
     def get_str_value(self) -> Optional[str]:
         """Gets the string value from the node
@@ -164,9 +167,11 @@ class FormParseNode(ParseNode):
             list[T]: The collection of primitive values
         """
         if not primitive_type:
-            raise Exception("Primitive type for deserialization cannot be null")
+            raise Exception(
+                "Primitive type for deserialization cannot be null")
 
-        primitive_types = {bool, str, int, float, UUID, datetime, timedelta, date, time, bytes}
+        primitive_types = {bool, str, int, float, UUID,
+                           datetime, timedelta, date, time, bytes}
         if primitive_type in primitive_types:
             items = self._node.split(',')
             result: list[T] = []
@@ -176,10 +181,12 @@ class FormParseNode(ParseNode):
                 method = getattr(current_parse_node, method_name)
                 result.append(method())
             return result
-        raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
+        raise Exception(f"Encountered an unknown type during deserialization {
+                        primitive_type}")
 
     def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
-        raise Exception("Collection of object values is not supported with uri form encoding.")
+        raise Exception(
+            "Collection of object values is not supported with uri form encoding.")
 
     def get_collection_of_enum_values(self, enum_class: K) -> Optional[list[K]]:
         """Gets the collection of enum values of the node
@@ -190,7 +197,8 @@ class FormParseNode(ParseNode):
         if values:
             return list(
                 map(
-                    lambda x: self._create_new_node(x).get_enum_value(enum_class),  # type: ignore
+                    lambda x: self._create_new_node(
+                        x).get_enum_value(enum_class),  # type: ignore
                     values
                 )
             )
@@ -209,11 +217,13 @@ class FormParseNode(ParseNode):
             return enum_class(self._node)  # type: ignore
         values = self._node.split(',')
         if not len(values) > 1:
-            raise Exception(f'Invalid value: {self._node} for enum {enum_class}.')
+            raise Exception(f'Invalid value: {
+                            self._node} for enum {enum_class}.')
         result = []
         for value in values:
             if value not in enum_values:
-                raise Exception(f'Invalid value: {value} for enum {enum_class}.')
+                raise Exception(f'Invalid value: {
+                                value} for enum {enum_class}.')
             result.append(enum_class(value))  # type: ignore
         return result  # type: ignore
 
@@ -287,7 +297,8 @@ class FormParseNode(ParseNode):
                 field_deserializer = field_deserializers[field_name]
                 field_deserializer(FormParseNode(field_value))
             elif item_additional_data is not None:
-                item_additional_data[field_name] = self.try_get_anything(field_value)
+                item_additional_data[field_name] = self.try_get_anything(
+                    field_value)
             else:
                 warnings.warn(
                     f"Found additional property {field_name} to \
@@ -324,7 +335,8 @@ class FormParseNode(ParseNode):
             except ValueError:
                 pass
             return value
-        raise ValueError(f"Unexpected additional value type {type(value)} during deserialization.")
+        raise ValueError(f"Unexpected additional value type {
+                         type(value)} during deserialization.")
 
     def _create_new_node(self, node: Any) -> FormParseNode:
         new_node: FormParseNode = FormParseNode(node)
