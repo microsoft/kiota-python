@@ -1,5 +1,5 @@
 import json
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from uuid import UUID
 
 import pytest
@@ -180,14 +180,14 @@ def test_get_object_value(user1_json):
     )
     assert result.additional_data["additional_data"]["manager"] == {
         "id": UUID("8f841f30-e6e3-439a-a812-ebd369559c36"),
-        "updated_at": datetime(2022, 1, 27, 12, 59, 45, 596117),
+        "updated_at": datetime(2022, 1, 27, 12, 59, 45, 596117, timezone.utc),
         "is_active": True,
     }
     assert result.additional_data["additional_data"]["approvers"] == [
         {
             "id":
             UUID("8f841f30-e6e3-439a-a812-ebd369559c36"),
-            "updated_at": datetime(2022, 1, 27, 12, 59, 45, 596117),
+            "updated_at": datetime(2022, 1, 27, 12, 59, 45, 596117, timezone.utc),
             "is_active":
             True,
         },

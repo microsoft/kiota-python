@@ -11,7 +11,7 @@ from ..helpers import OfficeLocation, User, User2
 @pytest.fixture
 def user_1():
     user = User()
-    user.updated_at = datetime(2022,1,27,12,59,45,596117).fromisoformat("2022-01-27T12:59:45.596117")
+    user.updated_at = datetime(2022,1,27,12,59,45,596117).fromisoformat("2022-01-27T12:59:45.596117+00:00")
     user.is_active = True
     user.id = UUID("8f841f30-e6e3-439a-a812-ebd369559c36")
     return user
@@ -91,7 +91,7 @@ def test_write_uuid_value_with_invalid_string():
 def test_write_datetime_value():
     json_serialization_writer = JsonSerializationWriter()
     json_serialization_writer.write_datetime_value(
-        "updatedAt", datetime.fromisoformat('2022-01-27T12:59:45.596117')
+        "updatedAt", datetime.fromisoformat('2022-01-27T12:59:45.596117+00:00')
     )
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
@@ -119,7 +119,7 @@ def test_write_timedelta_value():
         "diff", (
             datetime.fromisoformat('2022-01-27T12:59:45.596117') -
             datetime.fromisoformat('2022-01-27T10:59:45.596117')
-        ).as_timedelta()
+        )
     )
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
