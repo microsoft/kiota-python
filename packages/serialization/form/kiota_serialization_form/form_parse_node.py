@@ -216,13 +216,11 @@ class FormParseNode(ParseNode):
             return enum_class(self._node)  # type: ignore
         values = self._node.split(',')
         if not len(values) > 1:
-            raise Exception(f'Invalid value: {
-                            self._node} for enum {enum_class}.')
+            raise Exception(f'Invalid value: {self._node} for enum {enum_class}.')
         result = []
         for value in values:
             if value not in enum_values:
-                raise Exception(f'Invalid value: {
-                                value} for enum {enum_class}.')
+                raise Exception(f'Invalid value: {value} for enum {enum_class}.')
             result.append(enum_class(value))  # type: ignore
         return result  # type: ignore
 

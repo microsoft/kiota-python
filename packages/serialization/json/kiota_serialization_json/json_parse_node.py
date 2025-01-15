@@ -345,8 +345,7 @@ class JsonParseNode(ParseNode):
             except ValueError:
                 pass
             return value
-        raise ValueError(f"Unexpected additional value type {
-                         type(value)} during deserialization.")
+        raise ValueError(f"Unexpected additional value type {type(value)} during deserialization.")
 
     def _create_new_node(self, node: Any) -> JsonParseNode:
         new_node: JsonParseNode = JsonParseNode(node)
