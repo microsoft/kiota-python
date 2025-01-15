@@ -41,49 +41,54 @@ def lazy_import(name):
     return module
 
 
-# https://en.wikipedia.org/wiki/ISO_8601#Durations
-# PnYnMnDTnHnMnS
-# PnW
-# P<date>T<time>
 _ISO8601_DURATION_PATTERN = re.compile(
-    r'P'  # starts with 'P'
-    r'(?:(\d+)Y)?'  # years
-    r'(?:(\d+)M)?'  # months
-    r'(?:(\d+)W)?'  # weeks
-    r'(?:(\d+)D)?'  # days
-    r'(?:T'  # time part starts with 'T'
-    r'(?:(\d+)H)?'  # hours
-    r'(?:(\d+)M)?'  # minutes
-    r'(?:(\d+)S)?)?'  # seconds
+    "^P"  # Duration P indicator
+    # Weeks
+    "(?P<w>"
+    r"    (?P<weeks>\d+(?:[.,]\d+)?W)"
+    ")?"
+    # Years, Months, Days
+    "(?P<ymd>"
+    r"    (?P<years>\d+(?:[.,]\d+)?Y)?"
+    r"    (?P<months>\d+(?:[.,]\d+)?M)?"
+    r"    (?P<days>\d+(?:[.,]\d+)?D)?"
+    ")?"
+    # Time
+    "(?P<hms>"
+    "    (?P<timesep>T)"  # Separator (T)
+    r"    (?P<hours>\d+(?:[.,]\d+)?H)?"
+    r"    (?P<minutes>\d+(?:[.,]\d+)?M)?"
+    r"    (?P<seconds>\d+(?:[.,]\d+)?S)?"
+    ")?"
+    "$",
+    re.VERBOSE,
 )
 
 
-def parseTimeDeltaFromIsoFormat(duration_str):
-    """Parses an ISO 8601 duration string into a timedelta object.
+def parse_timedelta_from_iso_format(text: str) -> timedelta | None:
+    m = _ISO8601_DURATION_PATTERN.match(text)
+    if not m:
+        return None
 
-    https://en.wikipedia.org/wiki/ISO_8601#Durations
-    PnYnMnDTnHnMnS (where n is a number, supported)
-    PnW (weeks, supported)
-    P<date>T<time> (not implemented)
+    weeks = float(m.group("weeks").replace(",", ".").replace("W", "")) if m.group("weeks") else 0
+    years = float(m.group("years").replace(",", ".").replace("Y", "")) if m.group("years") else 0
+    months = float(m.group("months").replace(",", ".").replace("M", "")) if m.group("months") else 0
+    days = float(m.group("days").replace(",", ".").replace("D", "")) if m.group("days") else 0
+    hours = float(m.group("hours").replace(",", ".").replace("H", "")) if m.group("hours") else 0
+    minutes = float(m.group("minutes").replace(",", ".").replace("M", "")
+                    ) if m.group("minutes") else 0
+    seconds = float(m.group("seconds").replace(",", ".").replace("S", "")
+                    ) if m.group("seconds") else 0
 
-    Args:
-        duration_str (str): The ISO 8601 duration string.
+    if weeks and (years or months or days or hours or minutes or seconds):
+        raise ValueError("Invalid duration string")
 
-    Returns:
-        timedelta: The parsed timedelta object.
-    """
-    pattern = _ISO8601_DURATION_PATTERN
-    match = pattern.fullmatch(duration_str)
-    if not match:
-        raise ValueError(f"Invalid ISO 8601 duration string: {duration_str}")
-
-    years, months, weeks, days, hours, minutes, seconds = match.groups()
     return timedelta(
-        years=int(years or 0),
-        months=int(months or 0),
-        weeks=int(weeks or 0),
-        days=int(days or 0),
-        hours=int(hours or 0),
-        minutes=int(minutes or 0),
-        seconds=int(seconds or 0)
+        years=years,
+        months=months,
+        weeks=weeks,
+        days=days,
+        hours=hours,
+        minutes=minutes,
+        seconds=seconds
     )

@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
-from kiota_abstractions.utils import parseTimeDeltaFromIsoFormat
+from kiota_abstractions.utils import parse_timedelta_from_iso_format
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
 T = TypeVar("T", bool, str, int, float, UUID,
@@ -113,7 +113,7 @@ class JsonParseNode(ParseNode):
             return self._json_node
         if isinstance(self._json_node, str):
             try:
-                return parseTimeDeltaFromIsoFormat(self._json_node)
+                return parse_timedelta_from_iso_format(self._json_node)
             except ValueError:
                 return None
         return None
@@ -334,7 +334,7 @@ class JsonParseNode(ParseNode):
             except:
                 pass
             try:
-                return parseTimeDeltaFromIsoFormat(value)
+                return parse_timedelta_from_iso_format(value)
             except ValueError:
                 pass
             try:
