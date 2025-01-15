@@ -25,7 +25,7 @@ packages = [{include = "kiota_serialization_multipart"}]
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 microsoft-kiota-abstractions = {path="../../abstractions/", develop=true}
-pendulum = ">=3.0.0b1"
+pendulum = ">=3.0.0"
 
 [tool.poetry.group.dev.dependencies]
 yapf = "^0.40.2"
