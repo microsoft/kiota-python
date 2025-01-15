@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.7.0...microsoft-kiota-serialization-json-v1.7.1) (2025-01-15)
+
+
+### Bug Fixes
+
+* bumps pendulum to a stable version ([dbda749](https://github.com/microsoft/kiota-python/commit/dbda749947f630a03bcd5b0311fbc072182ba355))
+* bumps pendulum to a stable version ([75b302f](https://github.com/microsoft/kiota-python/commit/75b302f9a8763ee7f674a627478cd19491c1d555))
+
 ## [1.7.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.6.8...microsoft-kiota-serialization-json-v1.7.0) (2025-01-13)
 
 
