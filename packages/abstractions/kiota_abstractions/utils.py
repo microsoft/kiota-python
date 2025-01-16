@@ -1,6 +1,7 @@
 import importlib.util
 import sys
 
+
 def lazy_import(name):
     """Lazily imports a python module given its absolute path.
 
@@ -36,4 +37,3 @@ def lazy_import(name):
     loader.exec_module(module)
 
     return module
-

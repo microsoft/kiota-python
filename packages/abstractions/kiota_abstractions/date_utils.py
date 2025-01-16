@@ -1,7 +1,6 @@
 import re
 from datetime import timedelta
 
-
 _ISO8601_DURATION_PATTERN = re.compile(
     "^P"  # Duration P indicator
     # Weeks
@@ -56,9 +55,9 @@ def parse_timedelta_from_iso_format(text: str) -> timedelta:
         weeks=weeks,
     )
 
-_TIMEDELTA_PATTERN = re.compile(
-    r"^(?P<hours>\d+):(?P<minutes>\d+)(?::(?P<seconds>\d+))?$"
-)
+
+_TIMEDELTA_PATTERN = re.compile(r"^(?P<hours>\d+):(?P<minutes>\d+)(?::(?P<seconds>\d+))?$")
+
 
 def parse_timedelta_string(text: str) -> timedelta:
     """Checks if a given string is a valid ISO8601 duration string. Or hh:mm:ss format."""
