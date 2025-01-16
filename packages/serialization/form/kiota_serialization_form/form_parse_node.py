@@ -9,7 +9,7 @@ from typing import Any, Optional, TypeVar
 from urllib.parse import unquote_plus
 from uuid import UUID
 
-from kiota_abstractions.utils import parse_timedelta_from_iso_format
+from kiota_abstractions.date_utils import parse_timedelta_string
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
 T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
@@ -105,7 +105,7 @@ class FormParseNode(ParseNode):
         """
         if self._node and self._node != "null":
             try:
-                return parse_timedelta_from_iso_format(self._node)
+                return parse_timedelta_string(self._node)
             except:
                 return None
         return None
@@ -312,7 +312,7 @@ class FormParseNode(ParseNode):
             except ValueError:
                 pass
             try:
-                return parse_timedelta_from_iso_format(value)
+                return parse_timedelta_string(value)
             except ValueError:
                 pass
             try:

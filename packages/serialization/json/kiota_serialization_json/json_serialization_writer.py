@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
-from kiota_abstractions.utils import parse_timedelta_from_iso_format
+from kiota_abstractions.date_utils import parse_timedelta_string
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 T = TypeVar("T")
@@ -138,7 +138,7 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = str(value)
         elif isinstance(value, str):
             try:
-                parse_timedelta_from_iso_format(value)
+                parse_timedelta_string(value)
                 if key:
                     self.writer[key] = value
                 else:

@@ -1,6 +1,6 @@
 import pytest
 
-from kiota_abstractions.utils import parse_timedelta_from_iso_format
+from kiota_abstractions.date_utils import parse_timedelta_from_iso_format, parse_timedelta_string
 
 
 def test_parse_timedelta_from_iso_format_weeks():
@@ -43,14 +43,21 @@ def test_parse_timedelta_from_iso_format_days_and_time():
     assert result.days == 3
     assert result.seconds == 10983
 
+def test_parse_timedelta_from_iso_format_time_without_p():
+    result = parse_timedelta_from_iso_format("T3H3M3S")
+    assert result.days == 0
+    assert result.seconds == 10983
 
-def test_parse_timedelta_from_iso_format_weeks_and_years():
+
+@pytest.mark.parametrize("input", ["P3W3Y", "P3W3Y3D", "P3W3Y3DT3H3M3S"])
+def test_parse_timedelta_from_iso_format_must_raise(input: str):
     # assert this raises a ValueError
     with pytest.raises(ValueError):
-        parse_timedelta_from_iso_format("P3W3Y")
+        parse_timedelta_from_iso_format(input)
 
 
-def test_parse_timedelta_from_iso_format_years_and_weeks():
-    # assert this raises a ValueError
-    with pytest.raises(ValueError):
-        parse_timedelta_from_iso_format("P3Y3W")
+@pytest.mark.parametrize("input,expected_hours", [("PT3H", 3), ("2:00:00", 2)])
+def test_parse_timedelta_string_valid(input:str, expected_hours:int):
+    result = parse_timedelta_string(input)
+    assert result.days == 0
+    assert result.seconds == expected_hours * 3600
