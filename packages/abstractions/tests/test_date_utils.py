@@ -44,10 +44,8 @@ def test_parse_timedelta_from_iso_format_days_and_time():
     assert result.seconds == 10983
 
 def test_parse_timedelta_from_iso_format_time_without_p():
-    result = parse_timedelta_from_iso_format("T3H3M3S")
-    assert result.days == 0
-    assert result.seconds == 10983
-
+    with pytest.raises(ValueError):
+        parse_timedelta_from_iso_format("T3H3M3S")
 
 @pytest.mark.parametrize("input", ["P3W3Y", "P3W3Y3D", "P3W3Y3DT3H3M3S"])
 def test_parse_timedelta_from_iso_format_must_raise(input: str):

@@ -3,7 +3,7 @@ from datetime import timedelta
 
 
 _ISO8601_DURATION_PATTERN = re.compile(
-    "^P?"  # Duration P indicator (was optional in previous parsing library)
+    "^P"  # Duration P indicator
     # Weeks
     "(?P<w>"
     r"    (?P<weeks>\d+(?:[.,]\d+)?W)"
@@ -65,7 +65,7 @@ def parse_timedelta_string(text: str) -> timedelta:
     try:
         return parse_timedelta_from_iso_format(text)
     except ValueError:
-        # The previous library also supported hh:mm:ss format without the need for the P indicator
+        # The previous library also supported hh:mm:ss format
         m = _TIMEDELTA_PATTERN.match(text)
         if not m:
             raise ValueError(f"Invalid timedelta string: {text}")

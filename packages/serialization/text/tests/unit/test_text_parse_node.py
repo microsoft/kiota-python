@@ -80,7 +80,7 @@ def test_get_time_value():
 
 
 def test_get_timedelta_value():
-    parse_node = TextParseNode('T12H59M45S')
+    parse_node = TextParseNode('PT12H59M45S')
     result = parse_node.get_timedelta_value()
     assert isinstance(result, timedelta)
     assert str(result) == '12:59:45'
