@@ -1,6 +1,26 @@
 import pytest
 
-from kiota_abstractions.date_utils import parse_timedelta_from_iso_format, parse_timedelta_string
+from kiota_abstractions.date_utils import (
+    parse_timedelta_from_iso_format,
+    parse_timedelta_string,
+    time_from_iso_format_compat,
+    datetime_from_iso_format_compat
+)
+
+
+@pytest.mark.parametrize("text", ["08:00:00", "08:00:00.0", "08:00:00.00", "08:00:00.000", "08:00:00.0000","08:00:00.00000","08:00:00.000000", "08:00:00.0000000", "08:00:00,0000000"])
+def test_time_from_iso_format_compat(text: str):
+    result = time_from_iso_format_compat(text)
+    assert result.hour == 8
+    assert result.minute == 0
+    assert result.second == 0
+
+@pytest.mark.parametrize("text", ["1986-07-28T08:00:00", "1986-07-28T08:00:00.0", "1986-07-28T08:00:00.00", "1986-07-28T08:00:00.000", "1986-07-28T08:00:00.0000","1986-07-28T08:00:00.00000","1986-07-28T08:00:00.000000", "1986-07-28T08:00:00.0000000", "1986-07-28T08:00:00,0000000"])
+def test_datetime_from_iso_format_compat(text: str):
+    result = datetime_from_iso_format_compat(text)
+    assert result.hour == 8
+    assert result.minute == 0
+    assert result.second == 0
 
 
 def test_parse_timedelta_from_iso_format_weeks():
@@ -47,15 +67,15 @@ def test_parse_timedelta_from_iso_format_time_without_p():
     with pytest.raises(ValueError):
         parse_timedelta_from_iso_format("T3H3M3S")
 
-@pytest.mark.parametrize("input", ["P3W3Y", "P3W3Y3D", "P3W3Y3DT3H3M3S"])
-def test_parse_timedelta_from_iso_format_must_raise(input: str):
+@pytest.mark.parametrize("text", ["P3W3Y", "P3W3Y3D", "P3W3Y3DT3H3M3S"])
+def test_parse_timedelta_from_iso_format_must_raise(text: str):
     # assert this raises a ValueError
     with pytest.raises(ValueError):
-        parse_timedelta_from_iso_format(input)
+        parse_timedelta_from_iso_format(text)
 
 
-@pytest.mark.parametrize("input,expected_hours", [("PT3H", 3), ("2:00:00", 2)])
-def test_parse_timedelta_string_valid(input:str, expected_hours:int):
-    result = parse_timedelta_string(input)
+@pytest.mark.parametrize("text, expected_hours", [("PT3H", 3), ("2:00:00", 2)])
+def test_parse_timedelta_string_valid(text:str, expected_hours:int):
+    result = parse_timedelta_string(text)
     assert result.days == 0
     assert result.seconds == expected_hours * 3600

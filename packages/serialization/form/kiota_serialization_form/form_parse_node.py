@@ -9,7 +9,9 @@ from typing import Any, Optional, TypeVar
 from urllib.parse import unquote_plus
 from uuid import UUID
 
-from kiota_abstractions.date_utils import parse_timedelta_string
+from kiota_abstractions.date_utils import (
+    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+)
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
 T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
@@ -93,7 +95,7 @@ class FormParseNode(ParseNode):
         """
         if self._node and self._node != "null":
             try:
-                return datetime.fromisoformat(self._node)
+                return datetime_from_iso_format_compat(self._node)
             except:
                 return None
         return None
@@ -129,7 +131,7 @@ class FormParseNode(ParseNode):
         """
         if self._node and self._node != "null":
             try:
-                return time.fromisoformat(self._node)
+                return time_from_iso_format_compat(self._node)
             except:
                 return None
         return None
@@ -303,7 +305,7 @@ class FormParseNode(ParseNode):
             return dict(map(lambda x: (x[0], self.try_get_anything(x[1])), value.items()))
         if isinstance(value, str):
             try:
-                datetime_obj = datetime.fromisoformat(value)
+                datetime_obj = datetime_from_iso_format_compat(value)
                 return datetime_obj
             except ValueError:
                 pass
@@ -320,7 +322,7 @@ class FormParseNode(ParseNode):
             except ValueError:
                 pass
             try:
-                return time.fromisoformat(value)
+                return time_from_iso_format_compat(value)
             except ValueError:
                 pass
             return value

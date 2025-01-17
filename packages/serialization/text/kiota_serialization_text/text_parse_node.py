@@ -7,7 +7,9 @@ from enum import Enum
 from typing import Optional, TypeVar
 from uuid import UUID
 
-from kiota_abstractions.date_utils import parse_timedelta_string
+from kiota_abstractions.date_utils import (
+    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+)
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
 T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
@@ -95,7 +97,7 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            return datetime.fromisoformat(datetime_str)
+            return datetime_from_iso_format_compat(datetime_str)
         return None
 
     def get_timedelta_value(self) -> Optional[timedelta]:
@@ -125,7 +127,7 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            return time.fromisoformat(datetime_str)
+            return time_from_iso_format_compat(datetime_str)
         return None
 
     def get_collection_of_primitive_values(self, primitive_type: type[T]) -> list[T]:

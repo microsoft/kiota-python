@@ -9,7 +9,9 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
-from kiota_abstractions.date_utils import parse_timedelta_string
+from kiota_abstractions.date_utils import (
+    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+)
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
 T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
@@ -96,7 +98,7 @@ class JsonParseNode(ParseNode):
             if len(self._json_node) < 10:
                 return None
 
-            datetime_obj = datetime.fromisoformat(self._json_node)
+            datetime_obj = datetime_from_iso_format_compat(self._json_node)
             if isinstance(datetime_obj, datetime):
                 return datetime_obj
         return None
@@ -136,7 +138,7 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, time):
             return self._json_node
         if isinstance(self._json_node, str):
-            datetime_obj = time.fromisoformat(self._json_node)
+            datetime_obj = time_from_iso_format_compat(self._json_node)
             if isinstance(datetime_obj, time):
                 return datetime_obj
         return None
@@ -316,7 +318,7 @@ class JsonParseNode(ParseNode):
                     return value
                 if value.isdigit():
                     return value
-                datetime_obj = datetime.fromisoformat(value)
+                datetime_obj = datetime_from_iso_format_compat(value)
                 return datetime_obj
             except ValueError:
                 pass
@@ -333,7 +335,7 @@ class JsonParseNode(ParseNode):
             except ValueError:
                 pass
             try:
-                return time.fromisoformat(value)
+                return time_from_iso_format_compat(value)
             except ValueError:
                 pass
             return value

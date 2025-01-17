@@ -1,5 +1,6 @@
+from sys import version_info as sys_version_info
 import re
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 _ISO8601_DURATION_PATTERN = re.compile(
     "^P"  # Duration P indicator
@@ -63,13 +64,54 @@ def parse_timedelta_string(text: str) -> timedelta:
     """Checks if a given string is a valid ISO8601 duration string. Or hh:mm:ss format."""
     try:
         return parse_timedelta_from_iso_format(text)
-    except ValueError:
+    except ValueError as exc:
         # The previous library also supported hh:mm:ss format
         m = _TIMEDELTA_PATTERN.match(text)
         if not m:
-            raise ValueError(f"Invalid timedelta string: {text}")
+            raise ValueError(f"Invalid timedelta string: {text}") from exc
 
         hours = int(m.group("hours"))
         minutes = int(m.group("minutes"))
         seconds = int(m.group("seconds") or 0)
         return timedelta(hours=hours, minutes=minutes, seconds=seconds)
+
+
+_TIME_REPLACEMENT_PATTERN = re.compile(r"(\d[.,])(\d+)")
+
+
+def datetime_from_iso_format_compat(text: str) -> datetime:
+    """Parses a ISO8601 formatted string into a datetime object."""
+    try:
+        # Try regular first (faster for most cases)
+        return datetime.fromisoformat(text)
+    except ValueError as exc:
+        # Python 3.10 and below only support fractions of seconds in either 3 or 6 digits
+        # Python 3.11+ supports any number of digits
+
+        if (sys_version_info[:3] <= (3, 10)):
+            # The following code is a workaround for Python 3.10 and below
+            fixed_time = re.sub(
+                _TIME_REPLACEMENT_PATTERN, lambda x: x.group(1) + x.group(2).ljust(6, '0')[:6], text
+            )
+            return datetime.fromisoformat(fixed_time)
+
+        raise exc
+
+
+def time_from_iso_format_compat(text: str) -> time:
+    """Parses a ISO8601 formatted string into a time object."""
+    try:
+        # Try regular first (faster for most cases)
+        return time.fromisoformat(text)
+    except ValueError as exc:
+        # Python 3.10 and below only support fractions of seconds in either 3 or 6 digits
+        # Python 3.11+ supports any number of digits
+
+        if (sys_version_info[:3] <= (3, 10)):
+            # The following code is a workaround for Python 3.10 and below
+            fixed_time = re.sub(
+                _TIME_REPLACEMENT_PATTERN, lambda x: x.group(1) + x.group(2).ljust(6, '0')[:6], text
+            )
+            return time.fromisoformat(fixed_time)
+
+        raise exc
