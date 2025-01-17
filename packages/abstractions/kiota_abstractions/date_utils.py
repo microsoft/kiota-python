@@ -88,7 +88,7 @@ def datetime_from_iso_format_compat(text: str) -> datetime:
         # Python 3.10 and below only support fractions of seconds in either 3 or 6 digits
         # Python 3.11+ supports any number of digits
 
-        if (sys_version_info[:3] <= (3, 10)):
+        if sys_version_info[:3] <= (3, 10):
             # The following code is a workaround for Python 3.10 and below
             fixed_time = re.sub(
                 _TIME_REPLACEMENT_PATTERN, lambda x: x.group(1) + x.group(2).ljust(6, '0')[:6], text
@@ -107,7 +107,7 @@ def time_from_iso_format_compat(text: str) -> time:
         # Python 3.10 and below only support fractions of seconds in either 3 or 6 digits
         # Python 3.11+ supports any number of digits
 
-        if (sys_version_info[:3] <= (3, 10)):
+        if sys_version_info[:3] <= (3, 10):
             # The following code is a workaround for Python 3.10 and below
             fixed_time = re.sub(
                 _TIME_REPLACEMENT_PATTERN, lambda x: x.group(1) + x.group(2).ljust(6, '0')[:6], text
