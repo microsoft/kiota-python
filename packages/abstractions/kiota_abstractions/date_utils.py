@@ -76,7 +76,7 @@ def parse_timedelta_string(text: str) -> timedelta:
         return timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 
-_TIME_REPLACEMENT_PATTERN = re.compile(r"(\d[.,])(\d+)")
+_TIME_REPLACEMENT_PATTERN = re.compile(r'(\d)([.,])(\d+)')
 
 
 def datetime_from_iso_format_compat(text: str) -> datetime:
@@ -88,10 +88,11 @@ def datetime_from_iso_format_compat(text: str) -> datetime:
         # Python 3.10 and below only support fractions of seconds in either 3 or 6 digits
         # Python 3.11+ supports any number of digits
 
-        if sys_version_info[:3] <= (3, 10):
+        if sys_version_info[:3] < (3, 11):
             # The following code is a workaround for Python 3.10 and below
             fixed_time = re.sub(
-                _TIME_REPLACEMENT_PATTERN, lambda x: x.group(1) + x.group(2).ljust(6, '0')[:6], text
+                _TIME_REPLACEMENT_PATTERN,
+                lambda x: x.group(1) + "." + x.group(3).ljust(6, '0')[:6], text
             )
             return datetime.fromisoformat(fixed_time)
 
@@ -107,10 +108,11 @@ def time_from_iso_format_compat(text: str) -> time:
         # Python 3.10 and below only support fractions of seconds in either 3 or 6 digits
         # Python 3.11+ supports any number of digits
 
-        if sys_version_info[:3] <= (3, 10):
+        if sys_version_info[:3] < (3, 11):
             # The following code is a workaround for Python 3.10 and below
             fixed_time = re.sub(
-                _TIME_REPLACEMENT_PATTERN, lambda x: x.group(1) + x.group(2).ljust(6, '0')[:6], text
+                _TIME_REPLACEMENT_PATTERN,
+                lambda x: x.group(1) + "." + x.group(3).ljust(6, '0')[:6], text
             )
             return time.fromisoformat(fixed_time)
 
