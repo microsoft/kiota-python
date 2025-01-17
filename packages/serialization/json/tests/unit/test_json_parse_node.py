@@ -160,7 +160,8 @@ def test_get_anythin_does_convert_date_string_to_datetime():
     parse_node = JsonParseNode("2023-10-05T14:48:00.000Z")
     result = parse_node.try_get_anything("2023-10-05T14:48:00.000Z")
     assert isinstance(result, datetime)
-    assert result == datetime.fromisoformat("2023-10-05T14:48:00.000Z")
+    # there is an issue with parsing the original iso string (Z not supported < 3.11)
+    assert result == datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)
 
 
 def test_get_object_value(user1_json):
