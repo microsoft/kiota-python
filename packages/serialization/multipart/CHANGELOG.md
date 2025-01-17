@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.8.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.7.1...microsoft-kiota-serialization-multipart-v1.8.0) (2025-01-17)
+
+
+### Features
+
+* remove pendulum from dependencies to prepare for 3.13 support ([8a66dc4](https://github.com/microsoft/kiota-python/commit/8a66dc486eccc10d370a2f0e6459b1c91757ddfa))
+
 ## [1.7.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.7.0...microsoft-kiota-serialization-multipart-v1.7.1) (2025-01-15)
 
 
