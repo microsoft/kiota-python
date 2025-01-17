@@ -1,5 +1,5 @@
 
-# Contributing to Kiota Java
+# Contributing to Kiota Python
 
 Kiota Python is a mono-repo containing source code for the following packages:
 
@@ -142,3 +142,42 @@ To run type checking using `mypy` across all projects, run the following in a po
 ```
 
 __TIP__ Running `.\kiota-python.ps1 test` should give a hint of all available commands you can pass to the script to run across projects which can be configured this in [this file](./projects-config.json).
+
+
+## Dev Container
+
+This repository is setup to use [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/remote/containers) to provide a consistent development environment for contributors. The dev container is configured to have all the necessary tools and dependencies to work on the repository.
+
+By default we do all development in `Python 3.12`, but we support Python 3.9, 3.10, 3.11, and 3.12. The dev container is configured to use Python 3.12, but you can test your changes by changing the `"image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",` line in the `.devcontainer/devcontainer.json` file to the desired version. If you save changes to this file, you will be prompted to rebuild the dev container. You can also rebuild the dev container by running the `Remote-Containers: Rebuild Container` command from the command palette.
+
+### Dependencies
+
+Upon loading the dev container the `pwsh -File ./kiota-python.ps1 install-deps` command will be run to install the necessary dependencies for the repository. You can also run this command manually by Running the `poetry:deps` task from the VSCode command `Run Task` palette.
+
+Or run the following command in the terminal:
+
+```shell
+pwsh -File ./kiota-python.ps1 install-deps
+```
+
+### Running Tests
+
+To run the tests in the dev container, you can run the `poetry:test` task from the VSCode command `Run Task` palette.
+
+Or run the following command in the terminal:
+
+```shell
+pwsh -File ./kiota-python.ps1 test
+```
+
+### Pre-commit tests
+
+All PR's are tested by the GitHub Actions workflow. To tacle issues before committing, it is adviced to run the `pre-commit` task from the VSCode command `Run Task` palette. This will format your code and run the same checks that are run in the GitHub Actions workflow.
+
+Or run the following command in the terminal:
+
+```shell
+pwsh -File ./kiota-python.ps1 format
+pwsh -File ./kiota-python.ps1 check-all
+```
+

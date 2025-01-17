@@ -1,0 +1,20 @@
+{
+  "python.testing.cwd": ".",
+  // "python.poetryPath": ".venv/bin/poetry",
+  // "python.testing.pytestPath": ".venv/bin/pytest",
+  // "python.analysis.typeCheckingMode": "basic",
+  "python.testing.pytestArgs": [
+    "packages/tests",
+    "packages/abstractions/tests",
+    "packages/authentication/tests",
+    "packages/bundle/tests",
+    "packages/http/tests",
+    "packages/serialization/form/tests",
+    "packages/serialization/json/tests",
+    "packages/serialization/multipart/tests",
+    "packages/serialization/text/tests",
+    "--rootdir=${workspaceFolder}"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": false, // Disable pytest (does not work with poetry yet)
+}
