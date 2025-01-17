@@ -93,7 +93,7 @@ def datetime_from_iso_format_compat(text: str) -> datetime:
             fixed_time = re.sub(
                 _TIME_REPLACEMENT_PATTERN,
                 lambda x: x.group(1) + "." + x.group(3).ljust(6, '0')[:6], text
-            )
+            ).replace("Z", "+00:00")
             return datetime.fromisoformat(fixed_time)
 
         raise exc
@@ -113,7 +113,7 @@ def time_from_iso_format_compat(text: str) -> time:
             fixed_time = re.sub(
                 _TIME_REPLACEMENT_PATTERN,
                 lambda x: x.group(1) + "." + x.group(3).ljust(6, '0')[:6], text
-            )
+            ).replace("Z", "+00:00")
             return time.fromisoformat(fixed_time)
 
         raise exc
