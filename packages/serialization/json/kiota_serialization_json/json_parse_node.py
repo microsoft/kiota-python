@@ -9,7 +9,9 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
-import pendulum
+from kiota_abstractions.date_utils import (
+    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+)
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
 T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
@@ -96,8 +98,8 @@ class JsonParseNode(ParseNode):
             if len(self._json_node) < 10:
                 return None
 
-            datetime_obj = pendulum.parse(self._json_node, exact=True)
-            if isinstance(datetime_obj, pendulum.DateTime):
+            datetime_obj = datetime_from_iso_format_compat(self._json_node)
+            if isinstance(datetime_obj, datetime):
                 return datetime_obj
         return None
 
@@ -109,9 +111,10 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, timedelta):
             return self._json_node
         if isinstance(self._json_node, str):
-            datetime_obj = pendulum.parse(self._json_node, exact=True)
-            if isinstance(datetime_obj, pendulum.Duration):
-                return datetime_obj.as_timedelta()
+            try:
+                return parse_timedelta_string(self._json_node)
+            except ValueError:
+                return None
         return None
 
     def get_date_value(self) -> Optional[date]:
@@ -122,8 +125,8 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, date):
             return self._json_node
         if isinstance(self._json_node, str):
-            datetime_obj = pendulum.parse(self._json_node, exact=True)
-            if isinstance(datetime_obj, pendulum.Date):
+            datetime_obj = date.fromisoformat(self._json_node)
+            if isinstance(datetime_obj, date):
                 return datetime_obj
         return None
 
@@ -135,8 +138,8 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, time):
             return self._json_node
         if isinstance(self._json_node, str):
-            datetime_obj = pendulum.parse(self._json_node, exact=True)
-            if isinstance(datetime_obj, pendulum.Time):
+            datetime_obj = time_from_iso_format_compat(self._json_node)
+            if isinstance(datetime_obj, time):
                 return datetime_obj
         return None
 
@@ -315,15 +318,25 @@ class JsonParseNode(ParseNode):
                     return value
                 if value.isdigit():
                     return value
-                datetime_obj = pendulum.parse(value)
-                if isinstance(datetime_obj, pendulum.Duration):
-                    return datetime_obj.as_timedelta()
+                datetime_obj = datetime_from_iso_format_compat(value)
                 return datetime_obj
             except ValueError:
                 pass
             try:
                 return UUID(value)
             except:
+                pass
+            try:
+                return parse_timedelta_string(value)
+            except ValueError:
+                pass
+            try:
+                return date.fromisoformat(value)
+            except ValueError:
+                pass
+            try:
+                return time_from_iso_format_compat(value)
+            except ValueError:
                 pass
             return value
         raise ValueError(f"Unexpected additional value type {type(value)} during deserialization.")

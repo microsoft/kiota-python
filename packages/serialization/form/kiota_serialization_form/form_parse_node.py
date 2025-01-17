@@ -9,7 +9,9 @@ from typing import Any, Optional, TypeVar
 from urllib.parse import unquote_plus
 from uuid import UUID
 
-import pendulum
+from kiota_abstractions.date_utils import (
+    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+)
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
 T = TypeVar("T", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes)
@@ -93,10 +95,7 @@ class FormParseNode(ParseNode):
         """
         if self._node and self._node != "null":
             try:
-                datetime_obj = pendulum.parse(self._node, exact=True)
-                if isinstance(datetime_obj, pendulum.DateTime):
-                    return datetime_obj
-                return None
+                return datetime_from_iso_format_compat(self._node)
             except:
                 return None
         return None
@@ -108,10 +107,7 @@ class FormParseNode(ParseNode):
         """
         if self._node and self._node != "null":
             try:
-                datetime_obj = pendulum.parse(self._node, exact=True)
-                if isinstance(datetime_obj, pendulum.Duration):
-                    return datetime_obj.as_timedelta()
-                return None
+                return parse_timedelta_string(self._node)
             except:
                 return None
         return None
@@ -123,10 +119,7 @@ class FormParseNode(ParseNode):
         """
         if self._node and self._node != "null":
             try:
-                datetime_obj = pendulum.parse(self._node, exact=True)
-                if isinstance(datetime_obj, pendulum.Date):
-                    return datetime_obj
-                return None
+                return date.fromisoformat(self._node)
             except:
                 return None
         return None
@@ -138,10 +131,7 @@ class FormParseNode(ParseNode):
         """
         if self._node and self._node != "null":
             try:
-                datetime_obj = pendulum.parse(self._node, exact=True)
-                if isinstance(datetime_obj, pendulum.Time):
-                    return datetime_obj
-                return None
+                return time_from_iso_format_compat(self._node)
             except:
                 return None
         return None
@@ -315,14 +305,24 @@ class FormParseNode(ParseNode):
             return dict(map(lambda x: (x[0], self.try_get_anything(x[1])), value.items()))
         if isinstance(value, str):
             try:
-                datetime_obj = pendulum.parse(value)
-                if isinstance(datetime_obj, pendulum.Duration):
-                    return datetime_obj.as_timedelta()
+                datetime_obj = datetime_from_iso_format_compat(value)
                 return datetime_obj
             except ValueError:
                 pass
             try:
                 return UUID(value)
+            except ValueError:
+                pass
+            try:
+                return parse_timedelta_string(value)
+            except ValueError:
+                pass
+            try:
+                return date.fromisoformat(value)
+            except ValueError:
+                pass
+            try:
+                return time_from_iso_format_compat(value)
             except ValueError:
                 pass
             return value

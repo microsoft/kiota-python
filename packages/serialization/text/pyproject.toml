@@ -25,7 +25,6 @@ packages = [{include = "kiota_serialization_text"}]
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 microsoft-kiota-abstractions = {path="../../abstractions/", develop=true}
-python-dateutil = "2.9.0.post0"
 
 [tool.poetry.group.dev.dependencies]
 yapf = ">=0.40.2,<0.44.0"
@@ -35,7 +34,6 @@ mypy = "^1.11.2"
 pytest = "^8.3.2"
 pytest-asyncio = ">=0.24,<0.26"
 poetry-plugin-mono-repo-deps = ">=0.2.1,<0.4.0"
-types-python-dateutil = "^2.9.0.20240906"
 
 [tool.mypy]
 warn_unused_configs = true

@@ -1,10 +1,8 @@
 import json
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from uuid import UUID
-import pendulum
 
 import pytest
-from pendulum import DateTime, FixedTimezone
 from kiota_serialization_json.json_parse_node import JsonParseNode
 from ..helpers import OfficeLocation, User
 
@@ -161,8 +159,9 @@ def test_get_anythin_does_not_convert_any_length_numeric_chars_to_datetime():
 def test_get_anythin_does_convert_date_string_to_datetime():
     parse_node = JsonParseNode("2023-10-05T14:48:00.000Z")
     result = parse_node.try_get_anything("2023-10-05T14:48:00.000Z")
-    assert isinstance(result, pendulum.DateTime)
-    assert result == pendulum.parse("2023-10-05T14:48:00.000Z")
+    assert isinstance(result, datetime)
+    # there is an issue with parsing the original iso string (Z not supported < 3.11)
+    assert result == datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)
 
 
 def test_get_object_value(user1_json):
@@ -182,16 +181,14 @@ def test_get_object_value(user1_json):
     )
     assert result.additional_data["additional_data"]["manager"] == {
         "id": UUID("8f841f30-e6e3-439a-a812-ebd369559c36"),
-        "updated_at":
-        DateTime(2022, 1, 27, 12, 59, 45, 596117, tzinfo=FixedTimezone(0, name="+00:00")),
+        "updated_at": datetime(2022, 1, 27, 12, 59, 45, 596117, timezone.utc),
         "is_active": True,
     }
     assert result.additional_data["additional_data"]["approvers"] == [
         {
             "id":
             UUID("8f841f30-e6e3-439a-a812-ebd369559c36"),
-            "updated_at":
-            DateTime(2022, 1, 27, 12, 59, 45, 596117, tzinfo=FixedTimezone(0, name="+00:00")),
+            "updated_at": datetime(2022, 1, 27, 12, 59, 45, 596117, timezone.utc),
             "is_active":
             True,
         },

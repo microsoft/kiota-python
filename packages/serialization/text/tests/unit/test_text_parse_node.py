@@ -66,21 +66,21 @@ def test_get_datetime_value():
 
 
 def test_get_date_value():
-    parse_node = TextParseNode('2015-04-20T11:50:51Z')
+    parse_node = TextParseNode('2015-04-20')
     result = parse_node.get_date_value()
     assert isinstance(result, date)
     assert str(result) == '2015-04-20'
 
 
 def test_get_time_value():
-    parse_node = TextParseNode('2022-01-27T12:59:45.596117')
+    parse_node = TextParseNode('12:59:45.596117')
     result = parse_node.get_time_value()
     assert isinstance(result, time)
     assert str(result) == '12:59:45.596117'
 
 
 def test_get_timedelta_value():
-    parse_node = TextParseNode('2022-01-27T12:59:45.596117')
+    parse_node = TextParseNode('PT12H59M45S')
     result = parse_node.get_timedelta_value()
     assert isinstance(result, timedelta)
     assert str(result) == '12:59:45'

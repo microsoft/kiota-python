@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
-import pendulum
+from kiota_abstractions.date_utils import parse_timedelta_string
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 T = TypeVar("T")
@@ -115,7 +115,7 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = value.isoformat()
         elif isinstance(value, str):
             try:
-                pendulum.parse(value)
+                datetime.fromisoformat(value)
                 if key:
                     self.writer[key] = value
                 else:
@@ -138,7 +138,7 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = str(value)
         elif isinstance(value, str):
             try:
-                pendulum.parse(value)
+                parse_timedelta_string(value)
                 if key:
                     self.writer[key] = value
                 else:
@@ -161,7 +161,7 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = str(value)
         elif isinstance(value, str):
             try:
-                pendulum.parse(value)
+                date.fromisoformat(value)
                 if key:
                     self.writer[key] = value
                 else:
@@ -184,7 +184,7 @@ class JsonSerializationWriter(SerializationWriter):
                 self.value = str(value)
         elif isinstance(value, str):
             try:
-                pendulum.parse(value)
+                time.fromisoformat(value)
                 if key:
                     self.writer[key] = value
                 else:
