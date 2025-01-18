@@ -28,8 +28,8 @@ python = ">=3.9,<4.0"
 microsoft-kiota-abstractions = {path="../../abstractions/", develop=true}
 opentelemetry-api = ">=1.27.0"
 opentelemetry-sdk = ">=1.27.0"
-httpx = {extras = ["http2"], version = ">=0.28"}
-urllib3 = "^2.2.2"
+httpx = {extras = ["http2"], version = ">=0.25<1.0.0"}
+urllib3 = ">=1.26.17,!2.0.*,!2.1.*"
 
 [tool.poetry.group.dev.dependencies]
 yapf = ">=0.40.2,<0.44.0"
