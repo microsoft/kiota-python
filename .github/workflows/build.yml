@@ -19,7 +19,7 @@ jobs:
       max-parallel: 10
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         library : 
           - name: "kiota_abstractions"
             path: "./packages/abstractions"
@@ -77,7 +77,7 @@ jobs:
     strategy:
       max-parallel: 10
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout
