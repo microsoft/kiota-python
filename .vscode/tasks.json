@@ -1,0 +1,132 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "poetry:deps",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "--File",
+        "kiota-python.ps1",
+        "install-deps"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "problemMatcher": [
+        "$python"
+      ]
+    },
+    {
+      "label": "poetry:format",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "--File",
+        "kiota-python.ps1",
+        "format"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "problemMatcher": [
+        "$python"
+      ]
+    },
+    {
+      "label": "poetry:check-format",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "--File",
+        "kiota-python.ps1",
+        "check-format"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "problemMatcher": [
+        "$python"
+      ]
+    },
+    {
+      "label": "poetry:lint",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "--File",
+        "kiota-python.ps1",
+        "lint"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "problemMatcher": [
+        "$python"
+      ]
+    },
+    {
+      "label": "poetry:check-types",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "--File",
+        "kiota-python.ps1",
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "problemMatcher": [
+        "$python"
+      ]
+    },
+    {
+      "label": "poetry:test",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "--File",
+        "kiota-python.ps1",
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "problemMatcher": [
+        "$python"
+      ]
+    },
+    {
+      "label": "poetry:check-all",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "--File",
+        "kiota-python.ps1",
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      },
+      "problemMatcher": [
+        "$python"
+      ]
+    },
+    {
+      "label": "pre-commit",
+      "type": "shell",
+      "command": "echo",
+      "args": [
+        "All tests executed"
+      ],
+      "dependsOn":[
+        "poetry:format",
+        "poetry:check-all"
+      ]
+    }
+    
+  ]
+}
