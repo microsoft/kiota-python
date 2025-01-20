@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.8.0...microsoft-kiota-http-v1.9.0) (2025-01-20)
+
+
+### Features
+
+* adds support for python 13 ([f16ca00](https://github.com/microsoft/kiota-python/commit/f16ca0048b2408f3fe008f78afac3c67dd4a056d))
+* adds support for python 13 ([0b49df0](https://github.com/microsoft/kiota-python/commit/0b49df04c0885d233044bd34affe3356af798fba))
+
 ## [1.8.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.7.1...microsoft-kiota-http-v1.8.0) (2025-01-17)
 
 
