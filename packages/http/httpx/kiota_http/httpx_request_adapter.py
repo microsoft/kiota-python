@@ -88,7 +88,7 @@ class HttpxRequestAdapter(RequestAdapter):
             http_client = KiotaClientFactory.create_with_default_middleware()
         self._http_client = http_client
         if not base_url:
-            base_url = ""
+            base_url = str(http_client.base_url)
         self._base_url: str = base_url
         if not observability_options:
             observability_options = ObservabilityOptions()
@@ -101,7 +101,7 @@ class HttpxRequestAdapter(RequestAdapter):
         Returns:
             str: The base url
         """
-        return self._base_url
+        return self._base_url or str(self._http_client.base_url)
 
     @base_url.setter
     def base_url(self, value: str) -> None:
