@@ -400,3 +400,16 @@ async def test_retries_on_cae_failure(
         ),
     ]
     request_adapter._authentication_provider.authenticate_request.assert_has_awaits(calls)
+
+
+@pytest.mark.asyncio
+async def test_send_primitive_async_304_no_location_header_returns_null(
+    request_adapter, request_info
+):
+    mock_304_response = httpx.Response(status_code=304, headers={"Content-Type": "application/json"})
+    request_adapter.get_http_response_message = AsyncMock(return_value=mock_304_response)
+    resp = await request_adapter.get_http_response_message(request_info)
+    assert resp.status_code == 304
+    assert "location" not in resp.headers
+    final_result = await request_adapter.send_primitive_async(request_info, "float", {})
+    assert final_result is None
