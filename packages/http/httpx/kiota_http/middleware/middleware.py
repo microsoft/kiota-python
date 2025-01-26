@@ -2,7 +2,6 @@ import ssl
 from typing import Optional
 
 from opentelemetry import trace
-from urllib3 import PoolManager
 
 import httpx
 
@@ -23,7 +22,6 @@ class MiddlewarePipeline():
         self._current_middleware = None
         self._first_middleware = None
         self._transport = transport
-        self.poolmanager = PoolManager(ssl_version=ssl.PROTOCOL_TLSv1_2)
 
     def add_middleware(self, middleware):
         if self._middleware_present():
