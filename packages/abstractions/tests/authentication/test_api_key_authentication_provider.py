@@ -59,3 +59,17 @@ async def test_header_location_authentication(mock_request_information):
     await provider.authenticate_request(mock_request_information)
     assert "api_key" in mock_request_information.request_headers
     assert mock_request_information.headers.get("api_key") == {"test_key_string"}
+
+
+def test_https_prefix_in_allowed_host():
+    with pytest.raises(ValueError, match="Allowed host value cannot contain 'https://' or 'http://' prefix"):
+        ApiKeyAuthenticationProvider(
+            KeyLocation.Header, "test_key_string", "api_key", ["https://example.com"]
+        )
+
+
+def test_http_prefix_in_allowed_host():
+    with pytest.raises(ValueError, match="Allowed host value cannot contain 'https://' or 'http://' prefix"):
+        ApiKeyAuthenticationProvider(
+            KeyLocation.Header, "test_key_string", "api_key", ["http://example.com"]
+        )
