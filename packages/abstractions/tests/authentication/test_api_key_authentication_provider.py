@@ -2,7 +2,7 @@ import pytest
 
 from kiota_abstractions.authentication import ApiKeyAuthenticationProvider, AuthenticationProvider, KeyLocation
 
-allowed_hosts = ["https://example.com"]
+allowed_hosts = ["example.com"]
 
 
 def test_initialization():
