@@ -400,3 +400,9 @@ async def test_retries_on_cae_failure(
         ),
     ]
     request_adapter._authentication_provider.authenticate_request.assert_has_awaits(calls)
+
+
+def test_httpx_request_adapter_uses_http_client_base_url(auth_provider):
+    http_client = httpx.AsyncClient(base_url=BASE_URL)
+    request_adapter = HttpxRequestAdapter(auth_provider, http_client=http_client)
+    assert request_adapter.base_url == BASE_URL
