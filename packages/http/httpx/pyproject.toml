@@ -33,7 +33,7 @@ httpx = {extras = ["http2"], version = ">=0.25,<1.0.0"}
 
 [tool.poetry.group.dev.dependencies]
 yapf = ">=0.40.2,<0.44.0"
-isort = "^5.13.2"
+isort = ">=5.13.2,<7.0.0"
 pylint = "^3.2.7"
 mypy = "^1.11.2"
 pytest = "^8.3.2"
