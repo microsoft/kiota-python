@@ -86,9 +86,9 @@ class HttpxRequestAdapter(RequestAdapter):
         self._serialization_writer_factory = serialization_writer_factory
         if not http_client:
             http_client = KiotaClientFactory.create_with_default_middleware()
-        self._http_client = http_client
+        self._http_client: httpx.AsyncClient = http_client
         if not base_url:
-            base_url = ""
+            base_url = str(http_client.base_url) if http_client.base_url is not None else ""
         self._base_url: str = base_url
         if not observability_options:
             observability_options = ObservabilityOptions()
@@ -101,7 +101,9 @@ class HttpxRequestAdapter(RequestAdapter):
         Returns:
             str: The base url
         """
-        return self._base_url
+        return self._base_url or str(
+            self._http_client.base_url
+        ) if self._http_client.base_url is not None else ""
 
     @base_url.setter
     def base_url(self, value: str) -> None:

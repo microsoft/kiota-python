@@ -402,6 +402,7 @@ async def test_retries_on_cae_failure(
     request_adapter._authentication_provider.authenticate_request.assert_has_awaits(calls)
 
 
+
 @pytest.mark.asyncio
 async def test_send_primitive_async_304_no_location_header_returns_null(
     request_adapter, request_info
@@ -413,3 +414,10 @@ async def test_send_primitive_async_304_no_location_header_returns_null(
     assert "location" not in resp.headers
     final_result = await request_adapter.send_primitive_async(request_info, "float", {})
     assert final_result is None
+
+
+def test_httpx_request_adapter_uses_http_client_base_url(auth_provider):
+    http_client = httpx.AsyncClient(base_url=BASE_URL)
+    request_adapter = HttpxRequestAdapter(auth_provider, http_client=http_client)
+    assert request_adapter.base_url == BASE_URL
+
