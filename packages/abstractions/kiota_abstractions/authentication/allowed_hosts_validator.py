@@ -16,6 +16,10 @@ class AllowedHostsValidator:
         if not isinstance(allowed_hosts, list):
             raise TypeError("Allowed hosts must be a list of strings")
 
+        for host in allowed_hosts:
+            if host.startswith("https://") or host.startswith("http://"):
+                raise ValueError("Allowed host value cannot contain 'https://' or 'http://' prefix")
+
         self.allowed_hosts: set[str] = {x.lower() for x in allowed_hosts}
 
     def get_allowed_hosts(self) -> list[str]:
@@ -35,6 +39,11 @@ class AllowedHostsValidator:
         """
         if not isinstance(allowed_hosts, list):
             raise TypeError("Allowed hosts must be a list of strings")
+
+        for host in allowed_hosts:
+            if host.startswith("https://") or host.startswith("http://"):
+                raise ValueError("Allowed host value cannot contain 'https://' or 'http://' prefix")
+
         self.allowed_hosts = {x.lower() for x in allowed_hosts}
 
     def is_url_host_valid(self, url: str) -> bool:
