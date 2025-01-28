@@ -101,7 +101,9 @@ class HttpxRequestAdapter(RequestAdapter):
         Returns:
             str: The base url
         """
-        return self._base_url or str(self._http_client.base_url) if self._http_client.base_url != None else ""
+        return self._base_url or str(
+            self._http_client.base_url
+        ) if self._http_client.base_url != None else ""
 
     @base_url.setter
     def base_url(self, value: str) -> None:
