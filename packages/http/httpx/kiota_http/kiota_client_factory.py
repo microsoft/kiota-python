@@ -55,7 +55,7 @@ class KiotaClientFactory:
             instantiating default middleware. Defaults to dict[str, RequestOption]=None.
 
         Returns:
-            httpx.AsycClient: An instance of the AsyncClient object
+            httpx.AsyncClient: An instance of the AsyncClient object
         """
 
         kiota_async_client = KiotaClientFactory.get_default_client() if client is None else client
