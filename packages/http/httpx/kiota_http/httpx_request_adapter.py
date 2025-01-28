@@ -425,7 +425,7 @@ class HttpxRequestAdapter(RequestAdapter):
             span.end()
 
     def _should_return_none(self, response: httpx.Response) -> bool:
-        return response.status_code == 204 or response.status_code == 304 or not bool(response.content)
+        return response.status_code == 204 or response.status_code == 304 or not bool(response.content) or (not response.headers.get("Location") and response.status_code in [301, 302])
 
     async def throw_failed_responses(
         self,
