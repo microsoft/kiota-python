@@ -468,7 +468,7 @@ class HttpxRequestAdapter(RequestAdapter):
     async def _get_error_from_response(
         self,
         response: httpx.Response,
-        error_map: Optional[dict[str, type[ParsableFactory]]],
+        error_map: dict[str, type[ParsableFactory]],
         response_status_code_str: str,
         response_status_code: int,
         attribute_span: trace.Span,
