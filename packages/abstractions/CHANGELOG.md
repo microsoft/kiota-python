@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.9.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.9.0...microsoft-kiota-abstractions-v1.9.1) (2025-01-29)
 
 
+### Bug fixes
+
+* ensure valid hosts do no contain a scheme (http or https) ([9a69be4](https://github.com/microsoft/kiota-python/pull/461/commits/9a69be445d18f4205811fc6ea000ccfb27f8e07a))
+
 ### Miscellaneous Chores
 
 * **microsoft-kiota-abstractions:** Synchronize microsoft-kiota versions
