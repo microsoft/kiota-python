@@ -440,6 +440,28 @@ class HttpxRequestAdapter(RequestAdapter):
             response.content
         ) or (not response.headers.get("location") and response.status_code in [301, 302])
 
+    def _throw_empty_redirects(self, response: httpx.Response, parent_span: trace.Span, attribute_span: trace.Span) -> None:
+        if response.is_redirect:
+            if response.has_redirect_location:
+                return
+            # Raise a more specific error if the server returned a redirect status code
+            # without a location header
+            attribute_span.set_status(trace.StatusCode.ERROR)
+            _throw_failed_resp_span = self._start_local_tracing_span(
+                "throw_failed_responses", parent_span
+            )
+            _throw_failed_resp_span.set_attribute("status", response.status_code)
+            exc = APIError(
+                f"The server returned a redirect status code {response.status_code}"
+                 " without a location header",
+                response.status_code,
+                response.headers,  # type: ignore
+            )
+            _throw_failed_resp_span.set_status(trace.StatusCode.ERROR, str(exc))
+            attribute_span.record_exception(exc)
+            _throw_failed_resp_span.end()
+            raise exc
+
     async def throw_failed_responses(
         self,
         response: httpx.Response,
@@ -449,24 +471,7 @@ class HttpxRequestAdapter(RequestAdapter):
     ) -> None:
         if response.is_success or response.status_code == 304:
             return
-        if response.is_redirect:
-            if response.has_redirect_location:
-                return
-            # Raise a more specific error if the server returned a redirect status code without a location header
-            attribute_span.set_status(trace.StatusCode.ERROR)
-            _throw_failed_resp_span = self._start_local_tracing_span(
-                "throw_failed_responses", parent_span
-            )
-            _throw_failed_resp_span.set_attribute("status", response.status_code)
-            exc = APIError(
-                f"The server returned a redirect status code {response.status_code} without a location header",
-                response.status_code,
-                response.headers,  # type: ignore
-            )
-            _throw_failed_resp_span.set_status(trace.StatusCode.ERROR, str(exc))
-            attribute_span.record_exception(exc)
-            _throw_failed_resp_span.end()
-            raise exc
+        self._throw_empty_redirects(response, parent_span, attribute_span)
         try:
             attribute_span.set_status(trace.StatusCode.ERROR)
 
