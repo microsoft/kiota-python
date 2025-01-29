@@ -426,7 +426,7 @@ async def test_send_primitive_async_301_no_location_header_throws(
     assert resp.status_code == 301
     assert "location" not in resp.headers
     with pytest.raises(APIError) as e:
-        final_result = await request_adapter.send_primitive_async(request_info, "float", {})
+        await request_adapter.send_primitive_async(request_info, "float", {})
     assert e is not None
     assert e.value.response_status_code == 301
 
@@ -440,7 +440,7 @@ async def test_send_primitive_async_302_with_location_header_does_not_throw(
     resp = await request_adapter.get_http_response_message(request_info)
     assert resp.status_code == 302
     assert "location" in resp.headers
-    final_result = await request_adapter.send_primitive_async(request_info, "float", {})
+    await request_adapter.send_primitive_async(request_info, "float", {})
 
 
 def test_httpx_request_adapter_uses_http_client_base_url(auth_provider):
