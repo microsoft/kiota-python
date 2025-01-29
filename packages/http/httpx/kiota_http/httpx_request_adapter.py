@@ -463,6 +463,7 @@ class HttpxRequestAdapter(RequestAdapter):
             attribute_span.record_exception(exc)
             _throw_failed_resp_span.end()
             raise exc
+        return True
 
     async def throw_failed_responses(
         self,
@@ -473,7 +474,7 @@ class HttpxRequestAdapter(RequestAdapter):
     ) -> None:
         if response.is_success or response.status_code == 304:
             return
-        if self._is_redirect_missing_location(response, parent_span, attribute_span) == False:
+        if self._is_redirect_missing_location(response, parent_span, attribute_span) is False:
             return
         try:
             attribute_span.set_status(trace.StatusCode.ERROR)
