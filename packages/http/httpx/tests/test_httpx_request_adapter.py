@@ -402,6 +402,54 @@ async def test_retries_on_cae_failure(
     request_adapter._authentication_provider.authenticate_request.assert_has_awaits(calls)
 
 
+@pytest.mark.asyncio
+async def test_send_primitive_async_304_no_location_header_returns_null(
+    request_adapter, request_info
+):
+    mock_304_response = httpx.Response(
+        status_code=304, headers={"Content-Type": "application/json"}
+    )
+    request_adapter.get_http_response_message = AsyncMock(return_value=mock_304_response)
+    resp = await request_adapter.get_http_response_message(request_info)
+    assert resp.status_code == 304
+    assert "location" not in resp.headers
+    final_result = await request_adapter.send_primitive_async(request_info, "float", {})
+    assert final_result is None
+
+
+@pytest.mark.asyncio
+async def test_send_primitive_async_301_no_location_header_throws(request_adapter, request_info):
+    mock_301_response = httpx.Response(
+        status_code=301, headers={"Content-Type": "application/json"}
+    )
+    request_adapter.get_http_response_message = AsyncMock(return_value=mock_301_response)
+    resp = await request_adapter.get_http_response_message(request_info)
+    assert resp.status_code == 301
+    assert "location" not in resp.headers
+    with pytest.raises(APIError) as e:
+        await request_adapter.send_primitive_async(request_info, "float", {})
+    assert e is not None
+    assert e.value.response_status_code == 301
+
+
+@pytest.mark.asyncio
+async def test_send_primitive_async_302_with_location_header_does_not_throw(
+    request_adapter, request_info
+):
+    mock_302_response = httpx.Response(
+        status_code=302,
+        headers={
+            "Content-Type": "application/json",
+            "location": "https://example.com"
+        }
+    )
+    request_adapter.get_http_response_message = AsyncMock(return_value=mock_302_response)
+    resp = await request_adapter.get_http_response_message(request_info)
+    assert resp.status_code == 302
+    assert "location" in resp.headers
+    await request_adapter.send_primitive_async(request_info, "float", {})
+
+
 def test_httpx_request_adapter_uses_http_client_base_url(auth_provider):
     http_client = httpx.AsyncClient(base_url=BASE_URL)
     request_adapter = HttpxRequestAdapter(auth_provider, http_client=http_client)
