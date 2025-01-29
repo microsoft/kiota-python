@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug Fixes
 
+* removes the urllib3 extraneous dependency ([a0ad6d5](https://github.com/microsoft/kiota-python/pull/458/commits/a0ad6d5044a6bd6a184257fb99b382babcce51f0))
 * ensure 304 status code does not result in an error ([1b0d8ac](https://github.com/microsoft/kiota-python/commit/1b0d8ac8257ae57d5fd21e803282e61fbf0614f5))
 * use the httpx client base url when available ([e0b0421](https://github.com/microsoft/kiota-python/commit/e0b0421188d8e0e3cc05b1844288f12a3eab28c0))
 
