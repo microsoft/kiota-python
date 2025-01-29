@@ -440,7 +440,9 @@ class HttpxRequestAdapter(RequestAdapter):
             response.content
         ) or (not response.headers.get("location") and response.status_code in [301, 302])
 
-    def _is_redirect_missing_location(self, response: httpx.Response, parent_span: trace.Span, attribute_span: trace.Span) -> bool:
+    def _is_redirect_missing_location(
+        self, response: httpx.Response, parent_span: trace.Span, attribute_span: trace.Span
+    ) -> bool:
         if response.is_redirect:
             if response.has_redirect_location:
                 return False
@@ -453,7 +455,7 @@ class HttpxRequestAdapter(RequestAdapter):
             _throw_failed_resp_span.set_attribute("status", response.status_code)
             exc = APIError(
                 f"The server returned a redirect status code {response.status_code}"
-                 " without a location header",
+                " without a location header",
                 response.status_code,
                 response.headers,  # type: ignore
             )
