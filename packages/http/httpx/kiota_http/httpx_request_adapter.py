@@ -465,6 +465,41 @@ class HttpxRequestAdapter(RequestAdapter):
             raise exc
         return True
 
+    async def _get_error_from_response(
+        self,
+        response: httpx.Response,
+        error_map: Optional[dict[str, type[ParsableFactory]]],
+        response_status_code_str: str,
+        response_status_code: int,
+        attribute_span: trace.Span,
+        _throw_failed_resp_span: trace.Span,
+    ) -> object:
+        error_class = None
+        if response_status_code_str in error_map:  # Error Code 400 - <= 599
+            error_class = error_map[response_status_code_str]
+        elif 400 <= response_status_code < 500 and "4XX" in error_map:  # Error code 4XX
+            error_class = error_map["4XX"]
+        elif 500 <= response_status_code < 600 and "5XX" in error_map:  # Error code 5XX
+            error_class = error_map["5XX"]
+        elif "XXX" in error_map:  # Blanket case
+            error_class = error_map["XXX"]
+
+        root_node = await self.get_root_parse_node(
+            response, _throw_failed_resp_span, _throw_failed_resp_span
+        )
+        attribute_span.set_attribute(ERROR_BODY_FOUND_KEY, bool(root_node))
+
+        _get_obj_ctx = trace.set_span_in_context(_throw_failed_resp_span)
+        _get_obj_span = tracer.start_span("get_object_value", context=_get_obj_ctx)
+
+        if not root_node:
+            return None
+        error = None
+        if error_class:
+            error = root_node.get_object_value(error_class)
+            _get_obj_span.end()
+        return error
+
     async def throw_failed_responses(
         self,
         response: httpx.Response,
@@ -516,29 +551,14 @@ class HttpxRequestAdapter(RequestAdapter):
                 raise exc
             _throw_failed_resp_span.set_attribute("status_message", "received_error_response")
 
-            error_class = None
-            if response_status_code_str in error_map:  # Error Code 400 - <= 599
-                error_class = error_map[response_status_code_str]
-            elif 400 <= response_status_code < 500 and "4XX" in error_map:  # Error code 4XX
-                error_class = error_map["4XX"]
-            elif 500 <= response_status_code < 600 and "5XX" in error_map:  # Error code 5XX
-                error_class = error_map["5XX"]
-            elif "XXX" in error_map:  # Blanket case
-                error_class = error_map["XXX"]
-
-            root_node = await self.get_root_parse_node(
-                response, _throw_failed_resp_span, _throw_failed_resp_span
+            error = await self._get_error_from_response(
+                response,
+                error_map,
+                response_status_code_str,
+                response_status_code,
+                attribute_span,
+                _throw_failed_resp_span,
             )
-            attribute_span.set_attribute(ERROR_BODY_FOUND_KEY, bool(root_node))
-
-            _get_obj_ctx = trace.set_span_in_context(_throw_failed_resp_span)
-            _get_obj_span = tracer.start_span("get_object_value", context=_get_obj_ctx)
-
-            if not root_node:
-                return None
-            error = None
-            if error_class:
-                error = root_node.get_object_value(error_class)
             if isinstance(error, APIError):
                 error.response_headers = response_headers  # type: ignore
                 error.response_status_code = response_status_code
@@ -552,7 +572,6 @@ class HttpxRequestAdapter(RequestAdapter):
                     response_status_code,
                     response_headers,  # type: ignore
                 )
-            _get_obj_span.end()
             raise exc
         finally:
             _throw_failed_resp_span.end()
