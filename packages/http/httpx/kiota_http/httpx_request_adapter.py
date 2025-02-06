@@ -427,7 +427,7 @@ class HttpxRequestAdapter(RequestAdapter):
 
     def _should_return_none(self, response: httpx.Response) -> bool:
         """Helper function to check if the response should return None.
-        
+
         Conditions:
             - The response status code is 204 or 304
             - the response content is empty.
@@ -629,7 +629,7 @@ class HttpxRequestAdapter(RequestAdapter):
             ):
                 claims_match = re.search('claims="([^"]+)"', auth_header_value)
                 if not claims_match:
-                    raise ValueError("Unable to parse claims from response")
+                    return resp
                 response_claims = claims_match.group(1)
                 parent_span.add_event(AUTHENTICATE_CHALLENGED_EVENT_KEY)
                 parent_span.set_attribute("http.retry_count", 1)
