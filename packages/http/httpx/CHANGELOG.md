@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.1...microsoft-kiota-http-v1.9.2) (2025-02-06)
+
+
+### Bug Fixes
+
+* return error response if CAE claims are not present in WWW-Authenticate header ([068a92f](https://github.com/microsoft/kiota-python/commit/068a92fe1bb765fce7ef9d05a9e047eb6ee613f9))
+* return error response if CAE claims are not present in WWW-Authenticate header ([b86e347](https://github.com/microsoft/kiota-python/commit/b86e347609f64c2a1c69e618bd2cb81d3f91a063))
+
 ## [1.9.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.0...microsoft-kiota-http-v1.9.1) (2025-01-29)
 
 
