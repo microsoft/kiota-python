@@ -108,6 +108,7 @@ def test_get_bytes_value():
     parse_node = JsonParseNode("U2Ftd2VsIGlzIHRoZSBiZXN0")
     result = parse_node.get_bytes_value()
     assert isinstance(result, bytes)
+    assert result.decode("utf-8") == "U2Ftd2VsIGlzIHRoZSBiZXN0"
 
 
 def test_get_bytes_json_compatible():
