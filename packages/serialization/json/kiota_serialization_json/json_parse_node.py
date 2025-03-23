@@ -233,7 +233,7 @@ class JsonParseNode(ParseNode):
         Returns:
             bytearray: The bytearray value from the nodes
         """
-        if isinstance(self._json_node, str)
+        if isinstance(self._json_node, str):
             base64_string = self._json_node
         else:
             base64_string = json.dumps(self._json_node)
