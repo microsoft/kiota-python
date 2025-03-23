@@ -110,6 +110,12 @@ def test_get_bytes_value():
     assert isinstance(result, bytes)
 
 
+def test_get_bytes_json_compatible():
+    parse_node = JsonParseNode({"test": 1})
+    result = parse_node.get_bytes_value()
+    assert json.loads(result.decode("utf-8")) == {"test": 1}
+
+
 def test_get_collection_of_enum_values():
     parse_node = JsonParseNode(["dunhill", "oval"])
     result = parse_node.get_collection_of_enum_values(OfficeLocation)
