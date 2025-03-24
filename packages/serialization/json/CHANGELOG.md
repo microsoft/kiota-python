@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.2...microsoft-kiota-serialization-json-v1.9.3) (2025-03-24)
+
+
+### Bug Fixes
+
+* serialize objects to bytes in a JSON compatible way ([060e361](https://github.com/microsoft/kiota-python/commit/060e361cb983f37302038dd08c8bc757d397c1f7))
+
 ## [1.9.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.1...microsoft-kiota-serialization-json-v1.9.2) (2025-02-06)
 
 
