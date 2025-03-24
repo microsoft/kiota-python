@@ -108,6 +108,13 @@ def test_get_bytes_value():
     parse_node = JsonParseNode("U2Ftd2VsIGlzIHRoZSBiZXN0")
     result = parse_node.get_bytes_value()
     assert isinstance(result, bytes)
+    assert result.decode("utf-8") == "U2Ftd2VsIGlzIHRoZSBiZXN0"
+
+
+def test_get_bytes_json_compatible():
+    parse_node = JsonParseNode({"test": 1})
+    result = parse_node.get_bytes_value()
+    assert json.loads(result.decode("utf-8")) == {"test": 1}
 
 
 def test_get_collection_of_enum_values():
