@@ -142,6 +142,16 @@ def test_get_retry_after_no_header():
     assert retry_handler._get_retry_after(response) is None
 
 
+def test_get_retry_after_string_with_comma():
+    """
+    Test the _get_retry_after method with string 30,120 as Retry-After value.
+    """
+    response = httpx.Response(TOO_MANY_REQUESTS, headers={RETRY_AFTER: f'30,120'})
+
+    retry_handler = RetryHandler()
+    assert retry_handler._get_retry_after(response) == 30
+
+
 def test_get_retry_after_http_date():
     """
     Test the _get_retry_after method with a http date as Retry-After value.
