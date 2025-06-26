@@ -177,7 +177,7 @@ class ParseNode(ABC):
 
     @property
     @abstractmethod
-    def on_before_assign_field_values(self) -> Callable[[Parsable], None]:
+    def on_before_assign_field_values(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called before the node is deserialized.
 
         Returns:
