@@ -330,8 +330,10 @@ class FormParseNode(ParseNode):
 
     def _create_new_node(self, node: Any) -> FormParseNode:
         new_node: FormParseNode = FormParseNode(node)
-        new_node.on_before_assign_field_values = self.on_before_assign_field_values
-        new_node.on_after_assign_field_values = self.on_after_assign_field_values
+        if self.on_before_assign_field_values:
+            new_node.on_before_assign_field_values = self.on_before_assign_field_values
+        if self.on_after_assign_field_values:
+            new_node.on_after_assign_field_values = self.on_after_assign_field_values
         return new_node
 
     def _get_fields(self, raw_value: str) -> dict[str, str]:

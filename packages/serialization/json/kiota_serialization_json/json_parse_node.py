@@ -348,6 +348,8 @@ class JsonParseNode(ParseNode):
 
     def _create_new_node(self, node: Any) -> JsonParseNode:
         new_node: JsonParseNode = JsonParseNode(node)
-        new_node.on_before_assign_field_values = self.on_before_assign_field_values
-        new_node.on_after_assign_field_values = self.on_after_assign_field_values
+        if self.on_before_assign_field_values:
+            new_node.on_before_assign_field_values = self.on_before_assign_field_values
+        if self.on_after_assign_field_values:
+            new_node.on_after_assign_field_values = self.on_after_assign_field_values
         return new_node
