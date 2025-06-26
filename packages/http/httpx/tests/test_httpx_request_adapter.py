@@ -449,8 +449,11 @@ async def test_send_primitive_async_302_with_location_header_does_not_throw(
     assert "location" in resp.headers
     await request_adapter.send_primitive_async(request_info, "float", {})
 
+def test_httpx_request_adapter_ignores_base_url_parameter(auth_provider):
+    request_adapter = HttpxRequestAdapter(auth_provider, base_url="https://no.com")
+    assert request_adapter.base_url == ""
 
 def test_httpx_request_adapter_uses_http_client_base_url(auth_provider):
     http_client = httpx.AsyncClient(base_url=BASE_URL)
-    request_adapter = HttpxRequestAdapter(auth_provider, http_client=http_client)
+    request_adapter = HttpxRequestAdapter(auth_provider, http_client=http_client, base_url="https://no.com")
     assert request_adapter.base_url == BASE_URL
