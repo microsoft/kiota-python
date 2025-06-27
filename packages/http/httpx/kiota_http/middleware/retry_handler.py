@@ -1,5 +1,6 @@
 import datetime
 import random
+import re
 import time
 from email.utils import parsedate_to_datetime
 
@@ -202,6 +203,9 @@ class RetryHandler(BaseMiddleware):
         Helper to parse Retry-After and get value in seconds.
         """
         try:
+            retry_after = retry_after.split(",")[0] if re.match(
+                r"\d+,\d+$", retry_after
+            ) else retry_after
             delay = int(retry_after)
         except ValueError:
             # Not an integer? Try HTTP date
