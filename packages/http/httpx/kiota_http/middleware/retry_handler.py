@@ -204,7 +204,7 @@ class RetryHandler(BaseMiddleware):
         """
         try:
             retry_after = retry_after.split(",")[0] if re.match(
-                r"(\d{2}),\d{3}$", retry_after
+                r"\d+,\d+$", retry_after
             ) else retry_after
             delay = int(retry_after)
         except ValueError:
