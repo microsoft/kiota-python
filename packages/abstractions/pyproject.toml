@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "microsoft-kiota-abstractions"
-version = "1.9.3"
+version = "1.9.4"
 description = "Core abstractions for kiota generated libraries in Python"
 authors = ["Microsoft <graphtooling+python@microsoft.com>"]
 license = "MIT"

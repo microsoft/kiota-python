@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.3...microsoft-kiota-http-v1.9.4) (2025-06-27)
+
+
+### Bug Fixes
+
+* grab the first value if the server response contains a comma ([#482](https://github.com/microsoft/kiota-python/issues/482)) ([dc32a10](https://github.com/microsoft/kiota-python/commit/dc32a10e03e32e8bb5b1913724ae8c50d250fac4))
+* only use base_uri from http client ([b5e2fd1](https://github.com/microsoft/kiota-python/commit/b5e2fd12a148d8a29eecfaeaa58c465584e34395))
+* only use base_uri from http client ([9b0ec30](https://github.com/microsoft/kiota-python/commit/9b0ec300fa765906465333211ba0bcee1af4b838))
+
 ## [1.9.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.2...microsoft-kiota-http-v1.9.3) (2025-03-24)
 
 
