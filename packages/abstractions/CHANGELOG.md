@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.9.3...microsoft-kiota-abstractions-v1.9.4) (2025-06-27)
+
+
+### Bug Fixes
+
+* optional type definition for on before event in parse node ([d3806ca](https://github.com/microsoft/kiota-python/commit/d3806ca766412eb7390c8376b0e0337e9f6cce9e))
+* optional type definition for on before event in parse node ([d832cdc](https://github.com/microsoft/kiota-python/commit/d832cdcdb693288fadff62e4f867414cb1679de0))
+
 ## [1.9.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.9.2...microsoft-kiota-abstractions-v1.9.3) (2025-03-24)
 
 

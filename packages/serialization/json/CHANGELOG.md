@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.3...microsoft-kiota-serialization-json-v1.9.4) (2025-06-27)
+
+
+### Bug Fixes
+
+* events assignments should be checked ([2bc2908](https://github.com/microsoft/kiota-python/commit/2bc29087d1860a6ad3212a18888e928930979cc2))
+* optional type definition for on before event in parse node ([d3806ca](https://github.com/microsoft/kiota-python/commit/d3806ca766412eb7390c8376b0e0337e9f6cce9e))
+
 ## [1.9.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.2...microsoft-kiota-serialization-json-v1.9.3) (2025-03-24)
 
 
