@@ -1,7 +1,7 @@
+import asyncio
 import datetime
 import random
 import re
-import time
 from email.utils import parsedate_to_datetime
 
 from kiota_abstractions.request_option import RequestOption
@@ -95,7 +95,7 @@ class RetryHandler(BaseMiddleware):
             # and status code
             should_retry = self.should_retry(request, current_options, response)
             if all([should_retry, retry_valid, delay < RetryHandlerOption.MAX_DELAY]):
-                time.sleep(delay)
+                await asyncio.sleep(delay)
                 # increment the count for retries
                 retry_count += 1
                 request.headers.update({RETRY_ATTEMPT: f'{retry_count}'})
