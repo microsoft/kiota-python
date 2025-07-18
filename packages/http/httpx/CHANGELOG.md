@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.5](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.4...microsoft-kiota-http-v1.9.5) (2025-07-18)
+
+
+### Bug Fixes
+
+* use asyncio.sleep for non-blocking delay in RetryHandler ([6fa6ca5](https://github.com/microsoft/kiota-python/commit/6fa6ca57ba73988c86e7db4378a50b240e928a29))
+* use asyncio.sleep for non-blocking delay in RetryHandler ([93f409d](https://github.com/microsoft/kiota-python/commit/93f409d4dae5800e4b88bb40d8a33977c3b7fe3a))
+
 ## [1.9.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.3...microsoft-kiota-http-v1.9.4) (2025-06-27)
 
 
