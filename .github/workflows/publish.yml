@@ -23,7 +23,7 @@ jobs:
       POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
