@@ -64,8 +64,9 @@ class BaseMiddleware():
         return await self.next.send(request, transport)
 
     def _create_observability_span(self, request, span_name: str) -> trace.Span:
-        """Gets the parent_span from the request options and creates a new span.
-        If no parent_span is found, we try to get the current span."""
+        """Gets the parent_span from the request options and creates a new span.    
+        If no parent_span is found in the request, uses the parent_span in the
+        object. If parent_span is None, current context will be used."""
         _span = None
         if options := getattr(request, "options", None):
             if parent_span := options.get("parent_span", None):
@@ -73,5 +74,6 @@ class BaseMiddleware():
                 _context = trace.set_span_in_context(parent_span)
                 _span = tracer.start_span(span_name, _context)
         if _span is None:
-            _span = trace.get_current_span()
+            _context = trace.set_span_in_context(self.parent_span)
+            _span = tracer.start_span(span_name, _context)
         return _span
