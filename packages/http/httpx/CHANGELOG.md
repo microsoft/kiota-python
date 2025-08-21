@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.6](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.5...microsoft-kiota-http-v1.9.6) (2025-08-21)
+
+
+### Bug Fixes
+
+* ensures BaseMiddleware always creates a new span instead of returning the current span ([8cf1771](https://github.com/microsoft/kiota-python/commit/8cf17717d0e5cd2172461c5c3c4f26c518abd8dc))
+* ensures BaseMiddleware creates a new span instead of returning the current span ([8ad6559](https://github.com/microsoft/kiota-python/commit/8ad65594525d7eb45e5b4e48702c22aa325a53bc))
+
 ## [1.9.5](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.4...microsoft-kiota-http-v1.9.5) (2025-07-18)
 
 
