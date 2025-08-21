@@ -212,6 +212,11 @@ tracer = trace.get_tracer(__name__)
 
 
 @pytest.fixture
+def otel_tracer():
+    return tracer
+
+
+@pytest.fixture
 def mock_otel_span():
     return tracer.start_span("mock")
 
