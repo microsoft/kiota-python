@@ -73,11 +73,11 @@ class JsonSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[float]): The float value to be written.
         """
-        if isinstance(value, float):
+        if isinstance(value, (float, int)):
             if key:
-                self.writer[key] = value
+                self.writer[key] = float(value)
             else:
-                self.value = value
+                self.value = float(value)
 
     def write_uuid_value(self, key: Optional[str], value: Optional[UUID]) -> None:
         """Writes the specified uuid value to the stream with an optional given key.

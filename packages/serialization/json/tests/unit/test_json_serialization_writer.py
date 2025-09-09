@@ -65,6 +65,14 @@ def test_write_float_value():
     assert content_string == '{"gpa": 3.2}'
 
 
+def test_write_float_value_with_int():
+    json_serialization_writer = JsonSerializationWriter()
+    json_serialization_writer.write_float_value("float", 3)
+    content = json_serialization_writer.get_serialized_content()
+    content_string = content.decode("utf-8")
+    assert content_string == '{"float": 3.0}'
+
+
 def test_write_uuid_value():
     json_serialization_writer = JsonSerializationWriter()
     json_serialization_writer.write_uuid_value("id", UUID("8f841f30-e6e3-439a-a812-ebd369559c36"))
