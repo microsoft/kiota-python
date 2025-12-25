@@ -318,10 +318,13 @@ class JsonSerializationWriter(SerializationWriter):
             if value and self._on_after_object_serialization:
                 self._on_after_object_serialization(value)
 
+            # Use temp_writer.value if available (for composed types like oneOf wrappers),
+            # otherwise fall back to temp_writer.writer (for regular objects with properties)
+            serialized_value = temp_writer.value if temp_writer.value is not None else temp_writer.writer
             if key:
-                self.writer[key] = temp_writer.writer
+                self.writer[key] = serialized_value
             else:
-                self.value = temp_writer.writer
+                self.value = serialized_value
 
     def write_enum_value(self, key: Optional[str], value: Optional[K]) -> None:
         """Writes the specified enum value to the stream with an optional given key.
