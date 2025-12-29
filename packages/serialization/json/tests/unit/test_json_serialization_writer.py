@@ -282,3 +282,25 @@ def test_write_additional_data_value(user_1, user_2):
                 '{"display_name": "John Doe", "age": 32}], "created_at": "2022-01-27", '\
                 '"data": {"groups": [{"friends": [{"display_name": "John Doe", "age": 32}]}]}, '\
                     '"pinnedItems": [null, null]}'
+
+
+def test_write_composed_type_with_no_key(user_1):
+    """Test that composed types (oneOf/union types) serialize correctly when using write_object_value with None key.
+
+    This tests the fix for the bug where composed types that call write_object_value(None, inner_value)
+    would serialize to {} instead of the actual object content.
+    """
+    from ..helpers.union_type import UnionType
+
+    # Create a union type with a composed type inside
+    union = UnionType()
+    union.composed_type1 = user_1
+
+    json_serialization_writer = JsonSerializationWriter()
+    json_serialization_writer.write_object_value(None, union)
+    content = json_serialization_writer.get_serialized_content()
+    content_string = content.decode('utf-8')
+
+    # The union type should serialize the inner user object, not an empty object
+    assert content_string == '{"id": "8f841f30-e6e3-439a-a812-ebd369559c36", '\
+        '"updated_at": "2022-01-27T12:59:45.596117+00:00", "is_active": true}'
