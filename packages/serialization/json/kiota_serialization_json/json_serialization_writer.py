@@ -320,7 +320,9 @@ class JsonSerializationWriter(SerializationWriter):
 
             # Use temp_writer.value if available (for composed types like oneOf wrappers),
             # otherwise fall back to temp_writer.writer (for regular objects with properties)
-            serialized_value = temp_writer.value if temp_writer.value is not None else temp_writer.writer
+            serialized_value = (
+                temp_writer.value if temp_writer.value is not None else temp_writer.writer
+            )
             if key:
                 self.writer[key] = serialized_value
             else:
