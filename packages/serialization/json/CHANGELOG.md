@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.8](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.7...microsoft-kiota-serialization-json-v1.9.8) (2025-12-29)
+
+
+### Bug Fixes
+
+* **json:** Fix composed type (oneOf) serialization returning empty object ([08e3cbf](https://github.com/microsoft/kiota-python/commit/08e3cbf5b7ecee1383285408c2c96da0e76b82f8))
+* **json:** Fix composed type (oneOf) serialization returning empty object ([41d1397](https://github.com/microsoft/kiota-python/commit/41d1397e82a285d1a43cc439c437edb83a22361c))
+
 ## [1.9.7](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.6...microsoft-kiota-serialization-json-v1.9.7) (2025-09-09)
 
 
