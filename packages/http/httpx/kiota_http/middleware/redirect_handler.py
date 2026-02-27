@@ -26,7 +26,6 @@ class RedirectHandler(BaseMiddleware):
     }
     STATUS_CODE_SEE_OTHER: int = 303
     LOCATION_HEADER: str = "Location"
-    AUTHORIZATION_HEADER: str = "Authorization"
 
     def __init__(self, options: RedirectHandlerOption = RedirectHandlerOption()) -> None:
         super().__init__()
@@ -125,7 +124,7 @@ class RedirectHandler(BaseMiddleware):
         """
         method = self._redirect_method(request, response)
         url = self._redirect_url(request, response, options)
-        headers = self._redirect_headers(request, url, method)
+        headers = self._redirect_headers(request, url, method, options)
         stream = self._redirect_stream(request, method)
         new_request = httpx.Request(
             method=method,
@@ -202,20 +201,18 @@ class RedirectHandler(BaseMiddleware):
         return url
 
     def _redirect_headers(
-        self, request: httpx.Request, url: httpx.URL, method: str
+        self, request: httpx.Request, url: httpx.URL, method: str, options: RedirectHandlerOption
     ) -> httpx.Headers:
         """
         Return the headers that should be used for the redirect request.
         """
         headers = httpx.Headers(request.headers)
 
-        if not self._same_origin(url, request.url):
-            if not self.is_https_redirect(request.url, url):
-                # Strip Authorization headers when responses are redirected
-                # away from the origin. (Except for direct HTTP to HTTPS redirects.)
-                headers.pop("Authorization", None)
+        # Scrub sensitive headers before following the redirect
+        options.scrub_sensitive_headers(headers, request.url, url)
 
-            # Update the Host header.
+        # Update the Host header if not same origin
+        if not self._same_origin(url, request.url):
             headers["Host"] = url.netloc.decode("ascii")
 
         if method != request.method and method == "GET":
@@ -223,10 +220,6 @@ class RedirectHandler(BaseMiddleware):
             # are only relevant to the request body.
             headers.pop("Content-Length", None)
             headers.pop("Transfer-Encoding", None)
-
-        # We should use the client cookie store to determine any cookie header,
-        # rather than whatever was on the original outgoing request.
-        headers.pop("Cookie", None)
 
         return headers
 
@@ -246,17 +239,3 @@ class RedirectHandler(BaseMiddleware):
         Return 'True' if the given URLs share the same origin.
         """
         return (url.scheme == other.scheme and url.host == other.host)
-
-    def port_or_default(self, url: httpx.URL) -> typing.Optional[int]:
-        if url.port is not None:
-            return url.port
-        return {"http": 80, "https": 443}.get(url.scheme)
-
-    def is_https_redirect(self, url: httpx.URL, location: httpx.URL) -> bool:
-        """
-        Return 'True' if 'location' is a HTTPS upgrade of 'url'
-        """
-        if url.host != location.host:
-            return False
-
-        return (url.scheme == "http" and location.scheme == "https")
