@@ -1,4 +1,41 @@
+from typing import Callable, Optional
 from kiota_abstractions.request_option import RequestOption
+
+import httpx
+
+# Type alias for the scrub sensitive headers callback
+ScrubSensitiveHeadersCallback = Callable[[httpx.Request, httpx.URL], None]
+
+
+def default_scrub_sensitive_headers(new_request: httpx.Request, original_url: httpx.URL) -> None:
+    """
+    The default implementation for scrubbing sensitive headers during redirects.
+    This method removes Authorization and Cookie headers when the host, scheme, or port changes.
+    Args:
+        new_request: The new redirect request to modify
+        original_url: The original request URL
+    """
+    if not new_request or not original_url:
+        return
+
+    new_url = new_request.url
+    if not new_url:
+        return
+
+    # Remove Authorization and Cookie headers if the request's scheme, host, or port changes
+    is_different_origin = (
+        original_url.host != new_url.host or original_url.scheme != new_url.scheme
+        or original_url.port != new_url.port
+    )
+
+    if is_different_origin:
+        new_request.headers.pop("Authorization", None)
+        new_request.headers.pop("Cookie", None)
+
+    # Note: Proxy-Authorization is not handled here as proxy configuration in httpx
+    # is managed at the transport level and not accessible to middleware.
+    # In environments where this matters, the proxy configuration should be managed
+    # at the HTTP client level.
 
 
 class RedirectHandlerOption(RequestOption):
@@ -15,7 +52,8 @@ class RedirectHandlerOption(RequestOption):
         self,
         max_redirect: int = DEFAULT_MAX_REDIRECT,
         should_redirect: bool = True,
-        allow_redirect_on_scheme_change: bool = False
+        allow_redirect_on_scheme_change: bool = False,
+        scrub_sensitive_headers: Optional[ScrubSensitiveHeadersCallback] = None
     ) -> None:
 
         if max_redirect > self.MAX_MAX_REDIRECT:
@@ -28,6 +66,7 @@ class RedirectHandlerOption(RequestOption):
         self._max_redirect = max_redirect
         self._should_redirect = should_redirect
         self._allow_redirect_on_scheme_change = allow_redirect_on_scheme_change
+        self._scrub_sensitive_headers = scrub_sensitive_headers or default_scrub_sensitive_headers
 
     @property
     def max_redirect(self):
@@ -58,6 +97,16 @@ class RedirectHandlerOption(RequestOption):
     @allow_redirect_on_scheme_change.setter
     def allow_redirect_on_scheme_change(self, value: bool):
         self._allow_redirect_on_scheme_change = value
+
+    @property
+    def scrub_sensitive_headers(self) -> ScrubSensitiveHeadersCallback:
+        """The callback for scrubbing sensitive headers during redirects.
+        Defaults to default_scrub_sensitive_headers."""
+        return self._scrub_sensitive_headers
+
+    @scrub_sensitive_headers.setter
+    def scrub_sensitive_headers(self, value: ScrubSensitiveHeadersCallback):
+        self._scrub_sensitive_headers = value
 
     @staticmethod
     def get_key() -> str:

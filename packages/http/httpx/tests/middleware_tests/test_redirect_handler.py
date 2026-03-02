@@ -69,16 +69,6 @@ def test_not_same_origin(mock_redirect_handler):
     assert not mock_redirect_handler._same_origin(origin1, origin2)
 
 
-def test_is_https_redirect(mock_redirect_handler):
-    url = httpx.URL("http://example.com")
-    location = httpx.URL(BASE_URL)
-    assert mock_redirect_handler.is_https_redirect(url, location)
-
-
-def test_is_not_https_redirect(mock_redirect_handler):
-    url = httpx.URL(BASE_URL)
-    location = httpx.URL("http://www.example.com")
-    assert not mock_redirect_handler.is_https_redirect(url, location)
 
 
 @pytest.mark.asyncio
@@ -281,3 +271,320 @@ async def test_max_redirects_exceeded():
     with pytest.raises(Exception) as e:
         await handler.send(request, mock_transport)
     assert "Too many redirects" in str(e.value)
+
+
+@pytest.mark.asyncio
+async def test_redirect_cross_host_removes_auth_and_cookie():
+    """Test that cross-host redirects remove both Authorization and Cookie headers"""
+
+    def request_handler(request: httpx.Request):
+        if request.url == "https://other.example.com/api":
+            return httpx.Response(200, )
+        return httpx.Response(
+            MOVED_PERMANENTLY,
+            headers={LOCATION_HEADER: "https://other.example.com/api"},
+        )
+
+    handler = RedirectHandler()
+    request = httpx.Request(
+        'GET',
+        BASE_URL,
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET"
+        },
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert AUTHORIZATION_HEADER not in resp.request.headers
+    assert "Cookie" not in resp.request.headers
+
+
+@pytest.mark.asyncio
+async def test_redirect_scheme_change_removes_auth_and_cookie():
+    """Test that scheme changes remove both Authorization and Cookie headers"""
+
+    def request_handler(request: httpx.Request):
+        if request.url == "http://example.com/api":  # NOSONAR
+            return httpx.Response(200, )
+        return httpx.Response(
+            MOVED_PERMANENTLY,
+            headers={LOCATION_HEADER: "http://example.com/api"},  # NOSONAR
+        )
+
+    handler = RedirectHandler(RedirectHandlerOption(allow_redirect_on_scheme_change=True))
+    request = httpx.Request(
+        'GET',
+        BASE_URL,
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET"
+        },
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert AUTHORIZATION_HEADER not in resp.request.headers
+    assert "Cookie" not in resp.request.headers
+
+
+@pytest.mark.asyncio
+async def test_redirect_same_host_and_scheme_keeps_all_headers():
+    """Test that same-host and same-scheme redirects keep Authorization and Cookie headers"""
+
+    def request_handler(request: httpx.Request):
+        if request.url == f"{BASE_URL}/v2/api":
+            return httpx.Response(200, )
+        return httpx.Response(
+            MOVED_PERMANENTLY,
+            headers={LOCATION_HEADER: f"{BASE_URL}/v2/api"},
+        )
+
+    handler = RedirectHandler()
+    request = httpx.Request(
+        'GET',
+        f"{BASE_URL}/v1/api",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET"
+        },
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert AUTHORIZATION_HEADER in resp.request.headers
+    assert resp.request.headers[AUTHORIZATION_HEADER] == "Bearer token"
+    assert "Cookie" in resp.request.headers
+    assert resp.request.headers["Cookie"] == "session=SECRET"
+
+
+@pytest.mark.asyncio
+async def test_redirect_with_different_port_removes_auth_and_cookie():
+    """Test that redirects to a different port remove Authorization and Cookie headers"""
+
+    def request_handler(request: httpx.Request):
+        if request.url == "http://example.org:9090/bar":  # NOSONAR
+            return httpx.Response(200, )
+        return httpx.Response(
+            MOVED_PERMANENTLY,
+            headers={LOCATION_HEADER: "http://example.org:9090/bar"},  # NOSONAR
+        )
+
+    handler = RedirectHandler()
+    request = httpx.Request(
+        'GET',
+        "http://example.org:8080/foo",  # NOSONAR
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET"
+        },
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert resp.request != request
+    assert AUTHORIZATION_HEADER not in resp.request.headers
+    assert "Cookie" not in resp.request.headers
+
+
+@pytest.mark.asyncio
+async def test_redirect_with_same_port_keeps_auth_and_cookie():
+    """Test that redirects to the same port keep Authorization and Cookie headers"""
+
+    def request_handler(request: httpx.Request):
+        if request.url == "http://example.org:8080/bar":  # NOSONAR
+            return httpx.Response(200, )
+        return httpx.Response(
+            FOUND,
+            headers={LOCATION_HEADER: "http://example.org:8080/bar"},  # NOSONAR
+        )
+
+    handler = RedirectHandler()
+    request = httpx.Request(
+        'GET',
+        "http://example.org:8080/foo",  # NOSONAR
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET"
+        },
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert resp.request != request
+    assert AUTHORIZATION_HEADER in resp.request.headers
+    assert resp.request.headers[AUTHORIZATION_HEADER] == "Bearer token"
+    assert "Cookie" in resp.request.headers
+    assert resp.request.headers["Cookie"] == "session=SECRET"
+
+
+@pytest.mark.asyncio
+async def test_redirect_with_custom_scrubber():
+    """Test that custom scrubber can be provided and is used"""
+
+    def custom_scrubber(new_request, original_url):
+        # Custom logic: never remove headers
+        pass
+
+    def request_handler(request: httpx.Request):
+        if request.url == "https://evil.attacker.com/steal":
+            return httpx.Response(200, )
+        return httpx.Response(
+            MOVED_PERMANENTLY,
+            headers={LOCATION_HEADER: "https://evil.attacker.com/steal"},
+        )
+
+    options = RedirectHandlerOption(scrub_sensitive_headers=custom_scrubber)
+    handler = RedirectHandler(options)
+    request = httpx.Request(
+        'GET',
+        BASE_URL,
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET"
+        },
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    # Headers should be kept because custom scrubber doesn't remove them
+    assert AUTHORIZATION_HEADER in resp.request.headers
+    assert "Cookie" in resp.request.headers
+
+
+def test_default_scrub_sensitive_headers_removes_on_host_change():
+    """Test that default scrubber removes Authorization and Cookie when host changes"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    original_url = httpx.URL("https://example.com/v1/api")
+    new_request = httpx.Request(
+        "GET",
+        "https://other.com/api",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
+
+    default_scrub_sensitive_headers(new_request, original_url)
+
+    assert AUTHORIZATION_HEADER not in new_request.headers
+    assert "Cookie" not in new_request.headers
+    assert "Content-Type" in new_request.headers  # Other headers should remain
+
+
+def test_default_scrub_sensitive_headers_removes_on_scheme_change():
+    """Test that default scrubber removes Authorization and Cookie when scheme changes"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    original_url = httpx.URL("https://example.com/v1/api")
+    new_request = httpx.Request(
+        "GET",
+        "http://example.com/v1/api",  # NOSONAR
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
+
+    default_scrub_sensitive_headers(new_request, original_url)
+
+    assert AUTHORIZATION_HEADER not in new_request.headers
+    assert "Cookie" not in new_request.headers
+    assert "Content-Type" in new_request.headers
+
+
+def test_default_scrub_sensitive_headers_keeps_on_same_origin():
+    """Test that default scrubber keeps headers when host and scheme are the same"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    original_url = httpx.URL("https://example.com/v1/api")
+    new_request = httpx.Request(
+        "GET",
+        "https://example.com/v2/api",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
+
+    default_scrub_sensitive_headers(new_request, original_url)
+
+    assert AUTHORIZATION_HEADER in new_request.headers
+    assert "Cookie" in new_request.headers
+    assert "Content-Type" in new_request.headers
+
+
+def test_default_scrub_sensitive_headers_removes_on_port_change():
+    """Test that default scrubber removes Authorization and Cookie when port changes"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    original_url = httpx.URL("http://example.org:8080/foo")  # NOSONAR
+    new_request = httpx.Request(
+        "GET",
+        "http://example.org:9090/bar",  # NOSONAR
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
+
+    default_scrub_sensitive_headers(new_request, original_url)
+
+    assert AUTHORIZATION_HEADER not in new_request.headers
+    assert "Cookie" not in new_request.headers
+    assert "Content-Type" in new_request.headers  # Other headers should remain
+
+
+def test_default_scrub_sensitive_headers_keeps_on_same_port():
+    """Test that default scrubber keeps headers when port is the same"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    original_url = httpx.URL("http://example.org:8080/foo")  # NOSONAR
+    new_request = httpx.Request(
+        "GET",
+        "http://example.org:8080/bar",  # NOSONAR
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
+
+    default_scrub_sensitive_headers(new_request, original_url)
+
+    assert AUTHORIZATION_HEADER in new_request.headers
+    assert "Cookie" in new_request.headers
+    assert "Content-Type" in new_request.headers
+
+
+def test_default_scrub_sensitive_headers_handles_none_gracefully():
+    """Test that default scrubber handles None/empty inputs gracefully"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    # Should not raise exceptions
+    default_scrub_sensitive_headers(None, httpx.URL(BASE_URL))
+    default_scrub_sensitive_headers(httpx.Request("GET", BASE_URL), None)
+
+
+def test_custom_scrub_sensitive_headers():
+    """Test that custom scrubber can be set on options"""
+    def custom_scrubber(new_request, original_url):
+        # Custom logic
+        pass
+
+    options = RedirectHandlerOption(scrub_sensitive_headers=custom_scrubber)
+    assert options.scrub_sensitive_headers == custom_scrubber
+
+
+def test_default_options_uses_default_scrubber():
+    """Test that default options use the default scrubber"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    options = RedirectHandlerOption()
+    assert options.scrub_sensitive_headers == default_scrub_sensitive_headers
