@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.9](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.8...microsoft-kiota-http-v1.9.9) (2026-03-02)
+
+
+### Bug Fixes
+
+* add header removal handler ([d066e9c](https://github.com/microsoft/kiota-python/commit/d066e9c8accf75cc15866f415d6ac1891653441c))
+* add header removal handler ([67bb784](https://github.com/microsoft/kiota-python/commit/67bb784b0794072b7a97d40bc1454c5a8ee3e414))
+* add header removal handler ([44e8d94](https://github.com/microsoft/kiota-python/commit/44e8d940bb6d6284b2eee67a01b5bdd31f7e9e5c))
+* add header removal handler ([b64ec6e](https://github.com/microsoft/kiota-python/commit/b64ec6e584baee40fa2f99a1dc4984fc9b98a56b))
+* add header removal handler ([648d31b](https://github.com/microsoft/kiota-python/commit/648d31b4fb1848330da58641eb8de9c14c8f7206))
+* add header removal handler ([9700ed9](https://github.com/microsoft/kiota-python/commit/9700ed9d6b8715e9a87f7842e4db84af0cf682fe))
+
 ## [1.9.8](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.9.7...microsoft-kiota-http-v1.9.8) (2025-12-29)
 
 
