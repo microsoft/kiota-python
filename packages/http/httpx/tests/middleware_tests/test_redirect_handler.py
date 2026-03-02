@@ -423,7 +423,7 @@ async def test_redirect_with_same_port_keeps_auth_and_cookie():
 async def test_redirect_with_custom_scrubber():
     """Test that custom scrubber can be provided and is used"""
 
-    def custom_scrubber(headers, original_url, new_url):
+    def custom_scrubber(new_request, original_url):
         # Custom logic: never remove headers
         pass
 
@@ -457,95 +457,110 @@ def test_default_scrub_sensitive_headers_removes_on_host_change():
     """Test that default scrubber removes Authorization and Cookie when host changes"""
     from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
 
-    headers = httpx.Headers({
-        AUTHORIZATION_HEADER: "Bearer token",
-        "Cookie": "session=SECRET",
-        "Content-Type": "application/json"
-    })
     original_url = httpx.URL("https://example.com/v1/api")
-    new_url = httpx.URL("https://other.com/api")
+    new_request = httpx.Request(
+        "GET",
+        "https://other.com/api",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
 
-    default_scrub_sensitive_headers(headers, original_url, new_url)
+    default_scrub_sensitive_headers(new_request, original_url)
 
-    assert AUTHORIZATION_HEADER not in headers
-    assert "Cookie" not in headers
-    assert "Content-Type" in headers  # Other headers should remain
+    assert AUTHORIZATION_HEADER not in new_request.headers
+    assert "Cookie" not in new_request.headers
+    assert "Content-Type" in new_request.headers  # Other headers should remain
 
 
 def test_default_scrub_sensitive_headers_removes_on_scheme_change():
     """Test that default scrubber removes Authorization and Cookie when scheme changes"""
     from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
 
-    headers = httpx.Headers({
-        AUTHORIZATION_HEADER: "Bearer token",
-        "Cookie": "session=SECRET",
-        "Content-Type": "application/json"
-    })
     original_url = httpx.URL("https://example.com/v1/api")
-    new_url = httpx.URL("http://example.com/v1/api")
+    new_request = httpx.Request(
+        "GET",
+        "http://example.com/v1/api",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
 
-    default_scrub_sensitive_headers(headers, original_url, new_url)
+    default_scrub_sensitive_headers(new_request, original_url)
 
-    assert AUTHORIZATION_HEADER not in headers
-    assert "Cookie" not in headers
-    assert "Content-Type" in headers
+    assert AUTHORIZATION_HEADER not in new_request.headers
+    assert "Cookie" not in new_request.headers
+    assert "Content-Type" in new_request.headers
 
 
 def test_default_scrub_sensitive_headers_keeps_on_same_origin():
     """Test that default scrubber keeps headers when host and scheme are the same"""
     from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
 
-    headers = httpx.Headers({
-        AUTHORIZATION_HEADER: "Bearer token",
-        "Cookie": "session=SECRET",
-        "Content-Type": "application/json"
-    })
     original_url = httpx.URL("https://example.com/v1/api")
-    new_url = httpx.URL("https://example.com/v2/api")
+    new_request = httpx.Request(
+        "GET",
+        "https://example.com/v2/api",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
 
-    default_scrub_sensitive_headers(headers, original_url, new_url)
+    default_scrub_sensitive_headers(new_request, original_url)
 
-    assert AUTHORIZATION_HEADER in headers
-    assert "Cookie" in headers
-    assert "Content-Type" in headers
+    assert AUTHORIZATION_HEADER in new_request.headers
+    assert "Cookie" in new_request.headers
+    assert "Content-Type" in new_request.headers
 
 
 def test_default_scrub_sensitive_headers_removes_on_port_change():
     """Test that default scrubber removes Authorization and Cookie when port changes"""
     from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
 
-    headers = httpx.Headers({
-        AUTHORIZATION_HEADER: "Bearer token",
-        "Cookie": "session=SECRET",
-        "Content-Type": "application/json"
-    })
     original_url = httpx.URL("http://example.org:8080/foo")
-    new_url = httpx.URL("http://example.org:9090/bar")
+    new_request = httpx.Request(
+        "GET",
+        "http://example.org:9090/bar",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
 
-    default_scrub_sensitive_headers(headers, original_url, new_url)
+    default_scrub_sensitive_headers(new_request, original_url)
 
-    assert AUTHORIZATION_HEADER not in headers
-    assert "Cookie" not in headers
-    assert "Content-Type" in headers  # Other headers should remain
+    assert AUTHORIZATION_HEADER not in new_request.headers
+    assert "Cookie" not in new_request.headers
+    assert "Content-Type" in new_request.headers  # Other headers should remain
 
 
 def test_default_scrub_sensitive_headers_keeps_on_same_port():
     """Test that default scrubber keeps headers when port is the same"""
     from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
 
-    headers = httpx.Headers({
-        AUTHORIZATION_HEADER: "Bearer token",
-        "Cookie": "session=SECRET",
-        "Content-Type": "application/json"
-    })
     original_url = httpx.URL("http://example.org:8080/foo")
-    new_url = httpx.URL("http://example.org:8080/bar")
+    new_request = httpx.Request(
+        "GET",
+        "http://example.org:8080/bar",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET",
+            "Content-Type": "application/json"
+        }
+    )
 
-    default_scrub_sensitive_headers(headers, original_url, new_url)
+    default_scrub_sensitive_headers(new_request, original_url)
 
-    assert AUTHORIZATION_HEADER in headers
-    assert "Cookie" in headers
-    assert "Content-Type" in headers
+    assert AUTHORIZATION_HEADER in new_request.headers
+    assert "Cookie" in new_request.headers
+    assert "Content-Type" in new_request.headers
 
 
 def test_default_scrub_sensitive_headers_handles_none_gracefully():
@@ -553,14 +568,13 @@ def test_default_scrub_sensitive_headers_handles_none_gracefully():
     from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
 
     # Should not raise exceptions
-    default_scrub_sensitive_headers(None, httpx.URL(BASE_URL), httpx.URL(BASE_URL))
-    default_scrub_sensitive_headers(httpx.Headers(), None, httpx.URL(BASE_URL))
-    default_scrub_sensitive_headers(httpx.Headers(), httpx.URL(BASE_URL), None)
+    default_scrub_sensitive_headers(None, httpx.URL(BASE_URL))
+    default_scrub_sensitive_headers(httpx.Request("GET", BASE_URL), None)
 
 
 def test_custom_scrub_sensitive_headers():
     """Test that custom scrubber can be set on options"""
-    def custom_scrubber(headers, original_url, new_url):
+    def custom_scrubber(new_request, original_url):
         # Custom logic
         pass
 

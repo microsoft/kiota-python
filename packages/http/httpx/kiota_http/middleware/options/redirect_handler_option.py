@@ -4,21 +4,24 @@ from kiota_abstractions.request_option import RequestOption
 import httpx
 
 # Type alias for the scrub sensitive headers callback
-ScrubSensitiveHeadersCallback = Callable[[httpx.Headers, httpx.URL, httpx.URL], None]
+ScrubSensitiveHeadersCallback = Callable[[httpx.Request, httpx.URL], None]
 
 
 def default_scrub_sensitive_headers(
-    headers: httpx.Headers, original_url: httpx.URL, new_url: httpx.URL
+    new_request: httpx.Request, original_url: httpx.URL
 ) -> None:
     """
     The default implementation for scrubbing sensitive headers during redirects.
     This method removes Authorization and Cookie headers when the host, scheme, or port changes.
     Args:
-        headers: The headers object to modify
+        new_request: The new redirect request to modify
         original_url: The original request URL
-        new_url: The new redirect URL
     """
-    if not headers or not original_url or not new_url:
+    if not new_request or not original_url:
+        return
+
+    new_url = new_request.url
+    if not new_url:
         return
 
     # Remove Authorization and Cookie headers if the request's scheme, host, or port changes
@@ -29,8 +32,8 @@ def default_scrub_sensitive_headers(
     )
 
     if is_different_origin:
-        headers.pop("Authorization", None)
-        headers.pop("Cookie", None)
+        new_request.headers.pop("Authorization", None)
+        new_request.headers.pop("Cookie", None)
 
     # Note: Proxy-Authorization is not handled here as proxy configuration in httpx
     # is managed at the transport level and not accessible to middleware.

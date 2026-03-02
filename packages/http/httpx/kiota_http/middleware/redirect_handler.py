@@ -124,15 +124,31 @@ class RedirectHandler(BaseMiddleware):
         """
         method = self._redirect_method(request, response)
         url = self._redirect_url(request, response, options)
-        headers = self._redirect_headers(request, url, method, options)
         stream = self._redirect_stream(request, method)
+
+        # Create the new request with the redirect URL and original headers
         new_request = httpx.Request(
             method=method,
             url=url,
-            headers=headers,
+            headers=request.headers.copy(),
             stream=stream,
             extensions=request.extensions,
         )
+
+        # Scrub sensitive headers before following the redirect
+        options.scrub_sensitive_headers(new_request, request.url)
+
+        # Update the Host header if not same origin
+        if not self._same_origin(url, request.url):
+            new_request.headers["Host"] = url.netloc.decode("ascii")
+
+        # Handle 303 See Other and other method changes
+        if method != request.method and method == "GET":
+            # If we've switched to a 'GET' request, strip any headers which
+            # are only relevant to the request body.
+            new_request.headers.pop("Content-Length", None)
+            new_request.headers.pop("Transfer-Encoding", None)
+
         if hasattr(request, "context"):
             new_request.context = request.context  #type: ignore
         new_request.options = {}  #type: ignore
@@ -200,28 +216,6 @@ class RedirectHandler(BaseMiddleware):
 
         return url
 
-    def _redirect_headers(
-        self, request: httpx.Request, url: httpx.URL, method: str, options: RedirectHandlerOption
-    ) -> httpx.Headers:
-        """
-        Return the headers that should be used for the redirect request.
-        """
-        headers = httpx.Headers(request.headers)
-
-        # Scrub sensitive headers before following the redirect
-        options.scrub_sensitive_headers(headers, request.url, url)
-
-        # Update the Host header if not same origin
-        if not self._same_origin(url, request.url):
-            headers["Host"] = url.netloc.decode("ascii")
-
-        if method != request.method and method == "GET":
-            # If we've switch to a 'GET' request, then strip any headers which
-            # are only relevant to the request body.
-            headers.pop("Content-Length", None)
-            headers.pop("Transfer-Encoding", None)
-
-        return headers
 
     def _redirect_stream(
         self, request: httpx.Request, method: str
