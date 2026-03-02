@@ -360,6 +360,66 @@ async def test_redirect_same_host_and_scheme_keeps_all_headers():
 
 
 @pytest.mark.asyncio
+async def test_redirect_with_different_port_removes_auth_and_cookie():
+    """Test that redirects to a different port remove Authorization and Cookie headers"""
+
+    def request_handler(request: httpx.Request):
+        if request.url == "http://example.org:9090/bar":
+            return httpx.Response(200, )
+        return httpx.Response(
+            MOVED_PERMANENTLY,
+            headers={LOCATION_HEADER: "http://example.org:9090/bar"},
+        )
+
+    handler = RedirectHandler()
+    request = httpx.Request(
+        'GET',
+        "http://example.org:8080/foo",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET"
+        },
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert resp.request != request
+    assert AUTHORIZATION_HEADER not in resp.request.headers
+    assert "Cookie" not in resp.request.headers
+
+
+@pytest.mark.asyncio
+async def test_redirect_with_same_port_keeps_auth_and_cookie():
+    """Test that redirects to the same port keep Authorization and Cookie headers"""
+
+    def request_handler(request: httpx.Request):
+        if request.url == "http://example.org:8080/bar":
+            return httpx.Response(200, )
+        return httpx.Response(
+            FOUND,
+            headers={LOCATION_HEADER: "http://example.org:8080/bar"},
+        )
+
+    handler = RedirectHandler()
+    request = httpx.Request(
+        'GET',
+        "http://example.org:8080/foo",
+        headers={
+            AUTHORIZATION_HEADER: "Bearer token",
+            "Cookie": "session=SECRET"
+        },
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert resp.request != request
+    assert AUTHORIZATION_HEADER in resp.request.headers
+    assert resp.request.headers[AUTHORIZATION_HEADER] == "Bearer token"
+    assert "Cookie" in resp.request.headers
+    assert resp.request.headers["Cookie"] == "session=SECRET"
+
+
+@pytest.mark.asyncio
 async def test_redirect_with_custom_scrubber():
     """Test that custom scrubber can be provided and is used"""
 
@@ -442,6 +502,44 @@ def test_default_scrub_sensitive_headers_keeps_on_same_origin():
     })
     original_url = httpx.URL("https://example.com/v1/api")
     new_url = httpx.URL("https://example.com/v2/api")
+
+    default_scrub_sensitive_headers(headers, original_url, new_url)
+
+    assert AUTHORIZATION_HEADER in headers
+    assert "Cookie" in headers
+    assert "Content-Type" in headers
+
+
+def test_default_scrub_sensitive_headers_removes_on_port_change():
+    """Test that default scrubber removes Authorization and Cookie when port changes"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    headers = httpx.Headers({
+        AUTHORIZATION_HEADER: "Bearer token",
+        "Cookie": "session=SECRET",
+        "Content-Type": "application/json"
+    })
+    original_url = httpx.URL("http://example.org:8080/foo")
+    new_url = httpx.URL("http://example.org:9090/bar")
+
+    default_scrub_sensitive_headers(headers, original_url, new_url)
+
+    assert AUTHORIZATION_HEADER not in headers
+    assert "Cookie" not in headers
+    assert "Content-Type" in headers  # Other headers should remain
+
+
+def test_default_scrub_sensitive_headers_keeps_on_same_port():
+    """Test that default scrubber keeps headers when port is the same"""
+    from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
+
+    headers = httpx.Headers({
+        AUTHORIZATION_HEADER: "Bearer token",
+        "Cookie": "session=SECRET",
+        "Content-Type": "application/json"
+    })
+    original_url = httpx.URL("http://example.org:8080/foo")
+    new_url = httpx.URL("http://example.org:8080/bar")
 
     default_scrub_sensitive_headers(headers, original_url, new_url)
 

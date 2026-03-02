@@ -12,7 +12,7 @@ def default_scrub_sensitive_headers(
 ) -> None:
     """
     The default implementation for scrubbing sensitive headers during redirects.
-    This method removes Authorization and Cookie headers when the host or scheme changes.
+    This method removes Authorization and Cookie headers when the host, scheme, or port changes.
     Args:
         headers: The headers object to modify
         original_url: The original request URL
@@ -21,12 +21,14 @@ def default_scrub_sensitive_headers(
     if not headers or not original_url or not new_url:
         return
 
-    # Remove Authorization and Cookie headers if the request's scheme or host changes
-    is_different_host_or_scheme = (
-        original_url.host != new_url.host or original_url.scheme != new_url.scheme
+    # Remove Authorization and Cookie headers if the request's scheme, host, or port changes
+    is_different_origin = (
+        original_url.host != new_url.host
+        or original_url.scheme != new_url.scheme
+        or original_url.port != new_url.port
     )
 
-    if is_different_host_or_scheme:
+    if is_different_origin:
         headers.pop("Authorization", None)
         headers.pop("Cookie", None)
 
