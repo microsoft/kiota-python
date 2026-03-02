@@ -216,7 +216,6 @@ class RedirectHandler(BaseMiddleware):
 
         return url
 
-
     def _redirect_stream(
         self, request: httpx.Request, method: str
     ) -> typing.Optional[typing.Union[httpx.SyncByteStream, httpx.AsyncByteStream]]:

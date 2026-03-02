@@ -7,9 +7,7 @@ import httpx
 ScrubSensitiveHeadersCallback = Callable[[httpx.Request, httpx.URL], None]
 
 
-def default_scrub_sensitive_headers(
-    new_request: httpx.Request, original_url: httpx.URL
-) -> None:
+def default_scrub_sensitive_headers(new_request: httpx.Request, original_url: httpx.URL) -> None:
     """
     The default implementation for scrubbing sensitive headers during redirects.
     This method removes Authorization and Cookie headers when the host, scheme, or port changes.
@@ -26,8 +24,7 @@ def default_scrub_sensitive_headers(
 
     # Remove Authorization and Cookie headers if the request's scheme, host, or port changes
     is_different_origin = (
-        original_url.host != new_url.host
-        or original_url.scheme != new_url.scheme
+        original_url.host != new_url.host or original_url.scheme != new_url.scheme
         or original_url.port != new_url.port
     )
 
