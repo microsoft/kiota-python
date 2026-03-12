@@ -197,9 +197,9 @@ class JsonParseNode(ParseNode):
         # how flags enums are represented in OpenAPI via x-ms-enum-flags.
         if isinstance(self._json_node, str) and self._json_node:
             return [
-                result
-                for value in self._json_node.split(",")
-                if (result := self._create_new_node(value.strip()).get_enum_value(enum_class)) is not None
+                result for value in self._json_node.split(",")
+                if (result := self._create_new_node(value.strip()).get_enum_value(enum_class)
+                    ) is not None
             ]
         return []
 
