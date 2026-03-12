@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.10](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.9.9...microsoft-kiota-bundle-v1.9.10) (2026-03-12)
+
+
+### Miscellaneous Chores
+
+* **microsoft-kiota-bundle:** Synchronize microsoft-kiota versions
+
 ## [1.9.9](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.9.8...microsoft-kiota-bundle-v1.9.9) (2026-03-02)
 
 

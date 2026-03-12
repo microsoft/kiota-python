@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.10](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.9...microsoft-kiota-serialization-json-v1.9.10) (2026-03-12)
+
+
+### Bug Fixes
+
+* **serialization-json:** handle CSV string in get_collection_of_enum_values for flags enums ([a839f94](https://github.com/microsoft/kiota-python/commit/a839f94ba891b2ff5cb101145eb61092058d0fb5))
+* **serialization-json:** handle CSV string in get_collection_of_enum_values for flags enums ([40e91b8](https://github.com/microsoft/kiota-python/commit/40e91b85e5501c21fd1378be644498d4efb12e36))
+
 ## [1.9.9](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.8...microsoft-kiota-serialization-json-v1.9.9) (2026-03-02)
 
 
