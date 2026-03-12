@@ -124,6 +124,45 @@ def test_get_collection_of_enum_values():
     assert result == [OfficeLocation.Dunhill, OfficeLocation.Oval]
 
 
+def test_get_collection_of_enum_values_from_csv_string():
+    """Flags enums may be serialized as a comma-separated string."""
+    parse_node = JsonParseNode("dunhill,oval")
+    result = parse_node.get_collection_of_enum_values(OfficeLocation)
+    assert isinstance(result, list)
+    assert result == [OfficeLocation.Dunhill, OfficeLocation.Oval]
+
+
+def test_get_collection_of_enum_values_from_csv_string_with_spaces():
+    """Flags enums may have spaces around the comma separator."""
+    parse_node = JsonParseNode("dunhill, oval")
+    result = parse_node.get_collection_of_enum_values(OfficeLocation)
+    assert isinstance(result, list)
+    assert result == [OfficeLocation.Dunhill, OfficeLocation.Oval]
+
+
+def test_get_collection_of_enum_values_from_single_string():
+    """A flags enum with a single value is still serialized as a plain string."""
+    parse_node = JsonParseNode("dunhill")
+    result = parse_node.get_collection_of_enum_values(OfficeLocation)
+    assert isinstance(result, list)
+    assert result == [OfficeLocation.Dunhill]
+
+
+def test_get_collection_of_enum_values_from_empty_string():
+    """An empty string should return an empty list."""
+    parse_node = JsonParseNode("")
+    result = parse_node.get_collection_of_enum_values(OfficeLocation)
+    assert result == []
+
+
+def test_get_collection_of_enum_values_from_csv_string_with_unknown_member():
+    """Unknown members in a CSV string should be silently skipped."""
+    parse_node = JsonParseNode("dunhill,unknownValue,oval")
+    result = parse_node.get_collection_of_enum_values(OfficeLocation)
+    assert isinstance(result, list)
+    assert result == [OfficeLocation.Dunhill, OfficeLocation.Oval]
+
+
 def test_get_enum_value():
     parse_node = JsonParseNode("dunhill")
     result = parse_node.get_enum_value(OfficeLocation)

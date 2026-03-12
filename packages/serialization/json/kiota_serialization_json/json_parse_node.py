@@ -191,6 +191,16 @@ class JsonParseNode(ParseNode):
                     self._json_node
                 )
             )
+        # Handle flags enums serialized as a comma-separated string by the API
+        # (e.g. "deviceCodeFlow" or "deviceCodeFlow,authenticationTransfer").
+        # See https://github.com/microsoft/kiota/issues/3237 for context on
+        # how flags enums are represented in OpenAPI via x-ms-enum-flags.
+        if isinstance(self._json_node, str) and self._json_node:
+            return [
+                result
+                for value in self._json_node.split(",")
+                if (result := self._create_new_node(value.strip()).get_enum_value(enum_class)) is not None
+            ]
         return []
 
     def get_enum_value(self, enum_class: K) -> Optional[K]:
