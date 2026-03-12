@@ -118,29 +118,25 @@ class JsonParseNode(ParseNode):
             list[T]: The collection of primitive values
         """
 
+        converters = {
+            bool: self._get_bool_value,
+            str: self._get_str_value,
+            int: self._get_int_value,
+            float: self._get_float_value,
+            UUID: self._get_uuid_value,
+            datetime: self._get_datetime_value,
+            timedelta: self._get_timedelta_value,
+            date: self._get_date_value,
+            time: self._get_time_value,
+            bytes: self._get_bytes_value,
+        }
+
         def func(item):
-            generic_type = primitive_type if primitive_type else type(item)
-            if generic_type == bool:
-                return self._get_bool_value(item)
-            if generic_type == str:
-                return self._get_str_value(item)
-            if generic_type == int:
-                return self._get_int_value(item)
-            if generic_type == float:
-                return self._get_float_value(item)
-            if generic_type == UUID:
-                return self._get_uuid_value(item)
-            if generic_type == datetime:
-                return self._get_datetime_value(item)
-            if generic_type == timedelta:
-                return self._get_timedelta_value(item)
-            if generic_type == date:
-                return self._get_date_value(item)
-            if generic_type == time:
-                return self._get_time_value(item)
-            if generic_type == bytes:
-                return self._get_bytes_value(item)
-            raise Exception(f"Encountered an unknown type during deserialization {generic_type}")
+            t = primitive_type if primitive_type else type(item)
+            converter = converters.get(t)
+            if converter is None:
+                raise Exception(f"Encountered an unknown type during deserialization {t}")
+            return converter(item)
 
         if isinstance(self._json_node, str):
             return list(map(func, json.loads(self._json_node)))

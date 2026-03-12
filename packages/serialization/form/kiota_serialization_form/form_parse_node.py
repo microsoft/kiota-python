@@ -120,34 +120,22 @@ class FormParseNode(ParseNode):
         if not primitive_type:
             raise Exception("Primitive type for deserialization cannot be null")
 
-        primitive_types = {bool, str, int, float, UUID, datetime, timedelta, date, time, bytes}
-        if primitive_type in primitive_types:
-            items = self._node.split(',')
-            result: list[T] = []
-            for item in items:
-                decoded_item = unquote_plus(item)
-                if primitive_type == bool:
-                    result.append(self._get_bool_value(decoded_item))
-                elif primitive_type == str:
-                    result.append(self._get_str_value(decoded_item))
-                elif primitive_type == int:
-                    result.append(self._get_int_value(decoded_item))
-                elif primitive_type == float:
-                    result.append(self._get_float_value(decoded_item))
-                elif primitive_type == UUID:
-                    result.append(self._get_uuid_value(decoded_item))
-                elif primitive_type == datetime:
-                    result.append(self._get_datetime_value(decoded_item))
-                elif primitive_type == timedelta:
-                    result.append(self._get_timedelta_value(decoded_item))
-                elif primitive_type == date:
-                    result.append(self._get_date_value(decoded_item))
-                elif primitive_type == time:
-                    result.append(self._get_time_value(decoded_item))
-                elif primitive_type == bytes:
-                    result.append(self._get_bytes_value(decoded_item))
-            return result
-        raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
+        converters = {
+            bool: self._get_bool_value,
+            str: self._get_str_value,
+            int: self._get_int_value,
+            float: self._get_float_value,
+            UUID: self._get_uuid_value,
+            datetime: self._get_datetime_value,
+            timedelta: self._get_timedelta_value,
+            date: self._get_date_value,
+            time: self._get_time_value,
+            bytes: self._get_bytes_value,
+        }
+        converter = converters.get(primitive_type)
+        if converter is None:
+            raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
+        return [converter(unquote_plus(item)) for item in self._node.split(',')]
 
     def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
         raise Exception("Collection of object values is not supported with uri form encoding.")
