@@ -148,7 +148,7 @@ __TIP__ Running `.\kiota-python.ps1 test` should give a hint of all available co
 
 This repository is setup to use [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/remote/containers) to provide a consistent development environment for contributors. The dev container is configured to have all the necessary tools and dependencies to work on the repository.
 
-By default we do all development in `Python 3.12`, but we support Python 3.9, 3.10, 3.11, and 3.12. The dev container is configured to use Python 3.12, but you can test your changes by changing the `"image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",` line in the `.devcontainer/devcontainer.json` file to the desired version. If you save changes to this file, you will be prompted to rebuild the dev container. You can also rebuild the dev container by running the `Remote-Containers: Rebuild Container` command from the command palette.
+By default we do all development in `Python 3.14`, but we support Python 3.9, 3.10, 3.11, 3.12, 3.13, and 3.14. The dev container is configured to use Python 3.14, but you can test your changes by changing the `"image": "mcr.microsoft.com/devcontainers/python:3.14-bookworm",` line in the `.devcontainer/devcontainer.json` file to the desired version. If you save changes to this file, you will be prompted to rebuild the dev container. You can also rebuild the dev container by running the `Remote-Containers: Rebuild Container` command from the command palette.
 
 ### Dependencies
 
