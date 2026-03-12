@@ -135,7 +135,7 @@ class FormParseNode(ParseNode):
         converter = converters.get(primitive_type)
         if converter is None:
             raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
-        return [converter(unquote_plus(item)) for item in self._node.split(',')]
+        return [converter(unquote_plus(item)) for item in self._node.split(',')]  # type: ignore[misc]
 
     def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
         raise Exception("Collection of object values is not supported with uri form encoding.")
