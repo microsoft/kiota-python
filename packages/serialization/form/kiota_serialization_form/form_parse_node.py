@@ -10,7 +10,9 @@ from urllib.parse import unquote_plus
 from uuid import UUID
 
 from kiota_abstractions.date_utils import (
-    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+    datetime_from_iso_format_compat,
+    parse_timedelta_string,
+    time_from_iso_format_compat,
 )
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
@@ -135,7 +137,9 @@ class FormParseNode(ParseNode):
         converter = converters.get(primitive_type)
         if converter is None:
             raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
-        return [converter(unquote_plus(item)) for item in self._node.split(',')]  # type: ignore[misc]
+        return [
+            converter(unquote_plus(item)) for item in self._node.split(',')
+        ]  # type: ignore[misc]
 
     def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
         raise Exception("Collection of object values is not supported with uri form encoding.")
