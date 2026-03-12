@@ -36,118 +36,70 @@ class FormParseNode(ParseNode):
         Returns:
             str: The string value of the node
         """
-        if self._node and self._node != "null":
-            try:
-                return str(self._node)
-            except:
-                return None
-        return None
+        return self._get_str_value(self._node)
 
     def get_bool_value(self) -> Optional[bool]:
         """Gets the boolean value of the node
         Returns:
             bool: The boolean value of the node
         """
-        if self._node and self._node != "null":
-            return self._node.lower() == "true"
-        return None
+        return self._get_bool_value(self._node)
 
     def get_int_value(self) -> Optional[int]:
         """Gets the integer value of the node
         Returns:
             int: The integer value of the node
         """
-        if self._node and self._node != "null":
-            try:
-                return int(self._node)
-            except:
-                return None
-        return None
+        return self._get_int_value(self._node)
 
     def get_float_value(self) -> Optional[float]:
         """Gets the float value of the node
         Returns:
             float: The integer value of the node
         """
-        if self._node and self._node != "null":
-            try:
-                return float(self._node)
-            except:
-                return None
-        return None
+        return self._get_float_value(self._node)
 
     def get_uuid_value(self) -> Optional[UUID]:
         """Gets the UUID value of the node
         Returns:
             UUID: The GUID value of the node
         """
-        if self._node and self._node != "null":
-            try:
-                return UUID(self._node)
-            except:
-                return None
-        return None
+        return self._get_uuid_value(self._node)
 
     def get_datetime_value(self) -> Optional[datetime]:
         """Gets the datetime value of the node
         Returns:
             datetime: The datetime value of the node
         """
-        if self._node and self._node != "null":
-            try:
-                return datetime_from_iso_format_compat(self._node)
-            except:
-                return None
-        return None
+        return self._get_datetime_value(self._node)
 
     def get_timedelta_value(self) -> Optional[timedelta]:
         """Gets the timedelta value of the node
         Returns:
             timedelta: The timedelta value of the node
         """
-        if self._node and self._node != "null":
-            try:
-                return parse_timedelta_string(self._node)
-            except:
-                return None
-        return None
+        return self._get_timedelta_value(self._node)
 
     def get_date_value(self) -> Optional[date]:
         """Gets the date value of the node
         Returns:
             date: The datevalue of the node in terms on year, month, and day.
         """
-        if self._node and self._node != "null":
-            try:
-                return date.fromisoformat(self._node)
-            except:
-                return None
-        return None
+        return self._get_date_value(self._node)
 
     def get_time_value(self) -> Optional[time]:
         """Gets the time value of the node
         Returns:
             time: The time value of the node in terms of hour, minute, and second.
         """
-        if self._node and self._node != "null":
-            try:
-                return time_from_iso_format_compat(self._node)
-            except:
-                return None
-        return None
+        return self._get_time_value(self._node)
 
     def get_bytes_value(self) -> Optional[bytes]:
         """Get the bytes value of the node
         Returns:
             bytes: The decoded bytes value
         """
-        if self._node and self._node != "null":
-            try:
-                base64_string = str(self._node)
-                return base64_string.encode("utf-8")
-            except:
-                return None
-        return None
+        return self._get_bytes_value(self._node)
 
     def get_child_node(self, field_name: str) -> Optional[ParseNode]:
         """Gets the child node of the node
@@ -173,10 +125,27 @@ class FormParseNode(ParseNode):
             items = self._node.split(',')
             result: list[T] = []
             for item in items:
-                current_parse_node = self._create_new_node(item)
-                method_name = f"get_{primitive_type.__name__.lower()}_value"
-                method = getattr(current_parse_node, method_name)
-                result.append(method())
+                decoded_item = unquote_plus(item)
+                if primitive_type == bool:
+                    result.append(self._get_bool_value(decoded_item))
+                elif primitive_type == str:
+                    result.append(self._get_str_value(decoded_item))
+                elif primitive_type == int:
+                    result.append(self._get_int_value(decoded_item))
+                elif primitive_type == float:
+                    result.append(self._get_float_value(decoded_item))
+                elif primitive_type == UUID:
+                    result.append(self._get_uuid_value(decoded_item))
+                elif primitive_type == datetime:
+                    result.append(self._get_datetime_value(decoded_item))
+                elif primitive_type == timedelta:
+                    result.append(self._get_timedelta_value(decoded_item))
+                elif primitive_type == date:
+                    result.append(self._get_date_value(decoded_item))
+                elif primitive_type == time:
+                    result.append(self._get_time_value(decoded_item))
+                elif primitive_type == bytes:
+                    result.append(self._get_bytes_value(decoded_item))
             return result
         raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
 
@@ -335,6 +304,93 @@ class FormParseNode(ParseNode):
         if self.on_after_assign_field_values:
             new_node.on_after_assign_field_values = self.on_after_assign_field_values
         return new_node
+
+    @staticmethod
+    def _get_str_value(value: str) -> Optional[str]:
+        if value and value != "null":
+            try:
+                return str(value)
+            except:
+                return None
+        return None
+
+    @staticmethod
+    def _get_bool_value(value: str) -> Optional[bool]:
+        if value and value != "null":
+            return value.lower() == "true"
+        return None
+
+    @staticmethod
+    def _get_int_value(value: str) -> Optional[int]:
+        if value and value != "null":
+            try:
+                return int(value)
+            except:
+                return None
+        return None
+
+    @staticmethod
+    def _get_float_value(value: str) -> Optional[float]:
+        if value and value != "null":
+            try:
+                return float(value)
+            except:
+                return None
+        return None
+
+    @staticmethod
+    def _get_uuid_value(value: str) -> Optional[UUID]:
+        if value and value != "null":
+            try:
+                return UUID(value)
+            except:
+                return None
+        return None
+
+    @staticmethod
+    def _get_datetime_value(value: str) -> Optional[datetime]:
+        if value and value != "null":
+            try:
+                return datetime_from_iso_format_compat(value)
+            except:
+                return None
+        return None
+
+    @staticmethod
+    def _get_timedelta_value(value: str) -> Optional[timedelta]:
+        if value and value != "null":
+            try:
+                return parse_timedelta_string(value)
+            except:
+                return None
+        return None
+
+    @staticmethod
+    def _get_date_value(value: str) -> Optional[date]:
+        if value and value != "null":
+            try:
+                return date.fromisoformat(value)
+            except:
+                return None
+        return None
+
+    @staticmethod
+    def _get_time_value(value: str) -> Optional[time]:
+        if value and value != "null":
+            try:
+                return time_from_iso_format_compat(value)
+            except:
+                return None
+        return None
+
+    @staticmethod
+    def _get_bytes_value(value: str) -> Optional[bytes]:
+        if value and value != "null":
+            try:
+                return str(value).encode("utf-8")
+            except:
+                return None
+        return None
 
     def _get_fields(self, raw_value: str) -> dict[str, str]:
         fields = raw_value.split('&')
