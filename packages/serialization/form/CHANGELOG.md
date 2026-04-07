@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.10.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.9.10...microsoft-kiota-serialization-form-v1.10.0) (2026-04-07)
+
+
+### Features
+
+* drop support for Python 3.9 ([b1c6835](https://github.com/microsoft/kiota-python/commit/b1c6835912dc26e22f3e70534772762a49504c22))
+* drop support for Python 3.9 ([f7e066f](https://github.com/microsoft/kiota-python/commit/f7e066f7defb6d265bfc5079b6a8ea96481f4e0a))
+
+
+### Bug Fixes
+
+* add Python 3.14 classifier to all pyproject.toml files ([6c13439](https://github.com/microsoft/kiota-python/commit/6c13439e4e514d08dadf5f7f4a2242556ba512e9))
+
 ## [1.9.10](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.9.9...microsoft-kiota-serialization-form-v1.9.10) (2026-03-12)
 
 
