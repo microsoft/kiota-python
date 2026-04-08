@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.10.0...microsoft-kiota-serialization-json-v1.10.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* reduce parse node allocations when deserializing primitive types for JSON and form formats ([9245692](https://github.com/microsoft/kiota-python/commit/9245692276ae16d2dde92f8bc3b0d563082b3a33))
+
 ## [1.10.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.9.10...microsoft-kiota-serialization-json-v1.10.0) (2026-04-07)
 
 
