@@ -10,7 +10,9 @@ from typing import Any, Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.date_utils import (
-    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+    datetime_from_iso_format_compat,
+    parse_timedelta_string,
+    time_from_iso_format_compat,
 )
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
@@ -52,96 +54,63 @@ class JsonParseNode(ParseNode):
         Returns:
             str: The string value of the node
         """
-        return self._json_node if isinstance(self._json_node, str) else None
+        return self._get_str_value(self._json_node)
 
     def get_bool_value(self) -> Optional[bool]:
         """Gets the boolean value of the json node
         Returns:
             bool: The boolean value of the node
         """
-        return self._json_node if isinstance(self._json_node, bool) else None
+        return self._get_bool_value(self._json_node)
 
     def get_int_value(self) -> Optional[int]:
         """Gets the integer value of the json node
         Returns:
             int: The integer value of the node
         """
-        return self._json_node if isinstance(self._json_node, int) else None
+        return self._get_int_value(self._json_node)
 
     def get_float_value(self) -> Optional[float]:
         """Gets the float value of the json node
         Returns:
             float: The number value of the node
         """
-        return float(self._json_node) if isinstance(self._json_node, (float, int)) else None
+        return self._get_float_value(self._json_node)
 
     def get_uuid_value(self) -> Optional[UUID]:
         """Gets the UUID value of the json node
         Returns:
             UUID: The GUID value of the node
         """
-        if isinstance(self._json_node, UUID):
-            return self._json_node
-        if isinstance(self._json_node, str):
-            return UUID(self._json_node)
-        return None
+        return self._get_uuid_value(self._json_node)
 
     def get_datetime_value(self) -> Optional[datetime]:
         """Gets the datetime value of the json node
         Returns:
             datetime: The datetime value of the node
         """
-        if isinstance(self._json_node, datetime):
-            return self._json_node
-
-        if isinstance(self._json_node, str):
-            if len(self._json_node) < 10:
-                return None
-
-            datetime_obj = datetime_from_iso_format_compat(self._json_node)
-            if isinstance(datetime_obj, datetime):
-                return datetime_obj
-        return None
+        return self._get_datetime_value(self._json_node)
 
     def get_timedelta_value(self) -> Optional[timedelta]:
         """Gets the timedelta value of the node
         Returns:
             timedelta: The timedelta value of the node
         """
-        if isinstance(self._json_node, timedelta):
-            return self._json_node
-        if isinstance(self._json_node, str):
-            try:
-                return parse_timedelta_string(self._json_node)
-            except ValueError:
-                return None
-        return None
+        return self._get_timedelta_value(self._json_node)
 
     def get_date_value(self) -> Optional[date]:
         """Gets the date value of the node
         Returns:
             date: The datevalue of the node in terms on year, month, and day.
         """
-        if isinstance(self._json_node, date):
-            return self._json_node
-        if isinstance(self._json_node, str):
-            datetime_obj = date.fromisoformat(self._json_node)
-            if isinstance(datetime_obj, date):
-                return datetime_obj
-        return None
+        return self._get_date_value(self._json_node)
 
     def get_time_value(self) -> Optional[time]:
         """Gets the time value of the node
         Returns:
             time: The time value of the node in terms of hour, minute, and second.
         """
-        if isinstance(self._json_node, time):
-            return self._json_node
-        if isinstance(self._json_node, str):
-            datetime_obj = time_from_iso_format_compat(self._json_node)
-            if isinstance(datetime_obj, time):
-                return datetime_obj
-        return None
+        return self._get_time_value(self._json_node)
 
     def get_collection_of_primitive_values(self, primitive_type: type[T]) -> Optional[list[T]]:
         """Gets the collection of primitive values of the node
@@ -151,15 +120,25 @@ class JsonParseNode(ParseNode):
             list[T]: The collection of primitive values
         """
 
-        primitive_types = {bool, str, int, float, UUID, datetime, timedelta, date, time, bytes}
+        converters = {
+            bool: self._get_bool_value,
+            str: self._get_str_value,
+            int: self._get_int_value,
+            float: self._get_float_value,
+            UUID: self._get_uuid_value,
+            datetime: self._get_datetime_value,
+            timedelta: self._get_timedelta_value,
+            date: self._get_date_value,
+            time: self._get_time_value,
+            bytes: self._get_bytes_value,
+        }
 
         def func(item):
-            generic_type = primitive_type if primitive_type else type(item)
-            current_parse_node = self._create_new_node(item)
-            if generic_type in primitive_types:
-                method = getattr(current_parse_node, f'get_{generic_type.__name__.lower()}_value')
-                return method()
-            raise Exception(f"Encountered an unknown type during deserialization {generic_type}")
+            t = primitive_type if primitive_type else type(item)
+            converter = converters.get(t)
+            if converter is None:
+                raise Exception(f"Encountered an unknown type during deserialization {t}")
+            return converter(item)
 
         if isinstance(self._json_node, str):
             return list(map(func, json.loads(self._json_node)))
@@ -243,12 +222,83 @@ class JsonParseNode(ParseNode):
         Returns:
             bytearray: The bytearray value from the nodes
         """
+        return self._get_bytes_value(self._json_node)
+
+    @staticmethod
+    def _get_str_value(value: Any) -> Optional[str]:
+        return value if isinstance(value, str) else None
+
+    @staticmethod
+    def _get_bool_value(value: Any) -> Optional[bool]:
+        return value if isinstance(value, bool) else None
+
+    @staticmethod
+    def _get_int_value(value: Any) -> Optional[int]:
+        return value if isinstance(value, int) else None
+
+    @staticmethod
+    def _get_float_value(value: Any) -> Optional[float]:
+        return float(value) if isinstance(value, (float, int)) else None
+
+    @staticmethod
+    def _get_uuid_value(value: Any) -> Optional[UUID]:
+        if isinstance(value, UUID):
+            return value
+        if isinstance(value, str):
+            return UUID(value)
+        return None
+
+    @staticmethod
+    def _get_datetime_value(value: Any) -> Optional[datetime]:
+        if isinstance(value, datetime):
+            return value
+        if isinstance(value, str):
+            if len(value) < 10:
+                return None
+            datetime_obj = datetime_from_iso_format_compat(value)
+            if isinstance(datetime_obj, datetime):
+                return datetime_obj
+        return None
+
+    @staticmethod
+    def _get_timedelta_value(value: Any) -> Optional[timedelta]:
+        if isinstance(value, timedelta):
+            return value
+        if isinstance(value, str):
+            try:
+                return parse_timedelta_string(value)
+            except ValueError:
+                return None
+        return None
+
+    @staticmethod
+    def _get_date_value(value: Any) -> Optional[date]:
+        if isinstance(value, date):
+            return value
+        if isinstance(value, str):
+            datetime_obj = date.fromisoformat(value)
+            if isinstance(datetime_obj, date):
+                return datetime_obj
+        return None
+
+    @staticmethod
+    def _get_time_value(value: Any) -> Optional[time]:
+        if isinstance(value, time):
+            return value
+        if isinstance(value, str):
+            datetime_obj = time_from_iso_format_compat(value)
+            if isinstance(datetime_obj, time):
+                return datetime_obj
+        return None
+
+    @staticmethod
+    def _get_bytes_value(value: Any) -> Optional[bytes]:
         # if the node is a string, we need to decode it
         # This ensures that the string is properly converted to bytes
-        if isinstance(self._json_node, str):
-            base64_string = self._json_node
+        if isinstance(value, str):
+            base64_string = value
         else:
-            base64_string = json.dumps(self._json_node)
+            base64_string = json.dumps(value)
         if not base64_string:
             return None
         return base64_string.encode("utf-8")
