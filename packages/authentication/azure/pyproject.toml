@@ -35,7 +35,7 @@ opentelemetry-sdk = ">=1.27.0"
 [tool.poetry.group.dev.dependencies]
 yapf = ">=0.40.2,<0.44.0"
 isort = ">=5.13.2,<7.0.0"
-pylint = "^3.2.7"
+pylint = ">=3.2.7,<5.0.0"
 mypy = "^1.11.2"
 pytest = "^8.3.2"
 pytest-asyncio = ">=0.24,<1.4"
