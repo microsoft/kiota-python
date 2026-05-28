@@ -42,9 +42,6 @@ class JsonParseNode(ParseNode):
         Returns:
             Optional[ParseNode]: A new parse node for the given identifier
         """
-        if not identifier:
-            raise ValueError("identifier cannot be None or empty.")
-
         if isinstance(node := self._json_node, dict) and identifier in node:
             return self._create_new_node(node[identifier])
         return None

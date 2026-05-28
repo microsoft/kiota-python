@@ -35,6 +35,19 @@ def test_get_float_value_from_float():
     assert result == 44.6
 
 
+def test_get_child_node_not_found():
+    parse_node = JsonParseNode({"name": "Jane Smith"})
+    result = parse_node.get_child_node("age")
+    assert result is None
+
+
+def test_get_child_node_empty_name():
+    parse_node = JsonParseNode({"": "John Smith"})
+    result = parse_node.get_child_node("")
+    assert result is not None
+    assert result.get_str_value() == "John Smith"
+
+
 @pytest.mark.parametrize("value", [0, 10, 100])
 def test_get_float_value(value: int):
     """
