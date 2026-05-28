@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.10.1...microsoft-kiota-serialization-json-v1.10.2) (2026-05-28)
+
+
+### Bug Fixes
+
+* **json:** remove redundant guard in get_child_node ([b07b151](https://github.com/microsoft/kiota-python/commit/b07b1510a3e07a728b34cee1c5bf211f86b12e4c))
+* **json:** remove redundant guard in get_child_node ([1230131](https://github.com/microsoft/kiota-python/commit/1230131d7a2d0c7a6e2f87ddeb68de4d71da7232)), closes [#559](https://github.com/microsoft/kiota-python/issues/559)
+
 ## [1.10.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.10.0...microsoft-kiota-serialization-json-v1.10.1) (2026-04-08)
 
 
