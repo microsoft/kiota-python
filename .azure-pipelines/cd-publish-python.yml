@@ -31,7 +31,6 @@ extends:
     pool:
       name: Azure-Pipelines-1ESPT-ExDShared
       vmImage: ubuntu-latest
-      os: linux
     sdl:
       sourceAnalysisPool:
         name: Azure-Pipelines-1ESPT-ExDShared
