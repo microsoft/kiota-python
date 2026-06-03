@@ -30,7 +30,8 @@ extends:
   parameters:
     pool:
       name: Azure-Pipelines-1ESPT-ExDShared
-      vmImage: ubuntu-latest
+      image: ubuntu-latest
+      os: linux
     sdl:
       sourceAnalysisPool:
         name: Azure-Pipelines-1ESPT-ExDShared
@@ -46,7 +47,8 @@ extends:
           displayName: 'Build, Test, and Package'
           pool:
             name: Azure-Pipelines-1ESPT-ExDShared
-            vmImage: ubuntu-latest
+            image: ubuntu-latest
+            os: linux
 
           steps:
             - task: UsePythonVersion@0
