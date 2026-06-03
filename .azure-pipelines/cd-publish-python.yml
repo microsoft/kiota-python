@@ -31,6 +31,12 @@ extends:
     pool:
       name: Azure-Pipelines-1ESPT-ExDShared
       vmImage: ubuntu-latest
+      os: linux
+    sdl:
+      sourceAnalysisPool:
+        name: Azure-Pipelines-1ESPT-ExDShared
+        image: windows-2022
+        os: windows
     stages:
 
     - stage: build
@@ -299,7 +305,7 @@ extends:
       jobs:
         - deployment: publish_python_packages
           displayName: 'Publish Kiota Python Packages'
-          environment: kiota-python-prod
+          environment: pypi_prod
           pool:
             name: Azure-Pipelines-1ESPT-ExDShared
             image: ubuntu-latest
