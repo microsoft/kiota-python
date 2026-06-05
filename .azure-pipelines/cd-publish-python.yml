@@ -59,210 +59,208 @@ extends:
             - task: PipAuthenticate@1
               displayName: "Authenticate pip to Azure Artifacts"
               inputs:
-                artifactFeeds: "$(System.TeamProject)/msgraph-python-dev"
+                artifactFeeds: "$(System.TeamProject)/GraphDeveloperExperiences_Public"
 
-            - script: |
-                pip install poetry
-                pip install poetry-plugin-mono-repo-deps
-              displayName: 'Install Poetry and mono-repo-deps plugin'
+            - script: pip install build
+              displayName: 'Install build'
 
             # Build and test kiota_abstractions
-            - script: poetry install
+            - script: pip install -r requirements-dev.txt
               displayName: 'Install abstractions dependencies'
               workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
 
-            - script: poetry run yapf -dr kiota_abstractions
+            - script: yapf -dr kiota_abstractions
               displayName: 'Check code format - abstractions'
               workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
 
-            - script: poetry run isort kiota_abstractions
+            - script: isort kiota_abstractions
               displayName: 'Check import order - abstractions'
               workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
 
-            - script: poetry run pylint kiota_abstractions --disable=W --rcfile=.pylintrc
+            - script: pylint kiota_abstractions --disable=W --rcfile=.pylintrc
               displayName: 'Lint with Pylint - abstractions'
               workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
 
-            - script: poetry run pytest
+            - script: pytest
               displayName: 'Run tests - abstractions'
               workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
 
-            - script: poetry build
+            - script: python -m build
               displayName: 'Build package - abstractions'
               workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
 
             # Build and test kiota_authentication_azure
-            - script: poetry install
+            - script: pip install -r requirements-dev.txt
               displayName: 'Install authentication_azure dependencies'
               workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
 
-            - script: poetry run yapf -dr kiota_authentication_azure
+            - script: yapf -dr kiota_authentication_azure
               displayName: 'Check code format - authentication_azure'
               workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
 
-            - script: poetry run isort kiota_authentication_azure
+            - script: isort kiota_authentication_azure
               displayName: 'Check import order - authentication_azure'
               workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
 
-            - script: poetry run pylint kiota_authentication_azure --disable=W --rcfile=.pylintrc
+            - script: pylint kiota_authentication_azure --disable=W --rcfile=.pylintrc
               displayName: 'Lint with Pylint - authentication_azure'
               workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
 
-            - script: poetry run pytest
+            - script: pytest
               displayName: 'Run tests - authentication_azure'
               workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
 
-            - script: poetry build
+            - script: python -m build
               displayName: 'Build package - authentication_azure'
               workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
 
             # Build and test kiota_http
-            - script: poetry install
+            - script: pip install -r requirements-dev.txt
               displayName: 'Install http dependencies'
               workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
 
-            - script: poetry run yapf -dr kiota_http
+            - script: yapf -dr kiota_http
               displayName: 'Check code format - http'
               workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
 
-            - script: poetry run isort kiota_http
+            - script: isort kiota_http
               displayName: 'Check import order - http'
               workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
 
-            - script: poetry run pylint kiota_http --disable=W --rcfile=.pylintrc
+            - script: pylint kiota_http --disable=W --rcfile=.pylintrc
               displayName: 'Lint with Pylint - http'
               workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
 
-            - script: poetry run pytest
+            - script: pytest
               displayName: 'Run tests - http'
               workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
 
-            - script: poetry build
+            - script: python -m build
               displayName: 'Build package - http'
               workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
 
             # Build and test kiota_serialization_form
-            - script: poetry install
+            - script: pip install -r requirements-dev.txt
               displayName: 'Install serialization_form dependencies'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
 
-            - script: poetry run yapf -dr kiota_serialization_form
+            - script: yapf -dr kiota_serialization_form
               displayName: 'Check code format - serialization_form'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
 
-            - script: poetry run isort kiota_serialization_form
+            - script: isort kiota_serialization_form
               displayName: 'Check import order - serialization_form'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
 
-            - script: poetry run pylint kiota_serialization_form --disable=W --rcfile=.pylintrc
+            - script: pylint kiota_serialization_form --disable=W --rcfile=.pylintrc
               displayName: 'Lint with Pylint - serialization_form'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
 
-            - script: poetry run pytest
+            - script: pytest
               displayName: 'Run tests - serialization_form'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
 
-            - script: poetry build
+            - script: python -m build
               displayName: 'Build package - serialization_form'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
 
             # Build and test kiota_serialization_json
-            - script: poetry install
+            - script: pip install -r requirements-dev.txt
               displayName: 'Install serialization_json dependencies'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
 
-            - script: poetry run yapf -dr kiota_serialization_json
+            - script: yapf -dr kiota_serialization_json
               displayName: 'Check code format - serialization_json'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
 
-            - script: poetry run isort kiota_serialization_json
+            - script: isort kiota_serialization_json
               displayName: 'Check import order - serialization_json'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
 
-            - script: poetry run pylint kiota_serialization_json --disable=W --rcfile=.pylintrc
+            - script: pylint kiota_serialization_json --disable=W --rcfile=.pylintrc
               displayName: 'Lint with Pylint - serialization_json'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
 
-            - script: poetry run pytest
+            - script: pytest
               displayName: 'Run tests - serialization_json'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
 
-            - script: poetry build
+            - script: python -m build
               displayName: 'Build package - serialization_json'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
 
             # Build and test kiota_serialization_text
-            - script: poetry install
+            - script: pip install -r requirements-dev.txt
               displayName: 'Install serialization_text dependencies'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
 
-            - script: poetry run yapf -dr kiota_serialization_text
+            - script: yapf -dr kiota_serialization_text
               displayName: 'Check code format - serialization_text'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
 
-            - script: poetry run isort kiota_serialization_text
+            - script: isort kiota_serialization_text
               displayName: 'Check import order - serialization_text'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
 
-            - script: poetry run pylint kiota_serialization_text --disable=W --rcfile=.pylintrc
+            - script: pylint kiota_serialization_text --disable=W --rcfile=.pylintrc
               displayName: 'Lint with Pylint - serialization_text'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
 
-            - script: poetry run pytest
+            - script: pytest
               displayName: 'Run tests - serialization_text'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
 
-            - script: poetry build
+            - script: python -m build
               displayName: 'Build package - serialization_text'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
 
             # Build and test kiota_serialization_multipart
-            - script: poetry install
+            - script: pip install -r requirements-dev.txt
               displayName: 'Install serialization_multipart dependencies'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
 
-            - script: poetry run yapf -dr kiota_serialization_multipart
+            - script: yapf -dr kiota_serialization_multipart
               displayName: 'Check code format - serialization_multipart'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
 
-            - script: poetry run isort kiota_serialization_multipart
+            - script: isort kiota_serialization_multipart
               displayName: 'Check import order - serialization_multipart'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
 
-            - script: poetry run pylint kiota_serialization_multipart --disable=W --rcfile=.pylintrc
+            - script: pylint kiota_serialization_multipart --disable=W --rcfile=.pylintrc
               displayName: 'Lint with Pylint - serialization_multipart'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
 
-            - script: poetry run pytest
+            - script: pytest
               displayName: 'Run tests - serialization_multipart'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
 
-            - script: poetry build
+            - script: python -m build
               displayName: 'Build package - serialization_multipart'
               workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
 
             # Build and test kiota_bundle
-            - script: poetry install
+            - script: pip install -r requirements-dev.txt
               displayName: 'Install bundle dependencies'
               workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
 
-            - script: poetry run yapf -dr kiota_bundle
+            - script: yapf -dr kiota_bundle
               displayName: 'Check code format - bundle'
               workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
 
-            - script: poetry run isort kiota_bundle
+            - script: isort kiota_bundle
               displayName: 'Check import order - bundle'
               workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
 
-            - script: poetry run pylint kiota_bundle --disable=W --rcfile=.pylintrc
+            - script: pylint kiota_bundle --disable=W --rcfile=.pylintrc
               displayName: 'Lint with Pylint - bundle'
               workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
 
-            - script: poetry run pytest
+            - script: pytest
               displayName: 'Run tests - bundle'
               workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
 
-            - script: poetry build
+            - script: python -m build
               displayName: 'Build package - bundle'
               workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
 
@@ -339,7 +337,7 @@ extends:
                     folderlocation: '$(Build.ArtifactStagingDirectory)/python'
                     waitforreleasecompletion: true
                     owners: 'mmainer@microsoft.com,gavinbarron@microsoft.com'
-                    approvers: 'mmainer@microsoft.com,christiano@microsoft.com,gavinbarron@microsoft.com,lramosvea@microsoft.com'
+                    approvers: 'mmainer@microsoft.com,christiano@microsoft.com,gavinbarron@microsoft.com'
                     serviceendpointurl: 'https://api.esrp.microsoft.com'
                     mainpublisher: 'ESRPRELPACMAN'
                     domaintenantid: 'cdc5aeea-15c5-4db6-b079-fcadd2505dc2'
