@@ -224,6 +224,79 @@ def test_sets_time_only_values_in_path_parameters():
     request_info = RequestInformation(Method.GET, "https://example.com/daysFrom/{startDate}")
     request_info.path_parameters["startDate"] = datetime(year=2020, month=8, day=1, hour=0, minute=20, second=0, microsecond=0).time()
     assert request_info.url == "https://example.com/daysFrom/00%3A20%3A00"
-    
 
-    
+
+def test_expands_map_query_parameter_as_individual_key_value_pairs():
+    """Tests that a dict query parameter expands as individual key=value pairs via RFC 6570."""
+    request_info = RequestInformation(Method.GET, "http://localhost/articles{?query*}")
+    request_info.query_parameters["query"] = {
+        "filter": "equals(published,true)",
+        "sort": "-createdAt",
+    }
+    url = request_info.url
+    assert "?" in url
+    assert "filter=equals%28published%2Ctrue%29" in url
+    assert "sort=-createdAt" in url
+
+
+def test_map_query_parameter_none_values_are_omitted():
+    """Tests that None values within a map query parameter are silently dropped."""
+    request_info = RequestInformation(Method.GET, "http://localhost/articles{?query*}")
+    request_info.query_parameters["query"] = {
+        "include": "author",
+        "exclude": None,
+    }
+    url = request_info.url
+    assert "include=author" in url
+    assert "exclude" not in url
+
+
+def test_map_query_parameter_empty_string_value_is_included():
+    """Tests that an empty-string value in a map query parameter is preserved."""
+    request_info = RequestInformation(Method.GET, "http://localhost/articles{?query*}")
+    request_info.query_parameters["query"] = {"search": ""}
+    url = request_info.url
+    assert "search=" in url
+
+
+def test_empty_map_query_parameter_produces_no_query_string():
+    """Tests that an empty dict query parameter produces no query string."""
+    request_info = RequestInformation(Method.GET, "http://localhost/articles{?query*}")
+    request_info.query_parameters["query"] = {}
+    url = request_info.url
+    assert "?" not in url
+
+
+def test_all_none_map_query_parameter_produces_no_query_string():
+    """Tests that a dict with all None values produces no query string."""
+    request_info = RequestInformation(Method.GET, "http://localhost/articles{?query*}")
+    request_info.query_parameters["query"] = {"a": None, "b": None}
+    url = request_info.url
+    assert "?" not in url
+
+
+def test_mix_of_map_and_scalar_query_parameters():
+    """Tests that map and scalar query parameters can coexist in the same URL."""
+    request_info = RequestInformation(Method.GET, "http://localhost/articles{?query*,top}")
+    request_info.query_parameters["query"] = {"filter": "active"}
+    request_info.query_parameters["top"] = 5
+    url = request_info.url
+    assert "filter=active" in url
+    assert "top=5" in url
+
+
+def test_map_query_parameter_via_set_query_string_parameters_from_raw_object():
+    """Tests that a dict field on a dataclass query params object is handled correctly."""
+    from dataclasses import dataclass
+    from typing import Optional
+
+    @dataclass
+    class MapQueryParams:
+        query: Optional[dict] = None
+
+    request_info = RequestInformation(Method.GET, "http://localhost/articles{?query*}")
+    params = MapQueryParams(query={"filter": "equals(published,true)", "sort": "-createdAt"})
+    request_info.set_query_string_parameters_from_raw_object(params)
+    url = request_info.url
+    assert "filter=equals%28published%2Ctrue%29" in url
+    assert "sort=-createdAt" in url
