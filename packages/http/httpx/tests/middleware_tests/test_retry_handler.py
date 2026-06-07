@@ -298,3 +298,32 @@ async def test_retry_options_apply_per_request():
     assert resp.status_code == GATEWAY_TIMEOUT
     assert 'request_2' in resp.request.headers
     assert resp.request.headers[RETRY_ATTEMPT] == '2'
+
+
+@pytest.mark.asyncio
+async def test_retried_responses_are_closed():
+    """Discarded retry responses are closed so their connection is released."""
+    responses = []
+
+    async def body():
+        yield b'{}'
+
+    statuses = [TOO_MANY_REQUESTS, TOO_MANY_REQUESTS, 200]
+
+    def request_handler(request: httpx.Request):
+        status = statuses.pop(0)
+        headers = {RETRY_AFTER: '0'} if status == TOO_MANY_REQUESTS else {}
+        response = httpx.Response(status, headers=headers, content=body())
+        responses.append(response)
+        return response
+
+    handler = RetryHandler(RetryHandlerOption(delay=0, max_retries=2))
+    request = httpx.Request('GET', BASE_URL)
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+
+    assert resp.status_code == 200
+    # the two retried responses are closed, releasing their connections
+    assert responses[0].is_closed and responses[1].is_closed
+    # the returned response is left open for the caller to read
+    assert not responses[2].is_closed
