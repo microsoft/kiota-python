@@ -1,8 +1,6 @@
 {
+  "azure-pipelines.1ESPipelineTemplatesSchemaFile": true, 
   "python.testing.cwd": ".",
-  // "python.poetryPath": ".venv/bin/poetry",
-  // "python.testing.pytestPath": ".venv/bin/pytest",
-  // "python.analysis.typeCheckingMode": "basic",
   "python.testing.pytestArgs": [
     "packages/tests",
     "packages/abstractions/tests",
@@ -17,4 +15,5 @@
   ],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": false, // Disable pytest (does not work with poetry yet)
+  "azure-pipelines.1ESPipelineTemplatesSchemaFile": true
 }

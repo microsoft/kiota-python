@@ -1,0 +1,343 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
+# Build, package, and deploy Kiota Python packages to PyPI
+
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  tags:
+    include:
+      - 'microsoft-kiota-abstractions-v*'
+pr: none
+
+variables:
+  pythonVersion: '3.14'
+
+resources:
+  repositories:
+  - repository: 1ESPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: ubuntu-latest
+      os: linux
+    sdl:
+      sourceAnalysisPool:
+        name: Azure-Pipelines-1ESPT-ExDShared
+        image: windows-2022
+        os: windows
+    stages:
+
+    - stage: build
+      displayName: 'Build and Package Kiota Python Packages'
+      condition: or(contains(variables['Build.SourceBranch'], 'microsoft-kiota-abstractions-v'), eq(variables['Build.Reason'], 'Manual'))
+      jobs:
+        - job: build_python
+          displayName: 'Build, Test, and Package'
+          pool:
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: ubuntu-latest
+            os: linux
+
+          steps:
+            - task: UsePythonVersion@0
+              displayName: 'Install Python $(pythonVersion)'
+              inputs:
+                versionSpec: '$(pythonVersion)'
+                addToPath: true
+
+            - script: python -m pip install --upgrade pip
+              displayName: 'Upgrade pip'
+
+            - task: PipAuthenticate@1
+              displayName: "Authenticate pip to Azure Artifacts"
+              inputs:
+                artifactFeeds: "$(System.TeamProject)/GraphDeveloperExperiences_Public"
+
+            - script: pip install build
+              displayName: 'Install build'
+
+            # Build and test kiota_abstractions
+            - script: pip install -r requirements-dev.txt
+              displayName: 'Install abstractions dependencies'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
+
+            - script: yapf -dr kiota_abstractions
+              displayName: 'Check code format - abstractions'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
+
+            - script: isort kiota_abstractions
+              displayName: 'Check import order - abstractions'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
+
+            - script: pylint kiota_abstractions --disable=W --rcfile=.pylintrc
+              displayName: 'Lint with Pylint - abstractions'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
+
+            - script: pytest
+              displayName: 'Run tests - abstractions'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
+
+            - script: python -m build
+              displayName: 'Build package - abstractions'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/abstractions'
+
+            # Build and test kiota_authentication_azure
+            - script: pip install -r requirements-dev.txt
+              displayName: 'Install authentication_azure dependencies'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
+
+            - script: yapf -dr kiota_authentication_azure
+              displayName: 'Check code format - authentication_azure'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
+
+            - script: isort kiota_authentication_azure
+              displayName: 'Check import order - authentication_azure'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
+
+            - script: pylint kiota_authentication_azure --disable=W --rcfile=.pylintrc
+              displayName: 'Lint with Pylint - authentication_azure'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
+
+            - script: pytest
+              displayName: 'Run tests - authentication_azure'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
+
+            - script: python -m build
+              displayName: 'Build package - authentication_azure'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/authentication/azure'
+
+            # Build and test kiota_http
+            - script: pip install -r requirements-dev.txt
+              displayName: 'Install http dependencies'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
+
+            - script: yapf -dr kiota_http
+              displayName: 'Check code format - http'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
+
+            - script: isort kiota_http
+              displayName: 'Check import order - http'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
+
+            - script: pylint kiota_http --disable=W --rcfile=.pylintrc
+              displayName: 'Lint with Pylint - http'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
+
+            - script: pytest
+              displayName: 'Run tests - http'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
+
+            - script: python -m build
+              displayName: 'Build package - http'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/http/httpx'
+
+            # Build and test kiota_serialization_form
+            - script: pip install -r requirements-dev.txt
+              displayName: 'Install serialization_form dependencies'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
+
+            - script: yapf -dr kiota_serialization_form
+              displayName: 'Check code format - serialization_form'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
+
+            - script: isort kiota_serialization_form
+              displayName: 'Check import order - serialization_form'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
+
+            - script: pylint kiota_serialization_form --disable=W --rcfile=.pylintrc
+              displayName: 'Lint with Pylint - serialization_form'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
+
+            - script: pytest
+              displayName: 'Run tests - serialization_form'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
+
+            - script: python -m build
+              displayName: 'Build package - serialization_form'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/form'
+
+            # Build and test kiota_serialization_json
+            - script: pip install -r requirements-dev.txt
+              displayName: 'Install serialization_json dependencies'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
+
+            - script: yapf -dr kiota_serialization_json
+              displayName: 'Check code format - serialization_json'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
+
+            - script: isort kiota_serialization_json
+              displayName: 'Check import order - serialization_json'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
+
+            - script: pylint kiota_serialization_json --disable=W --rcfile=.pylintrc
+              displayName: 'Lint with Pylint - serialization_json'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
+
+            - script: pytest
+              displayName: 'Run tests - serialization_json'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
+
+            - script: python -m build
+              displayName: 'Build package - serialization_json'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/json'
+
+            # Build and test kiota_serialization_text
+            - script: pip install -r requirements-dev.txt
+              displayName: 'Install serialization_text dependencies'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
+
+            - script: yapf -dr kiota_serialization_text
+              displayName: 'Check code format - serialization_text'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
+
+            - script: isort kiota_serialization_text
+              displayName: 'Check import order - serialization_text'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
+
+            - script: pylint kiota_serialization_text --disable=W --rcfile=.pylintrc
+              displayName: 'Lint with Pylint - serialization_text'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
+
+            - script: pytest
+              displayName: 'Run tests - serialization_text'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
+
+            - script: python -m build
+              displayName: 'Build package - serialization_text'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/text'
+
+            # Build and test kiota_serialization_multipart
+            - script: pip install -r requirements-dev.txt
+              displayName: 'Install serialization_multipart dependencies'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
+
+            - script: yapf -dr kiota_serialization_multipart
+              displayName: 'Check code format - serialization_multipart'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
+
+            - script: isort kiota_serialization_multipart
+              displayName: 'Check import order - serialization_multipart'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
+
+            - script: pylint kiota_serialization_multipart --disable=W --rcfile=.pylintrc
+              displayName: 'Lint with Pylint - serialization_multipart'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
+
+            - script: pytest
+              displayName: 'Run tests - serialization_multipart'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
+
+            - script: python -m build
+              displayName: 'Build package - serialization_multipart'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/serialization/multipart'
+
+            # Build and test kiota_bundle
+            - script: pip install -r requirements-dev.txt
+              displayName: 'Install bundle dependencies'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
+
+            - script: yapf -dr kiota_bundle
+              displayName: 'Check code format - bundle'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
+
+            - script: isort kiota_bundle
+              displayName: 'Check import order - bundle'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
+
+            - script: pylint kiota_bundle --disable=W --rcfile=.pylintrc
+              displayName: 'Lint with Pylint - bundle'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
+
+            - script: pytest
+              displayName: 'Run tests - bundle'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
+
+            - script: python -m build
+              displayName: 'Build package - bundle'
+              workingDirectory: '$(Build.SourcesDirectory)/packages/bundle'
+
+            # Copy all built packages to staging
+            - task: CopyFiles@2
+              displayName: 'Copy all package artifacts to staging'
+              inputs:
+                CleanTargetFolder: true
+                sourceFolder: '$(Build.SourcesDirectory)'
+                targetFolder: '$(Build.ArtifactStagingDirectory)/python/kiota_packages'
+                Contents: |
+                  packages/abstractions/dist/*.tar.gz
+                  packages/abstractions/dist/*.whl
+                  packages/authentication/azure/dist/*.tar.gz
+                  packages/authentication/azure/dist/*.whl
+                  packages/http/httpx/dist/*.tar.gz
+                  packages/http/httpx/dist/*.whl
+                  packages/serialization/form/dist/*.tar.gz
+                  packages/serialization/form/dist/*.whl
+                  packages/serialization/json/dist/*.tar.gz
+                  packages/serialization/json/dist/*.whl
+                  packages/serialization/text/dist/*.tar.gz
+                  packages/serialization/text/dist/*.whl
+                  packages/serialization/multipart/dist/*.tar.gz
+                  packages/serialization/multipart/dist/*.whl
+                  packages/bundle/dist/*.tar.gz
+                  packages/bundle/dist/*.whl
+                flattenFolders: true
+
+          templateContext:
+            outputs:
+              - output: pipelineArtifact
+                displayName: 'Stage Kiota Python package artifacts'
+                artifactName: pypi_kiota_packages
+                targetPath: '$(Build.ArtifactStagingDirectory)/python/kiota_packages'
+                condition: or(contains(variables['Build.SourceBranch'], 'microsoft-kiota-abstractions-v'), eq(variables['Build.Reason'], 'Manual'))
+
+    - stage: deploy
+      displayName: 'Publish Kiota Python Packages to PyPI'
+      dependsOn: build
+      condition: or(and(contains(variables['Build.SourceBranch'], 'microsoft-kiota-abstractions-v'), succeeded()), eq(variables['Build.Reason'], 'Manual'))
+      jobs:
+        - deployment: publish_python_packages
+          displayName: 'Publish Kiota Python Packages'
+          environment: pypi_prod
+          pool:
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: ubuntu-latest
+            os: linux
+
+          templateContext:
+              type: releaseJob
+              isProduction: true
+              inputs:
+                - input: pipelineArtifact
+                  artifactName: pypi_kiota_packages
+                  targetPath: '$(Build.ArtifactStagingDirectory)/python'
+          strategy:
+            runOnce:
+              deploy:
+                steps:
+                - task: EsrpRelease@9
+                  displayName: 'Publish Kiota Python packages via ESRP Release'
+                  inputs:
+                    connectedservicename: "Federated DevX ESRP Managed Identity Connection"
+                    usemanagedidentity: false
+                    keyvaultname: 'akv-prod-eastus'
+                    authcertname: 'ReferenceLibraryPrivateCert'
+                    signcertname: 'ReferencePackagePublisherCertificate'
+                    clientid: '65035b7f-7357-4f29-bf25-c5ee5c3949f8'
+                    intent: 'PackageDistribution'
+                    contenttype: 'PYPI'
+                    contentsource: 'Folder'
+                    folderlocation: '$(Build.ArtifactStagingDirectory)/python'
+                    waitforreleasecompletion: true
+                    owners: 'mmainer@microsoft.com,gavinbarron@microsoft.com'
+                    approvers: 'mmainer@microsoft.com,christiano@microsoft.com,gavinbarron@microsoft.com'
+                    serviceendpointurl: 'https://api.esrp.microsoft.com'
+                    mainpublisher: 'ESRPRELPACMAN'
+                    domaintenantid: 'cdc5aeea-15c5-4db6-b079-fcadd2505dc2'
