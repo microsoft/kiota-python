@@ -95,6 +95,8 @@ class RetryHandler(BaseMiddleware):
             # and status code
             should_retry = self.should_retry(request, current_options, response)
             if all([should_retry, retry_valid, delay < RetryHandlerOption.MAX_DELAY]):
+                # release the discarded response's connection before retrying
+                await response.aclose()
                 await asyncio.sleep(delay)
                 # increment the count for retries
                 retry_count += 1
