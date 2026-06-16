@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.10.3...microsoft-kiota-bundle-v1.11.0) (2026-06-16)
+
+
+### Features
+
+* **pipeline:** add Azure Pipelines configuration for building and publishing Kiota Python packages to PyPI ([#562](https://github.com/microsoft/kiota-python/issues/562)) ([a0e7a88](https://github.com/microsoft/kiota-python/commit/a0e7a883162da618219dc758a94dd058d05526f1))
+
 ## [1.10.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.10.2...microsoft-kiota-bundle-v1.10.3) (2026-06-07)
 
 
