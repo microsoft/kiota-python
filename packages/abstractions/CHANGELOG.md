@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.11.0...microsoft-kiota-abstractions-v1.11.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* **abstractions:** trigger release ([#576](https://github.com/microsoft/kiota-python/issues/576)) ([619bb4b](https://github.com/microsoft/kiota-python/commit/619bb4b65131ea2b60f2a53d640a638a359d9a0f))
+
 ## [1.11.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.10.3...microsoft-kiota-abstractions-v1.11.0) (2026-06-16)
 
 
