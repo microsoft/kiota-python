@@ -8,7 +8,7 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
   tags:
     include:
-      - 'microsoft-kiota-abstractions-v*'
+      - 'microsoft-kiota-*-v*'
 pr: none
 
 variables:
@@ -37,7 +37,6 @@ extends:
 
     - stage: build
       displayName: 'Build and Package Kiota Python Packages'
-      condition: or(contains(variables['Build.SourceBranch'], 'microsoft-kiota-abstractions-v'), eq(variables['Build.Reason'], 'Manual'))
       jobs:
         - job: build_python
           displayName: 'Build, Test, and Package'
@@ -296,12 +295,11 @@ extends:
                 displayName: 'Stage Kiota Python package artifacts'
                 artifactName: pypi_kiota_packages
                 targetPath: '$(Build.ArtifactStagingDirectory)/python/kiota_packages'
-                condition: or(contains(variables['Build.SourceBranch'], 'microsoft-kiota-abstractions-v'), eq(variables['Build.Reason'], 'Manual'))
 
     - stage: deploy
       displayName: 'Publish Kiota Python Packages to PyPI'
       dependsOn: build
-      condition: or(and(contains(variables['Build.SourceBranch'], 'microsoft-kiota-abstractions-v'), succeeded()), eq(variables['Build.Reason'], 'Manual'))
+      condition: succeeded()
       jobs:
         - deployment: publish_python_packages
           displayName: 'Publish Kiota Python Packages'
@@ -322,7 +320,7 @@ extends:
             runOnce:
               deploy:
                 steps:
-                - task: EsrpRelease@9
+                - task: EsrpRelease@12
                   displayName: 'Publish Kiota Python packages via ESRP Release'
                   inputs:
                     connectedservicename: "Federated DevX ESRP Managed Identity Connection"
@@ -336,8 +334,8 @@ extends:
                     contentsource: 'Folder'
                     folderlocation: '$(Build.ArtifactStagingDirectory)/python'
                     waitforreleasecompletion: true
-                    owners: 'mmainer@microsoft.com,gavinbarron@microsoft.com'
-                    approvers: 'mmainer@microsoft.com,christiano@microsoft.com,gavinbarron@microsoft.com'
+                    owners: 'ramsess@microsoft.com,gavinbarron@microsoft.com'
+                    approvers: 'ramsess@microsoft.com,christiano@microsoft.com,gavinbarron@microsoft.com'
                     serviceendpointurl: 'https://api.esrp.microsoft.com'
                     mainpublisher: 'ESRPRELPACMAN'
                     domaintenantid: 'cdc5aeea-15c5-4db6-b079-fcadd2505dc2'
