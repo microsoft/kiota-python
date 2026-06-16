@@ -63,4 +63,8 @@ class AllowedHostsValidator:
         # Returns: ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
         #    query='query', fragment='fragment')
         o = urlparse(url)
-        return all([o.scheme, o.netloc])
+        if not all([o.scheme, o.netloc]):
+            return False
+        if not o.hostname:
+            return False
+        return o.hostname.lower() in self.allowed_hosts
