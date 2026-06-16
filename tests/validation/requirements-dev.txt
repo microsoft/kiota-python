@@ -1,0 +1,7 @@
+-e ../../packages/abstractions
+-e ../../packages/http/httpx
+-e ../../packages/serialization/json
+-e ../../packages/serialization/form
+-e ../../packages/serialization/text
+-e ../../packages/serialization/multipart
+mypy>=1.11.2,<3.0.0
