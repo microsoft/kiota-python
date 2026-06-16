@@ -3,7 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/microsoft-kiota-abstractions.svg)](https://badge.fury.io/py/microsoft-kiota-abstractions)
 [![Downloads](https://pepy.tech/badge/microsoft-kiota-abstractions)](https://pepy.tech/project/microsoft-kiota-abstractions)
 
-The Microsoft Kiota abstractions library for Python is the python package defining the basic constructs Kiota projects need once an SDK has been generated from an OpenAPI definition.
+The Microsoft Kiota abstractions library for Python is the python package that defines the basic constructs Kiota projects need once an SDK has been generated from an OpenAPI definition.
 
 A [Kiota](https://github.com/microsoft/kiota) generated project will need a reference to the abstraction package to build and run.
 
