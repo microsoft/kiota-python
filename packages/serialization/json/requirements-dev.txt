@@ -1,13 +1,8 @@
 -e ../../abstractions
 -e .
 yapf>=0.43.0,<0.44.0
-<<<<<<< chore/consolidate-dependabot-updates
 isort>=8.0.1,<9.0.0
 pylint>=4.0.6,<5.0.0
-=======
-isort>=5.13.2,<9.0.0
-pylint>=3.2.7,<5.0.0
->>>>>>> main
 mypy>=2.1.0,<3.0.0
 pytest>=9.1.0,<10.0.0
 pytest-asyncio>=1.4.0,<1.5
