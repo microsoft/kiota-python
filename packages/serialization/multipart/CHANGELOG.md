@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.11.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.11.1...microsoft-kiota-serialization-multipart-v1.11.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **version:** bump version to 1.11.1 for all packages and update dependencies accordingly ([89cc424](https://github.com/microsoft/kiota-python/commit/89cc42432d8aeec3577153642bc74e81c013e944))
+* **version:** bump version to 1.11.1 for all packages and update dependencies accordingly ([cfa9aab](https://github.com/microsoft/kiota-python/commit/cfa9aabf11152f515907ffaa176dd7be508a76aa))
+
 ## [1.11.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.11.0...microsoft-kiota-serialization-multipart-v1.11.1) (2026-06-16)
 
 
