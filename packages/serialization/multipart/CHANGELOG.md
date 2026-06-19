@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.11.5](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.11.4...microsoft-kiota-serialization-multipart-v1.11.5) (2026-06-19)
+
+
+### Bug Fixes
+
+* update pytest constraint from 9.1.1 to 9.1.0 - pytest 9.1.1 does not exist ([#634](https://github.com/microsoft/kiota-python/issues/634)) ([2fd2f85](https://github.com/microsoft/kiota-python/commit/2fd2f85f6fc3b8aaedafd1249b7bf16e9dbf056c))
+
 ## [1.11.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.11.3...microsoft-kiota-serialization-multipart-v1.11.4) (2026-06-19)
 
 
