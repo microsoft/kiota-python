@@ -12,7 +12,7 @@ trigger:
       # Use the bundle tag as the canonical release marker so this pipeline
       # runs once per release instead of once per package tag.
       # This works because the packages have the same version.
-      - 'microsoft-kiota-bundle-v*'
+      - microsoft-kiota-bundle-v*
 pr: none
 
 variables:
