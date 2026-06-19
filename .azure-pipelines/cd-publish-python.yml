@@ -8,7 +8,11 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
   tags:
     include:
-      - 'microsoft-kiota-*-v*'
+      # Release Please creates one tag per linked package on the same commit.
+      # Use the bundle tag as the canonical release marker so this pipeline
+      # runs once per release instead of once per package tag.
+      # This works because the packages have the same version.
+      - 'microsoft-kiota-bundle-v*'
 pr: none
 
 variables:
