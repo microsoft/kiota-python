@@ -3,7 +3,8 @@
 [![PyPI version](https://badge.fury.io/py/microsoft-kiota-bundle.svg)](https://badge.fury.io/py/microsoft-kiota-bundle)
 [![Downloads](https://pepy.tech/badge/microsoft-kiota-bundle)](https://pepy.tech/project/microsoft-kiota-bundle)
 
-The Microsoft Kiota Bundle Library is a library providing default implementations for client setup. The package provides a request adapter implementation with defaults serialization libraries setup fo use with a generated Kiota client.
+The Microsoft Kiota Bundle Library is a library providing default implementations for client setup. The package provides 
+a request adapter implementation with defaults serialization libraries setup fo use with a generated Kiota client.
 
 Read more about Kiota [here](https://github.com/microsoft/kiota/blob/main/README.md).
 
