@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "microsoft-kiota-serialization-multipart"
-version = "1.11.2"
+version = "1.11.3"
 description = "Core abstractions for kiota generated libraries in Python"
 authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
 license = {text = "MIT"}
