@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.11.3...microsoft-kiota-bundle-v1.11.4) (2026-06-19)
+
+
+### Bug Fixes
+
+* trigger release ([#632](https://github.com/microsoft/kiota-python/issues/632)) ([3ebe6fb](https://github.com/microsoft/kiota-python/commit/3ebe6fbfb16d509afcfb2d6a789b402d1d4ee27a))
+
 ## [1.11.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.11.2...microsoft-kiota-bundle-v1.11.3) (2026-06-19)
 
 
