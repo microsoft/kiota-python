@@ -100,16 +100,23 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
             if self._scopes:
                 scopes = self._scopes
             else:
-                scopes = [f"{parsed_url.scheme}://{parsed_url.hostname}/.default"]
+                hostname = parsed_url.hostname
+                if not hostname:
+                    span.set_attribute(self.IS_VALID_URL, False)
+                    exc = HTTPError("Valid url scheme and host required")
+                    span.record_exception(exc)
+                    raise exc
+                # urlparse strips brackets from IPv6 literals; re-add them so
+                # the derived scope is a syntactically valid URL.
+                if ":" in hostname:
+                    hostname = f"[{hostname}]"
+                scopes = [f"{parsed_url.scheme}://{hostname}/.default"]
             span.set_attribute(self.SCOPES, ",".join(scopes))
             span.set_attribute(self.ADDITIONAL_CLAIMS_PROVIDED, bool(self._options))
 
             if self._options:
                 result = self._credentials.get_token(
-                    *scopes,
-                    claims=decoded_claim,
-                    enable_cae=self._is_cae_enabled,
-                    **self._options
+                    *scopes, claims=decoded_claim, enable_cae=self._is_cae_enabled, **self._options
                 )
             else:
                 result = self._credentials.get_token(

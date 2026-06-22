@@ -130,7 +130,7 @@ async def test_derived_scope_is_not_cached_across_hosts():
         ('https://graph.microsoft.com/.default',),
         ('https://graph.microsoft.us/.default',),
     ]
-    # Provider must not have mutated the caller-supplied scopes list.
+    # Provider must not have cached derived scopes into `_scopes`.
     assert token_provider._scopes == []
 
 
@@ -148,4 +148,31 @@ async def test_explicit_scopes_are_respected():
         ('https://graph.microsoft.com/.default',),
         ('https://graph.microsoft.com/.default',),
     ]
+
+
+@pytest.mark.asyncio
+async def test_derived_scope_rejects_url_without_hostname():
+    """A URI whose netloc has no hostname (e.g. `https://@/path`) must not
+    silently derive a scope like `https://None/.default`; it must raise.
+    """
+    credential = RecordingSyncAzureTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+
+    with pytest.raises(Exception):
+        await token_provider.get_authorization_token('https://@/path')
+    assert credential.received_scopes == []
+
+
+@pytest.mark.asyncio
+async def test_derived_scope_brackets_ipv6_hostname():
+    """`urlparse` strips brackets from IPv6 literals; the derived scope
+    must re-add them so the resulting URL is syntactically valid.
+    """
+    credential = RecordingSyncAzureTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+
+    await token_provider.get_authorization_token('https://[2001:db8::1]/v1.0/me')
+
+    assert credential.received_scopes == [('https://[2001:db8::1]/.default',)]
+
 
