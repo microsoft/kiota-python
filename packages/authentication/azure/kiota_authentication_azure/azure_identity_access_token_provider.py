@@ -97,20 +97,7 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
                 decoded_claim = decoded_bytes.decode("utf-8")
 
             # Derive the scope per-call from the request hostname.
-            if self._scopes:
-                scopes = self._scopes
-            else:
-                hostname = parsed_url.hostname
-                if not hostname:
-                    span.set_attribute(self.IS_VALID_URL, False)
-                    exc = HTTPError("Valid url scheme and host required")
-                    span.record_exception(exc)
-                    raise exc
-                # urlparse strips brackets from IPv6 literals; re-add them so
-                # the derived scope is a syntactically valid URL.
-                if ":" in hostname:
-                    hostname = f"[{hostname}]"
-                scopes = [f"{parsed_url.scheme}://{hostname}/.default"]
+            scopes = self._resolve_scopes(parsed_url, span)
             span.set_attribute(self.SCOPES, ",".join(scopes))
             span.set_attribute(self.ADDITIONAL_CLAIMS_PROVIDED, bool(self._options))
 
@@ -137,3 +124,24 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
             AllowedHostsValidator: The allowed hosts validator.
         """
         return self._allowed_hosts_validator
+
+    def _resolve_scopes(self, parsed_url, span) -> list[str]:
+        """Return the scopes to pass to `get_token` for this request.
+
+        Caller-supplied scopes are returned verbatim. Otherwise a default
+        `.default` scope is derived from the request hostname only, so that
+        userinfo (`user:password@`) and ports (which Entra ID rejects for
+        `.default` scopes) are never copied into the scope or telemetry.
+        IPv6 literal brackets stripped by `urlparse` are re-added.
+        """
+        if self._scopes:
+            return self._scopes
+        hostname = parsed_url.hostname
+        if not hostname:
+            span.set_attribute(self.IS_VALID_URL, False)
+            exc = HTTPError("Valid url scheme and host required")
+            span.record_exception(exc)
+            raise exc
+        if ":" in hostname:
+            hostname = f"[{hostname}]"
+        return [f"{parsed_url.scheme}://{hostname}/.default"]
