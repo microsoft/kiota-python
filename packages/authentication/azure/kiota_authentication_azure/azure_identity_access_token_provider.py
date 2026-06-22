@@ -96,21 +96,24 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
                 decoded_bytes = base64.b64decode(additional_authentication_context[self.CLAIMS_KEY])
                 decoded_claim = decoded_bytes.decode("utf-8")
 
-            if not self._scopes:
-                self._scopes = [f"{parsed_url.scheme}://{parsed_url.netloc}/.default"]
-            span.set_attribute(self.SCOPES, ",".join(self._scopes))
+            # Derive the scope per-call from the request hostname.
+            if self._scopes:
+                scopes = self._scopes
+            else:
+                scopes = [f"{parsed_url.scheme}://{parsed_url.hostname}/.default"]
+            span.set_attribute(self.SCOPES, ",".join(scopes))
             span.set_attribute(self.ADDITIONAL_CLAIMS_PROVIDED, bool(self._options))
 
             if self._options:
                 result = self._credentials.get_token(
-                    *self._scopes,
+                    *scopes,
                     claims=decoded_claim,
                     enable_cae=self._is_cae_enabled,
                     **self._options
                 )
             else:
                 result = self._credentials.get_token(
-                    *self._scopes, claims=decoded_claim, enable_cae=self._is_cae_enabled
+                    *scopes, claims=decoded_claim, enable_cae=self._is_cae_enabled
                 )
 
             if inspect.isawaitable(result):
