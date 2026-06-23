@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.6](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.11.5...microsoft-kiota-authentication-azure-v1.11.6) (2026-06-23)
+
+
+### Bug Fixes
+
+* **authentication-azure:** derive token scope from hostname, not netloc. ([7d80a66](https://github.com/microsoft/kiota-python/commit/7d80a66c4c0cde31aa99b50bdcb0fbb7896bfe03))
+* **authentication-azure:** derive token scope from hostname, not netloc. ([ba941fd](https://github.com/microsoft/kiota-python/commit/ba941fd8043482ffe1bd2caa60b65b5ecd25860a))
+
 ## [1.11.5](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.11.4...microsoft-kiota-authentication-azure-v1.11.5) (2026-06-19)
 
 
