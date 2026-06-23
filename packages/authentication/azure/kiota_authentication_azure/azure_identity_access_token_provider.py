@@ -96,21 +96,18 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
                 decoded_bytes = base64.b64decode(additional_authentication_context[self.CLAIMS_KEY])
                 decoded_claim = decoded_bytes.decode("utf-8")
 
-            if not self._scopes:
-                self._scopes = [f"{parsed_url.scheme}://{parsed_url.netloc}/.default"]
-            span.set_attribute(self.SCOPES, ",".join(self._scopes))
+            # Derive the scope per-call from the request hostname.
+            scopes = self._resolve_scopes(parsed_url, span)
+            span.set_attribute(self.SCOPES, ",".join(scopes))
             span.set_attribute(self.ADDITIONAL_CLAIMS_PROVIDED, bool(self._options))
 
             if self._options:
                 result = self._credentials.get_token(
-                    *self._scopes,
-                    claims=decoded_claim,
-                    enable_cae=self._is_cae_enabled,
-                    **self._options
+                    *scopes, claims=decoded_claim, enable_cae=self._is_cae_enabled, **self._options
                 )
             else:
                 result = self._credentials.get_token(
-                    *self._scopes, claims=decoded_claim, enable_cae=self._is_cae_enabled
+                    *scopes, claims=decoded_claim, enable_cae=self._is_cae_enabled
                 )
 
             if inspect.isawaitable(result):
@@ -127,3 +124,24 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
             AllowedHostsValidator: The allowed hosts validator.
         """
         return self._allowed_hosts_validator
+
+    def _resolve_scopes(self, parsed_url, span) -> list[str]:
+        """Return the scopes to pass to `get_token` for this request.
+
+        Caller-supplied scopes are returned verbatim. Otherwise a default
+        `.default` scope is derived from the request hostname only, so that
+        userinfo (`user:password@`) and ports (which Entra ID rejects for
+        `.default` scopes) are never copied into the scope or telemetry.
+        IPv6 literal brackets stripped by `urlparse` are re-added.
+        """
+        if self._scopes:
+            return self._scopes
+        hostname = parsed_url.hostname
+        if not hostname:
+            span.set_attribute(self.IS_VALID_URL, False)
+            exc = HTTPError("Valid url scheme and host required")
+            span.record_exception(exc)
+            raise exc
+        if ":" in hostname:
+            hostname = f"[{hostname}]"
+        return [f"{parsed_url.scheme}://{hostname}/.default"]
