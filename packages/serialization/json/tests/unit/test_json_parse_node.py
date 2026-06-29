@@ -1,3 +1,4 @@
+import base64
 import json
 from datetime import date, datetime, time, timedelta, timezone
 from uuid import UUID
@@ -120,14 +121,19 @@ def test_get_collection_of_primitive_values_no_type():
 def test_get_bytes_value():
     parse_node = JsonParseNode("U2Ftd2VsIGlzIHRoZSBiZXN0")
     result = parse_node.get_bytes_value()
-    assert isinstance(result, bytes)
-    assert result.decode("utf-8") == "U2Ftd2VsIGlzIHRoZSBiZXN0"
+    assert result == b"Samwel is the best"
 
 
-def test_get_bytes_json_compatible():
+def test_get_bytes_value_empty_string():
+    parse_node = JsonParseNode("")
+    result = parse_node.get_bytes_value()
+    assert result == b""
+
+
+def test_get_bytes_value_non_string_returns_none():
     parse_node = JsonParseNode({"test": 1})
     result = parse_node.get_bytes_value()
-    assert json.loads(result.decode("utf-8")) == {"test": 1}
+    assert result is None
 
 
 def test_get_collection_of_enum_values():

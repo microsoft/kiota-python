@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import re
 import warnings
@@ -290,15 +291,9 @@ class JsonParseNode(ParseNode):
 
     @staticmethod
     def _get_bytes_value(value: Any) -> Optional[bytes]:
-        # if the node is a string, we need to decode it
-        # This ensures that the string is properly converted to bytes
         if isinstance(value, str):
-            base64_string = value
-        else:
-            base64_string = json.dumps(value)
-        if not base64_string:
-            return None
-        return base64_string.encode("utf-8")
+            return base64.b64decode(value)
+        return None
 
     @property
     def on_before_assign_field_values(self) -> Optional[Callable[[Parsable], None]]:
