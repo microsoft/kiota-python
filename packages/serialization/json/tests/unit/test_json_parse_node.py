@@ -1,4 +1,3 @@
-import base64
 import json
 from datetime import date, datetime, time, timedelta, timezone
 from uuid import UUID
