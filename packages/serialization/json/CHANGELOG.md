@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.7](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.11.6...microsoft-kiota-serialization-json-v1.11.7) (2026-06-30)
+
+
+### Bug Fixes
+
+* **json:** base64-decode bytes values on deserialization ([d5acedb](https://github.com/microsoft/kiota-python/commit/d5acedbc1c0f46470100b8e18adb3a5cd8755f75))
+* **json:** base64-decode bytes values on deserialization ([d5acedb](https://github.com/microsoft/kiota-python/commit/d5acedbc1c0f46470100b8e18adb3a5cd8755f75))
+
 ## [1.11.6](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.11.5...microsoft-kiota-serialization-json-v1.11.6) (2026-06-23)
 
 
