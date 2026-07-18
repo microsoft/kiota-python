@@ -228,6 +228,47 @@ def test_get_anythin_does_convert_date_string_to_datetime():
     assert result == datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)
 
 
+@pytest.mark.parametrize(
+    "value",
+    [
+        # microsoftgraph/msgraph-sdk-python#1340: text values coerced to
+        # datetime.time via lenient time.fromisoformat (3.11+ accepts an
+        # hour plus a UTC-offset-looking suffix or a fraction separator)
+        "19-2026",  # invoice number, parsed as time(19, 0) at offset -20:26
+        "100-012863299",  # invoice number
+        "23.085",  # parsed as time(23, 0, 0, 85000)
+        "11.0",  # version string, parsed as time(11, 0)
+        # coerced to timedelta via parse_timedelta_string
+        "PT",  # country code, parsed as an empty ISO 8601 duration
+        "10:30",  # parsed as hh:mm
+        # microsoft/kiota-python#487: 32-hex string coerced to UUID
+        "d41d8cd98f00b204e9800998ecf8427e",
+        # date-like fragments must not be parsed as dates
+        "12-25",
+        "2023-10",
+    ],
+)
+def test_get_anything_does_not_coerce_text_values(value):
+    parse_node = JsonParseNode(value)
+    result = parse_node.try_get_anything(value)
+    assert isinstance(result, str)
+    assert result == value
+
+
+def test_get_anything_converts_date_only_string_to_datetime():
+    parse_node = JsonParseNode("2023-10-05")
+    result = parse_node.try_get_anything("2023-10-05")
+    assert isinstance(result, datetime)
+    assert result == datetime(2023, 10, 5, 0, 0)
+
+
+def test_get_anything_converts_canonical_uuid_string():
+    parse_node = JsonParseNode("8f841f30-e6e3-439a-a812-ebd369559c36")
+    result = parse_node.try_get_anything("8f841f30-e6e3-439a-a812-ebd369559c36")
+    assert isinstance(result, UUID)
+    assert result == UUID("8f841f30-e6e3-439a-a812-ebd369559c36")
+
+
 def test_get_object_value(user1_json):
     parse_node = JsonParseNode(json.loads(user1_json))
     result = parse_node.get_object_value(User)
