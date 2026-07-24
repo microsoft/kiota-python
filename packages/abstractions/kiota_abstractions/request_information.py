@@ -315,8 +315,7 @@ class RequestInformation:
             # when it encounters None inside a map, so we strip them here.
             sanitized_value = {
                 str(k): self._get_sanitized_value(v)
-                for k, v in value.items()
-                if v is not None
+                for k, v in value.items() if k is not None and v is not None
             }
         return sanitized_value
 

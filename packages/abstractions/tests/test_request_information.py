@@ -300,3 +300,21 @@ def test_map_query_parameter_via_set_query_string_parameters_from_raw_object():
     url = request_info.url
     assert "filter=equals%28published%2Ctrue%29" in url
     assert "sort=-createdAt" in url
+
+
+def test_map_query_parameter_with_none_key_or_varied_types():
+    """Tests that None keys are ignored and varied value types are sanitized."""
+    request_info = RequestInformation(Method.GET, "http://localhost/articles{?query*}")
+    request_info.query_parameters["query"] = {
+        "top": 10,
+        "active": True,
+        "enumVal": TestEnum.VALUE1,
+        "nullVal": None,
+        None: "ignoredNullKey",
+    }
+    url = request_info.url
+    assert "top=10" in url
+    assert "active=true" in url
+    assert "enumVal=value1" in url
+    assert "nullVal" not in url
+    assert "ignoredNullKey" not in url
