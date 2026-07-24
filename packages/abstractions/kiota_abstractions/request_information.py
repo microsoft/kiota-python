@@ -309,6 +309,14 @@ class RequestInformation:
             sanitized_value = temp_date_with_tz_info.isoformat("T")
         elif any([isinstance(value, UUID), isinstance(value, date), isinstance(value, time)]):
             sanitized_value = str(value)
+        elif isinstance(value, dict):
+            # Map-style query parameter: drop None entries per RFC 6570 §2.3 "undefined"
+            # semantics, then normalise remaining values.  StdUriTemplate raises ValueError
+            # when it encounters None inside a map, so we strip them here.
+            sanitized_value = {
+                str(k): self._get_sanitized_value(v)
+                for k, v in value.items() if k is not None and v is not None
+            }
         return sanitized_value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
