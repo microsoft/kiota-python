@@ -262,6 +262,40 @@ def test_get_anything_converts_date_only_string_to_datetime():
     assert result == datetime(2023, 10, 5, 0, 0)
 
 
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        # date + time, no offset
+        ("2023-10-05T14:48:00", datetime(2023, 10, 5, 14, 48)),
+        ("2023-10-05T14:48:00.123456", datetime(2023, 10, 5, 14, 48, 0, 123456)),
+        # date + time + UTC offset
+        ("2023-10-05T14:48:00Z", datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)),
+        ("2023-10-05T14:48:00+00:00", datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)),
+        # date + time + non-UTC offset
+        (
+            "2023-10-05T14:48:00+02:00",
+            datetime(2023, 10, 5, 14, 48, tzinfo=timezone(timedelta(hours=2))),
+        ),
+        (
+            "2023-10-05T14:48:00.123456-05:00",
+            datetime(2023, 10, 5, 14, 48, 0, 123456, tzinfo=timezone(timedelta(hours=-5))),
+        ),
+        # lowercase t separator
+        ("2023-10-05t14:48:00Z", datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)),
+        # space separator (RFC 3339 permits it for readability)
+        (
+            "2023-10-05 14:48:00+02:00",
+            datetime(2023, 10, 5, 14, 48, tzinfo=timezone(timedelta(hours=2))),
+        ),
+    ],
+)
+def test_get_anything_converts_datetime_with_time_and_offset_variations(value, expected):
+    parse_node = JsonParseNode(value)
+    result = parse_node.try_get_anything(value)
+    assert isinstance(result, datetime)
+    assert result == expected
+
+
 def test_get_anything_converts_canonical_uuid_string():
     parse_node = JsonParseNode("8f841f30-e6e3-439a-a812-ebd369559c36")
     result = parse_node.try_get_anything("8f841f30-e6e3-439a-a812-ebd369559c36")
