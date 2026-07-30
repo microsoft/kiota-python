@@ -15,5 +15,9 @@
   ],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": false, // Disable pytest (does not work with poetry yet)
-  "azure-pipelines.1ESPipelineTemplatesSchemaFile": true
+  "azure-pipelines.1ESPipelineTemplatesSchemaFile": true,
+  "cSpell.words": [
+    "cooldown",
+    "pylint"
+  ]
 }
