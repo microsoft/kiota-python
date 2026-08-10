@@ -358,9 +358,17 @@ class JsonParseNode(ParseNode):
                     deserialize but the model doesn't support additional data"
                 )
 
-    def __is_four_digit_number(self, value: str) -> bool:
-        pattern = r'^\d{4}$'
-        return bool(re.match(pattern, value))
+    # Anchored shapes that are unambiguous date/datetime/UUID literals. Untyped
+    # strings are only converted when they match one of these; anything else is
+    # returned as-is. Lenient guessing (time, timedelta, compact/partial dates)
+    # mangled real-world text values such as "19-2026" (parsed as a time with a
+    # UTC offset), "PT" (empty duration) or "11.0" (11:00). This mirrors the
+    # .NET JsonParseNode, which only attempts strict DateTime/DateTimeOffset/
+    # Guid parses on strings.
+    _ISO_DATETIME_OR_DATE_PATTERN = re.compile(r'^\d{4}-\d{2}-\d{2}([Tt ]\d{2}:\d{2}|$)')
+    _CANONICAL_UUID_PATTERN = re.compile(
+        r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+    )
 
     def try_get_anything(self, value: Any) -> Any:
         if isinstance(value, (int, float, bool)) or value is None:
@@ -370,31 +378,16 @@ class JsonParseNode(ParseNode):
         if isinstance(value, dict):
             return dict(map(lambda x: (x[0], self.try_get_anything(x[1])), value.items()))
         if isinstance(value, str):
-            try:
-                if self.__is_four_digit_number(value):
-                    return value
-                if value.isdigit():
-                    return value
-                datetime_obj = datetime_from_iso_format_compat(value)
-                return datetime_obj
-            except ValueError:
-                pass
-            try:
-                return UUID(value)
-            except:
-                pass
-            try:
-                return parse_timedelta_string(value)
-            except ValueError:
-                pass
-            try:
-                return date.fromisoformat(value)
-            except ValueError:
-                pass
-            try:
-                return time_from_iso_format_compat(value)
-            except ValueError:
-                pass
+            if self._ISO_DATETIME_OR_DATE_PATTERN.match(value):
+                try:
+                    return datetime_from_iso_format_compat(value)
+                except ValueError:
+                    pass
+            elif self._CANONICAL_UUID_PATTERN.match(value):
+                try:
+                    return UUID(value)
+                except ValueError:
+                    pass
             return value
         raise ValueError(f"Unexpected additional value type {type(value)} during deserialization.")
 

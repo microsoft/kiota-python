@@ -228,6 +228,81 @@ def test_get_anythin_does_convert_date_string_to_datetime():
     assert result == datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)
 
 
+@pytest.mark.parametrize(
+    "value",
+    [
+        # microsoftgraph/msgraph-sdk-python#1340: text values coerced to
+        # datetime.time via lenient time.fromisoformat (3.11+ accepts an
+        # hour plus a UTC-offset-looking suffix or a fraction separator)
+        "19-2026",  # invoice number, parsed as time(19, 0) at offset -20:26
+        "100-012863299",  # invoice number
+        "23.085",  # parsed as time(23, 0, 0, 85000)
+        "11.0",  # version string, parsed as time(11, 0)
+        # coerced to timedelta via parse_timedelta_string
+        "PT",  # country code, parsed as an empty ISO 8601 duration
+        "10:30",  # parsed as hh:mm
+        # microsoft/kiota-python#487: 32-hex string coerced to UUID
+        "d41d8cd98f00b204e9800998ecf8427e",
+        # date-like fragments must not be parsed as dates
+        "12-25",
+        "2023-10",
+    ],
+)
+def test_get_anything_does_not_coerce_text_values(value):
+    parse_node = JsonParseNode(value)
+    result = parse_node.try_get_anything(value)
+    assert isinstance(result, str)
+    assert result == value
+
+
+def test_get_anything_converts_date_only_string_to_datetime():
+    parse_node = JsonParseNode("2023-10-05")
+    result = parse_node.try_get_anything("2023-10-05")
+    assert isinstance(result, datetime)
+    assert result == datetime(2023, 10, 5, 0, 0)
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        # date + time, no offset
+        ("2023-10-05T14:48:00", datetime(2023, 10, 5, 14, 48)),
+        ("2023-10-05T14:48:00.123456", datetime(2023, 10, 5, 14, 48, 0, 123456)),
+        # date + time + UTC offset
+        ("2023-10-05T14:48:00Z", datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)),
+        ("2023-10-05T14:48:00+00:00", datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)),
+        # date + time + non-UTC offset
+        (
+            "2023-10-05T14:48:00+02:00",
+            datetime(2023, 10, 5, 14, 48, tzinfo=timezone(timedelta(hours=2))),
+        ),
+        (
+            "2023-10-05T14:48:00.123456-05:00",
+            datetime(2023, 10, 5, 14, 48, 0, 123456, tzinfo=timezone(timedelta(hours=-5))),
+        ),
+        # lowercase t separator
+        ("2023-10-05t14:48:00Z", datetime(2023, 10, 5, 14, 48, tzinfo=timezone.utc)),
+        # space separator (RFC 3339 permits it for readability)
+        (
+            "2023-10-05 14:48:00+02:00",
+            datetime(2023, 10, 5, 14, 48, tzinfo=timezone(timedelta(hours=2))),
+        ),
+    ],
+)
+def test_get_anything_converts_datetime_with_time_and_offset_variations(value, expected):
+    parse_node = JsonParseNode(value)
+    result = parse_node.try_get_anything(value)
+    assert isinstance(result, datetime)
+    assert result == expected
+
+
+def test_get_anything_converts_canonical_uuid_string():
+    parse_node = JsonParseNode("8f841f30-e6e3-439a-a812-ebd369559c36")
+    result = parse_node.try_get_anything("8f841f30-e6e3-439a-a812-ebd369559c36")
+    assert isinstance(result, UUID)
+    assert result == UUID("8f841f30-e6e3-439a-a812-ebd369559c36")
+
+
 def test_get_object_value(user1_json):
     parse_node = JsonParseNode(json.loads(user1_json))
     result = parse_node.get_object_value(User)
