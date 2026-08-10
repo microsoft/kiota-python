@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.8](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.11.7...microsoft-kiota-serialization-json-v1.11.8) (2026-08-10)
+
+
+### Bug Fixes
+
+* **json:** only convert unambiguous date/datetime/UUID strings in additional data ([b6a2c69](https://github.com/microsoft/kiota-python/commit/b6a2c69c96f17e74f605c928f4c9da4f66556af1))
+
 ## [1.11.7](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.11.6...microsoft-kiota-serialization-json-v1.11.7) (2026-06-30)
 
 
