@@ -122,7 +122,7 @@ class MultipartBody(Parsable, Generic[T]):
             if isinstance(part_value[1], Parsable):
                 self._write_parsable(writer, part_value)
             elif isinstance(part_value[1], str):
-                writer.write_str_value("", part_value[1])
+                writer.write_bytes_value("", part_value[1].encode('utf-8'))
             elif isinstance(part_value[1], bytes):
                 writer.write_bytes_value("", part_value[1])
             elif isinstance(part_value[1], io.IOBase):
