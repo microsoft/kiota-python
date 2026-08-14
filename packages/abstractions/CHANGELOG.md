@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.9](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.11.8...microsoft-kiota-abstractions-v1.11.9) (2026-08-14)
+
+
+### Bug Fixes
+
+* **multipart:** strip stray CRLF appended to string part values in MultipartBody.serialize ([bb6764a](https://github.com/microsoft/kiota-python/commit/bb6764a9b848a4107ae7382839ef864e77683d48))
+
 ## [1.11.8](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.11.7...microsoft-kiota-abstractions-v1.11.8) (2026-08-10)
 
 
