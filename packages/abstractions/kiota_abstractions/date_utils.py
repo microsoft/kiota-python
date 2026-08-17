@@ -1,6 +1,6 @@
-from sys import version_info as sys_version_info
 import re
 from datetime import datetime, time, timedelta
+from sys import version_info as sys_version_info
 
 _ISO8601_DURATION_PATTERN = re.compile(
     "^P"  # Duration P indicator
