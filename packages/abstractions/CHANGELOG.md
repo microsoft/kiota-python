@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.11.9...microsoft-kiota-abstractions-v1.12.0) (2026-08-27)
+
+
+### Features
+
+* Add wildcard host matching to AllowedHostsValidator ([386e7b9](https://github.com/microsoft/kiota-python/commit/386e7b97f45ead68f58ea040d86ea1ec37cfd02d))
+
 ## [1.11.9](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.11.8...microsoft-kiota-abstractions-v1.11.9) (2026-08-14)
 
 
