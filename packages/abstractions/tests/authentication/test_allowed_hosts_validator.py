@@ -62,11 +62,28 @@ class TestIsUrlHostValid:
         validator = AllowedHostsValidator(["example.com"])
         assert validator.is_url_host_valid("https://sub.example.com/path") is False
 
+    def test_returns_true_for_subdomain_matching_allowed_suffix(self):
+        validator = AllowedHostsValidator([".fabric.microsoft.com"])
+        assert validator.is_url_host_valid(
+            "https://abc.123.graphql.fabric.microsoft.com/path"
+        ) is True
+
+    def test_returns_false_for_bare_domain_when_allowed_as_suffix(self):
+        validator = AllowedHostsValidator([".fabric.microsoft.com"])
+        assert validator.is_url_host_valid("https://fabric.microsoft.com/path") is False
+
+    def test_suffix_host_matching_is_case_insensitive(self):
+        validator = AllowedHostsValidator([".Fabric.Microsoft.COM"])
+        assert validator.is_url_host_valid("https://ABC.z2c.graphql.fabric.microsoft.com/path") is True
+
     def test_allows_multiple_valid_hosts(self):
-        validator = AllowedHostsValidator(["example.com", "api.example.com"])
+        validator = AllowedHostsValidator(["example.com", "api.example.com", ".fabric.microsoft.com"])
         assert validator.is_url_host_valid("https://example.com/path") is True
         assert validator.is_url_host_valid("https://api.example.com/path") is True
         assert validator.is_url_host_valid("https://other.com/path") is False
+        assert validator.is_url_host_valid(
+            "https://abc.123.graphql.fabric.microsoft.com/path"
+        ) is True
 
     def test_handles_url_with_port(self):
         validator = AllowedHostsValidator(["example.com"])
@@ -93,3 +110,10 @@ class TestSetAllowedHosts:
         validator = AllowedHostsValidator(["example.com"])
         with pytest.raises(ValueError):
             validator.set_allowed_hosts(["http://example.com"])
+
+    def test_allows_suffix_based_hosts_after_update(self):
+        validator = AllowedHostsValidator(["example.com"])
+        validator.set_allowed_hosts([".fabric.microsoft.com"])
+        assert validator.is_url_host_valid(
+            "https://abc.123.graphql.fabric.microsoft.com/path"
+        ) is True

@@ -67,4 +67,11 @@ class AllowedHostsValidator:
             return False
         if not o.hostname:
             return False
-        return o.hostname.lower() in self.allowed_hosts
+        hostname = o.hostname.lower()
+        # Existing exact match
+        if hostname in self.allowed_hosts:
+            return True
+        # Suffix match for entries starting with "."
+        return any(
+            suffix.startswith(".") and hostname.endswith(suffix) for suffix in self.allowed_hosts
+        )
