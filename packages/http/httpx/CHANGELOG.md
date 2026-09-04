@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.12.0...microsoft-kiota-http-v1.12.1) (2026-09-04)
+
+
+### Bug Fixes
+
+* keep the parse-failure APIError message stable and record the cause on the span ([5604794](https://github.com/microsoft/kiota-python/commit/56047948f798715fd68da18b1c0ab2841049024b))
+* raise APIError when an error body cannot be parsed ([c6e13cd](https://github.com/microsoft/kiota-python/commit/c6e13cd3e2056ac3351923121eb56a25ce6a737c))
+* raise APIError when an error body cannot be parsed ([41fdc28](https://github.com/microsoft/kiota-python/commit/41fdc28b91f9140618128e801e1c1ef84d6505f9))
+
 ## [1.12.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.11.9...microsoft-kiota-http-v1.12.0) (2026-08-27)
 
 
