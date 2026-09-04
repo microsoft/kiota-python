@@ -218,6 +218,29 @@ async def test_throw_failed_responses_5XX(
 
 
 @pytest.mark.asyncio
+async def test_throw_failed_responses_unparsable_error_body(
+    request_adapter, mock_apierror_XXX_map, mock_otel_span
+):
+    resp = httpx.Response(
+        status_code=502,
+        headers={"Content-Type": "text/html"},
+        content=b"<html><body>502 Bad Gateway</body></html>",
+    )
+    assert resp.status_code == 502
+    content_type = request_adapter.get_response_content_type(resp)
+    assert content_type == "text/html"
+
+    with pytest.raises(APIError) as e:
+        span = mock_otel_span
+        await request_adapter.throw_failed_responses(resp, mock_apierror_XXX_map, span, span)
+    assert (
+        "The server returned an unexpected status code and the error body could not be parsed"
+    ) in str(e.value.message)
+    assert e.value.response_status_code == 502
+    assert "text/html" in str(e.value.__cause__)
+
+
+@pytest.mark.asyncio
 async def test_throw_failed_responses_XXX(
     request_adapter, mock_apierror_XXX_map, mock_error_object, mock_otel_span
 ):
