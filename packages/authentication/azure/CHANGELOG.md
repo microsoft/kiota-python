@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.12.0...microsoft-kiota-authentication-azure-v1.12.1) (2026-09-04)
+
+
+### Miscellaneous Chores
+
+* **microsoft-kiota-authentication-azure:** Synchronize microsoft-kiota versions
+
 ## [1.12.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.11.9...microsoft-kiota-authentication-azure-v1.12.0) (2026-08-27)
 
 
