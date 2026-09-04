@@ -549,14 +549,24 @@ class HttpxRequestAdapter(RequestAdapter):
                 raise exc
             _throw_failed_resp_span.set_attribute("status_message", "received_error_response")
 
-            error = await self._get_error_from_response(
-                response,
-                error_map,
-                response_status_code_str,
-                response_status_code,
-                attribute_span,
-                _throw_failed_resp_span,
-            )
+            try:
+                error = await self._get_error_from_response(
+                    response,
+                    error_map,
+                    response_status_code_str,
+                    response_status_code,
+                    attribute_span,
+                    _throw_failed_resp_span,
+                )
+            except Exception as ex:  # a body no parse node can read, e.g. an HTML gateway page
+                attribute_span.record_exception(ex)
+                exc = APIError(
+                    "The server returned an unexpected status code and the error body could not"
+                    " be parsed",
+                    response_status_code,
+                    response_headers,  # type: ignore
+                )
+                raise exc from ex
             if isinstance(error, APIError):
                 error.response_headers = response_headers  # type: ignore
                 error.response_status_code = response_status_code

@@ -1,3 +1,4 @@
+import asyncio
 from unittest.mock import AsyncMock, Mock, call, patch
 from urllib.parse import unquote
 
@@ -215,6 +216,44 @@ async def test_throw_failed_responses_5XX(
         span = mock_otel_span
         await request_adapter.throw_failed_responses(resp, mock_apierror_map, span, span)
     assert str(e.value.message) == "Custom Internal Server Error"
+
+
+@pytest.mark.asyncio
+async def test_throw_failed_responses_unparsable_error_body(
+    request_adapter, mock_apierror_XXX_map, mock_otel_span
+):
+    resp = httpx.Response(
+        status_code=502,
+        headers={"Content-Type": "text/html"},
+        content=b"<html><body>502 Bad Gateway</body></html>",
+    )
+    assert resp.status_code == 502
+    content_type = request_adapter.get_response_content_type(resp)
+    assert content_type == "text/html"
+
+    attribute_span = Mock()
+    with pytest.raises(APIError) as e:
+        await request_adapter.throw_failed_responses(
+            resp, mock_apierror_XXX_map, mock_otel_span, attribute_span
+        )
+    assert ("The server returned an unexpected status code and the error body could not be parsed"
+            ) in str(e.value.message)
+    assert "text/html" not in str(e.value.message)
+    assert e.value.response_status_code == 502
+    assert "text/html" in str(e.value.__cause__)
+    attribute_span.record_exception.assert_called_once_with(e.value.__cause__)
+
+
+@pytest.mark.asyncio
+async def test_throw_failed_responses_lets_cancellation_through(
+    request_adapter, mock_apierror_XXX_map, mock_otel_span
+):
+    resp = httpx.Response(status_code=502, headers={"Content-Type": "text/html"}, content=b"<html>")
+    request_adapter._get_error_from_response = AsyncMock(side_effect=asyncio.CancelledError())
+
+    with pytest.raises(asyncio.CancelledError):
+        span = mock_otel_span
+        await request_adapter.throw_failed_responses(resp, mock_apierror_XXX_map, span, span)
 
 
 @pytest.mark.asyncio
