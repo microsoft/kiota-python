@@ -559,13 +559,13 @@ class HttpxRequestAdapter(RequestAdapter):
                     _throw_failed_resp_span,
                 )
             except Exception as ex:  # a body no parse node can read, e.g. an HTML gateway page
+                attribute_span.record_exception(ex)
                 exc = APIError(
                     "The server returned an unexpected status code and the error body could not"
-                    f" be parsed: {ex}",
+                    " be parsed",
                     response_status_code,
                     response_headers,  # type: ignore
                 )
-                attribute_span.record_exception(exc)
                 raise exc from ex
             if isinstance(error, APIError):
                 error.response_headers = response_headers  # type: ignore
