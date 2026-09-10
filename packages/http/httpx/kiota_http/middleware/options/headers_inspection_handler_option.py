@@ -3,6 +3,8 @@
 # Licensed under the MIT License.
 # See License in the project root for license information.
 # ------------------------------------
+from typing import Optional
+
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_option import RequestOption
 
@@ -16,8 +18,8 @@ class HeadersInspectionHandlerOption(RequestOption):
         self,
         inspect_request_headers: bool = True,
         inspect_response_headers: bool = True,
-        request_headers: HeadersCollection = HeadersCollection(),
-        response_headers: HeadersCollection = HeadersCollection(),
+        request_headers: Optional[HeadersCollection] = None,
+        response_headers: Optional[HeadersCollection] = None,
     ) -> None:
         """Creates an instance of headers inspection handler option.
 
@@ -26,11 +28,19 @@ class HeadersInspectionHandlerOption(RequestOption):
             should be inspected. Defaults to True.
             inspect_response_headers (bool, optional): whether the response headers
             should be inspected. Defaults to True.
+            request_headers (HeadersCollection, optional): collection that receives the
+            request headers. A new one per option when not provided.
+            response_headers (HeadersCollection, optional): collection that receives the
+            response headers. A new one per option when not provided.
         """
         self._inspect_request_headers = inspect_request_headers
         self._inspect_response_headers = inspect_response_headers
-        self._request_headers = request_headers if request_headers else HeadersCollection()
-        self._response_headers = response_headers if response_headers else HeadersCollection()
+        if request_headers is None:
+            request_headers = HeadersCollection()
+        if response_headers is None:
+            response_headers = HeadersCollection()
+        self._request_headers = request_headers
+        self._response_headers = response_headers
 
     @property
     def inspect_request_headers(self):

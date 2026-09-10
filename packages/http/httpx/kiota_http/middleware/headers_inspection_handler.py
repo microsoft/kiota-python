@@ -4,6 +4,8 @@
 # See License in the project root for license information.
 # ------------------------------------
 
+from typing import Optional
+
 from kiota_abstractions.request_option import RequestOption
 
 import httpx
@@ -21,16 +23,16 @@ class HeadersInspectionHandler(BaseMiddleware):
 
     def __init__(
         self,
-        options: HeadersInspectionHandlerOption = HeadersInspectionHandlerOption(),
+        options: Optional[HeadersInspectionHandlerOption] = None,
     ):
         """Create an instance of HeadersInspectionHandler
 
         Args:
             options (HeadersInspectionHandlerOption, optional): Default options to apply to the
-            handler. Defaults to HeadersInspectionHandlerOption().
+            handler. A new HeadersInspectionHandlerOption per handler when not provided.
         """
         super().__init__()
-        self.options = options
+        self.options = options if options is not None else HeadersInspectionHandlerOption()
 
     async def send(
         self, request: httpx.Request, transport: httpx.AsyncBaseTransport

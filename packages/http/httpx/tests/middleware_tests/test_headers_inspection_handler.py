@@ -19,6 +19,36 @@ def test_no_config():
     assert isinstance(options.request_headers, HeadersCollection)
 
 
+def test_options_do_not_share_header_collections():
+    """
+    Two options built without explicit collections must not see each other's headers.
+    """
+    first = HeadersInspectionHandlerOption()
+    second = HeadersInspectionHandlerOption()
+
+    first.request_headers.add('test_request', 'test_request_header')
+    first.response_headers.add('test_response', 'test_response_header')
+
+    assert first.request_headers is not second.request_headers
+    assert first.response_headers is not second.response_headers
+    assert second.request_headers.try_get('test_request') is False
+    assert second.response_headers.try_get('test_response') is False
+
+
+def test_handlers_do_not_share_options():
+    """
+    Two handlers built without explicit options must not share one option object,
+    or the headers one client inspects show up on, and get cleared by, another.
+    """
+    first = HeadersInspectionHandler()
+    second = HeadersInspectionHandler()
+
+    first.options.request_headers.add('test_request', 'test_request_header')
+
+    assert first.options is not second.options
+    assert second.options.request_headers.try_get('test_request') is False
+
+
 def test_custom_config():
     """
     Ensures that setting is_enabled to False.
