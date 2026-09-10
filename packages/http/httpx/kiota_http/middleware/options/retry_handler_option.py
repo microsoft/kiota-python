@@ -23,7 +23,7 @@ class RetryHandlerOption(RequestOption):
     DEFAULT_DELAY: float = 3.0
 
     # Largest accepted delay value in seconds. The handler also skips the retry when the
-    # computed delay reaches this value.
+    # computed delay is this value or more.
     MAX_DELAY: float = 180.0
 
     # Default value for should retry

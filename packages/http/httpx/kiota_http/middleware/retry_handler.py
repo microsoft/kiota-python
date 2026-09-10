@@ -22,10 +22,10 @@ class RetryHandler(BaseMiddleware):
     attempt), ``max_delay`` (a base delay, see ``get_delay_time``) and ``should_retry``.
 
     The delay before a retry comes from ``get_delay_time``: a ``Retry-After`` response
-    header is used as is; otherwise ``backoff_factor * 2 ** (retry_count - 1)``, plus up
-    to one second of jitter, plus the option's ``max_delay``, capped at
-    ``MAXIMUM_BACKOFF`` (120 seconds). No retry happens when the delay reaches
-    ``RetryHandlerOption.MAX_DELAY`` (180 seconds).
+    header above zero is used as parsed, without a cap; otherwise
+    ``backoff_factor * 2 ** (retry_count - 1)``, plus up to one second of jitter, plus
+    the option's ``max_delay``, capped at ``MAXIMUM_BACKOFF`` (120 seconds). No retry
+    happens when the delay is ``RetryHandlerOption.MAX_DELAY`` (180 seconds) or more.
     """
     DEFAULT_BACKOFF_FACTOR: float = 0.5
 
@@ -156,9 +156,11 @@ class RetryHandler(BaseMiddleware):
     def get_delay_time(self, retry_count, response=None, delay=RetryHandlerOption.DEFAULT_DELAY):
         """Get the time in seconds to delay before the next attempt.
 
-        A ``Retry-After`` response header is returned as is, without a cap. Otherwise the
-        exponential backoff for ``retry_count`` plus ``delay`` (the option's ``max_delay``,
-        a base delay added to every attempt) is returned, capped at ``backoff_max``.
+        A ``Retry-After`` response header that parses to more than zero seconds is
+        returned without a cap; zero or a missing header falls through to the backoff.
+        The backoff is ``backoff_factor * 2 ** (retry_count - 1)``, plus up to one second
+        of jitter, plus ``delay`` (the option's ``max_delay``, a base delay added to every
+        attempt), capped at ``backoff_max``.
         """
         retry_after = self._get_retry_after(response)
         if retry_after:
