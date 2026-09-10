@@ -24,8 +24,9 @@ class RetryHandler(BaseMiddleware):
     The delay before a retry comes from ``get_delay_time``: a ``Retry-After`` response
     header above zero is used as parsed, without a cap; otherwise
     ``backoff_factor * 2 ** (retry_count - 1)``, plus up to one second of jitter, plus
-    the option's ``max_delay``, capped at ``MAXIMUM_BACKOFF`` (120 seconds). No retry
-    happens when the delay is ``RetryHandlerOption.MAX_DELAY`` (180 seconds) or more.
+    the option's ``max_delay``, capped at ``backoff_max`` (``MAXIMUM_BACKOFF``, 120
+    seconds, by default). No retry happens when the delay is
+    ``RetryHandlerOption.MAX_DELAY`` (180 seconds) or more.
     """
     DEFAULT_BACKOFF_FACTOR: float = 0.5
 
