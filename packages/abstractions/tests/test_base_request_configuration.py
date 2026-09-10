@@ -1,5 +1,9 @@
+import importlib
+import warnings
+
 import pytest
 
+from kiota_abstractions import base_request_configuration
 from kiota_abstractions.base_request_configuration import (
     BaseRequestConfiguration,
     RequestConfiguration,
@@ -12,8 +16,9 @@ def test_base_request_configuration_deprecation_warning():
 
 
 def test_import_base_request_configuration_no_warning():
-    from kiota_abstractions.base_request_configuration import BaseRequestConfiguration, RequestConfiguration
-    assert len(pytest.warns()) == 0
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        importlib.reload(base_request_configuration)
 
 
 def test_request_configurations_do_not_share_a_headers_collection():

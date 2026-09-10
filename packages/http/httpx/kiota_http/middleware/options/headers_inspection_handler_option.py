@@ -12,7 +12,7 @@ from kiota_abstractions.request_option import RequestOption
 
 @dataclass(eq=False)
 class HeadersInspectionHandlerOption(RequestOption):
-    """Config options for the HeaderInspectionHandler.
+    """Config options for the HeadersInspectionHandler.
 
     Args:
         inspect_request_headers (bool, optional): whether the request headers
