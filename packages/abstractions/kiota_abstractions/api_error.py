@@ -16,13 +16,9 @@ class APIError(Exception):
         # The first line leads with the message so log lines and error titles show it.
         error = getattr(self, "error", None)
         message = getattr(self, "primary_message", None) or self.message or type(self).__name__
-        details = []
+        first_line = str(message)
         if self.response_status_code is not None:
-            details.append(f"status {self.response_status_code}")
-        code = getattr(error, "code", None)
-        if code:
-            details.append(f"code {code}")
-        first_line = f"{message} ({', '.join(details)})" if details else str(message)
+            first_line = f"{message} (status {self.response_status_code})"
         if error:
             return f"{first_line}\nerror: {error}"
         return first_line

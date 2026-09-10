@@ -45,8 +45,9 @@ def test_str_of_a_generated_error_leads_with_the_primary_message():
 
     lines = str(error).splitlines()
 
-    assert lines[0] == f"{message} (status 429, code ApplicationThrottled)"
+    assert lines[0] == f"{message} (status 429)"
     assert lines[1].startswith("error: MainError(")
+    assert "code='ApplicationThrottled'" in lines[1]
 
 
 def test_str_never_starts_with_a_blank_line():
