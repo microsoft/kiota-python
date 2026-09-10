@@ -2,7 +2,15 @@ from kiota_abstractions.request_option import RequestOption
 
 
 class RetryHandlerOption(RequestOption):
-    """The retry request option class
+    """Options for the retry handler.
+
+    Args:
+        delay (float): base delay in seconds that the handler adds to every computed
+            backoff, see ``RetryHandler.get_delay_time``. It is not a cap. Accepted range
+            0 to ``MAX_DELAY``. Exposed as ``max_delay``. Defaults to ``DEFAULT_DELAY``.
+        max_retries (int): number of retries after the first attempt, 0 to
+            ``MAX_MAX_RETRIES``. Exposed as ``max_retry``.
+        should_retry (bool): whether the handler retries at all.
     """
 
     # Default maxRetries value
@@ -14,7 +22,8 @@ class RetryHandlerOption(RequestOption):
     # Default delay value in seconds
     DEFAULT_DELAY: float = 3.0
 
-    # Default maximum delay value in seconds
+    # Largest accepted delay value in seconds. The handler also skips the retry when the
+    # computed delay is this value or more.
     MAX_DELAY: float = 180.0
 
     # Default value for should retry

@@ -16,32 +16,17 @@ RETRY_ATTEMPT = "Retry-Attempt"
 
 
 class RetryHandler(BaseMiddleware):
-    """
-    Middleware that allows us to specify the retry policy for all requests
-    Retry configuration.
-    :param int max_retries:
-        Maximum number of retries to allow. Takes precedence over other counts.
-        Set to ``0`` to fail on the first retry.
-    :param iterable retry_on_status_codes:
-        A set of integer HTTP status codes that we should force a retry on.
-        A retry is initiated if the request method is in ``allowed_methods``
-        and the response status code is in ``RETRY STATUS CODES``.
-    :param float retry_backoff_factor:
-        A backoff factor to apply between attempts after the second try
-        (most errors are resolved immediately by a second try without a
-        delay).
-        The request will sleep for::
-            {backoff factor} * (2 ** ({retry number} - 1))
-        seconds. If the backoff_factor is 0.1, then :func:`.sleep` will sleep
-        for [0.0s, 0.2s, 0.4s, ...] between retries. It will never be longer
-        than :attr:`RetryHandler.MAXIMUM_BACKOFF`.
-        By default, backoff is set to 0.5.
-    :param int retry_time_limit:
-        The maximum cumulative time in seconds that total retries should take.
-        The cumulative retry time and retry-after value for each request retry
-        will be evaluated against this value; if the cumulative retry time plus
-        the retry-after value is greater than the retry_time_limit, the failed
-        response will be immediately returned, else the request retry continues.
+    """Retries a request on 429, 503 and 504 (``DEFAULT_RETRY_STATUS_CODES``) for the
+    methods in ``DEFAULT_ALLOWED_METHODS``, using the ``RetryHandlerOption`` of the
+    request or the one given to the constructor: ``max_retry`` (retries after the first
+    attempt), ``max_delay`` (a base delay, see ``get_delay_time``) and ``should_retry``.
+
+    The delay before a retry comes from ``get_delay_time``: a ``Retry-After`` response
+    header above zero is used as parsed, without a cap; otherwise
+    ``backoff_factor * 2 ** (retry_count - 1)``, plus up to one second of jitter, plus
+    the option's ``max_delay``, capped at ``backoff_max`` (``MAXIMUM_BACKOFF``, 120
+    seconds, by default). No retry happens when the delay is
+    ``RetryHandlerOption.MAX_DELAY`` (180 seconds) or more.
     """
     DEFAULT_BACKOFF_FACTOR: float = 0.5
 
@@ -170,10 +155,13 @@ class RetryHandler(BaseMiddleware):
         return False
 
     def get_delay_time(self, retry_count, response=None, delay=RetryHandlerOption.DEFAULT_DELAY):
-        """
-        Get the time in seconds to delay between retry attempts.
-        Respects a retry-after header in the response if provided
-        If no retry-after response header, it defaults to exponential backoff
+        """Get the time in seconds to delay before the next attempt.
+
+        A ``Retry-After`` response header that parses to more than zero seconds is
+        returned without a cap; zero or a missing header falls through to the backoff.
+        The backoff is ``backoff_factor * 2 ** (retry_count - 1)``, plus up to one second
+        of jitter, plus ``delay`` (the option's ``max_delay``, a base delay added to every
+        attempt), capped at ``backoff_max``.
         """
         retry_after = self._get_retry_after(response)
         if retry_after:
