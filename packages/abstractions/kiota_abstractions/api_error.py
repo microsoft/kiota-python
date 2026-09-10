@@ -10,15 +10,14 @@ class APIError(Exception):
     response_status_code: Optional[int] = None
     response_headers: Optional[dict[str, str]] = None
 
+    @property
+    def primary_message(self) -> Optional[str]:
+        """The message shown for this error. Generated error models override it with the
+        message carried by the API's error payload."""
+        return self.message
+
     def __str__(self) -> str:
-        # Generated error models carry the server's message on ``primary_message`` and the
-        # error payload on ``error``; the base class knows neither, so both are optional here.
-        # The first line leads with the message so log lines and error titles show it.
-        error = getattr(self, "error", None)
-        message = getattr(self, "primary_message", None) or self.message or type(self).__name__
-        first_line = str(message)
+        first_line = self.primary_message or type(self).__name__
         if self.response_status_code is not None:
-            first_line = f"{message} (status {self.response_status_code})"
-        if error:
-            return f"{first_line}\nerror: {error}"
+            return f"{first_line} (status {self.response_status_code})"
         return first_line
