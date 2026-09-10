@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 # See License in the project root for license information.
 # ------------------------------------
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Generic, Optional, TypeVar
 from warnings import warn
 
@@ -19,7 +19,7 @@ class RequestConfiguration(Generic[QueryParameters]):
     Configuration for the request such as headers, query parameters, and middleware options.
     """
     # Request headers
-    headers: HeadersCollection = HeadersCollection()
+    headers: HeadersCollection = field(default_factory=HeadersCollection)
     # Request options
     options: Optional[list[RequestOption]] = None
     # Request query parameters
