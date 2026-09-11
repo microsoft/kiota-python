@@ -219,3 +219,20 @@ def test_write_empty_root_object():
     writer = FormSerializationWriter()
     writer.write_object_value(None, TestEntity())
     assert writer.get_serialized_content() == b""
+
+
+@pytest.mark.parametrize("key", [None, ""])
+def test_write_empty_root_object_between_fields(key):
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "value")
+    writer.write_object_value(key, TestEntity())
+    assert writer.get_serialized_content() == b"first=value"
+    writer.write_object_value(None, TestEntity(additional_data={"last": "value"}))
+    assert writer.get_serialized_content() == b"first=value&last=value"
+
+
+def test_write_empty_named_object_after_existing_field():
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "value")
+    writer.write_object_value("empty", TestEntity())
+    assert writer.get_serialized_content() == b"first=value&empty="
