@@ -190,3 +190,32 @@ def test_write_object_value(user_1):
         "floatValue=3.14"
     )
 
+
+@pytest.mark.parametrize("key", [None, ""])
+def test_write_root_object_value(key):
+    entity = TestEntity(additional_data={"body": "example", "title": "a&b"})
+    writer = FormSerializationWriter()
+    writer.write_object_value(key, entity)
+    assert writer.get_serialized_content() == b"body=example&title=a%26b"
+
+
+def test_write_root_object_after_existing_field():
+    entity = TestEntity(additional_data={"body": "example"})
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "value")
+    writer.write_object_value(None, entity)
+    assert writer.get_serialized_content() == b"first=value&body=example"
+
+
+def test_write_root_object_with_additional_values():
+    entity = TestEntity(additional_data={"body": "example"})
+    additional = TestEntity(additional_data={"title": "example title"})
+    writer = FormSerializationWriter()
+    writer.write_object_value(None, entity, additional)
+    assert writer.get_serialized_content() == b"body=example&title=example+title"
+
+
+def test_write_empty_root_object():
+    writer = FormSerializationWriter()
+    writer.write_object_value(None, TestEntity())
+    assert writer.get_serialized_content() == b""
