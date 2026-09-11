@@ -17,6 +17,12 @@ In order to use this library, install the package by running:
 pip install microsoft-kiota-authentication-azure
 ```
 
+The application owns the credential passed to `AzureIdentityAccessTokenProvider`.
+The provider leaves it open so it can be reused for token refreshes, concurrent
+requests, or multiple clients. Close the credential after all clients using it
+have finished. For async Azure Identity credentials, use an `async with` context
+manager around the client lifetime or call `await credential.close()` at shutdown.
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
