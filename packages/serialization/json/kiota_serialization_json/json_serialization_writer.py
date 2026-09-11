@@ -487,6 +487,8 @@ class JsonSerializationWriter(SerializationWriter):
                 self.write_collection_of_primitive_values(key, value)
             elif all(isinstance(x, dict) for x in value):
                 self.__write_collection_of_dict_values(key, value)
+            elif all(isinstance(x, list) for x in value):
+                self.write_collection_of_primitive_values(key, value)
             else:
                 raise TypeError(
                     f"Encountered an unknown collection type during serialization {type(value)}\
