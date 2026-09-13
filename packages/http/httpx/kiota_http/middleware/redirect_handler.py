@@ -74,27 +74,30 @@ class RedirectHandler(BaseMiddleware):
             _redirect_span = self._create_observability_span(
                 request, f"RedirectHandler_send - redirect {len(history)}"
             )
-            response = await super().send(request, transport)
-            _redirect_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
-            redirect_location = self.get_redirect_location(response)
+            try:
+                response = await super().send(request, transport)
+                _redirect_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
+                redirect_location = self.get_redirect_location(response)
 
-            if redirect_location and current_options.should_redirect:
-                max_redirect -= 1
-                if not self.increment(response, max_redirect, history[:]):
-                    break
-                _redirect_span.set_attribute(REDIRECT_COUNT_KEY, len(history))
-                new_request = self._build_redirect_request(request, response, current_options)
-                history.append(request)
-                request = new_request
-                await response.aclose()
-                continue
-            break
+                if redirect_location and current_options.should_redirect:
+                    max_redirect -= 1
+                    if not self.increment(response, max_redirect, history[:]):
+                        if max_redirect < 0:
+                            response.history = history
+                            exc = RedirectError(f"Too many redirects. {response.history}")
+                            _redirect_span.record_exception(exc)
+                            raise exc
+                        break
+                    _redirect_span.set_attribute(REDIRECT_COUNT_KEY, len(history))
+                    new_request = self._build_redirect_request(request, response, current_options)
+                    history.append(request)
+                    request = new_request
+                    await response.aclose()
+                    continue
+                break
+            finally:
+                _redirect_span.end()
         response.history = history
-        if max_redirect < 0:
-            exc = RedirectError(f"Too many redirects. {response.history}")
-            _redirect_span.record_exception(exc)
-            _redirect_span.end()
-            raise exc
 
         return response
 
