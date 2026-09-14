@@ -1,12 +1,22 @@
-import httpx
 import pytest
 
+import httpx
 from kiota_http.kiota_client_factory import KiotaClientFactory
 from kiota_http.middleware import (
-    AsyncKiotaTransport, MiddlewarePipeline, ParametersNameDecodingHandler, RedirectHandler,
-    RetryHandler, UrlReplaceHandler, HeadersInspectionHandler
+    AsyncKiotaTransport,
+    BodyInspectionHandler,
+    HeadersInspectionHandler,
+    MiddlewarePipeline,
+    ParametersNameDecodingHandler,
+    RedirectHandler,
+    RetryHandler,
+    UrlReplaceHandler,
 )
-from kiota_http.middleware.options import RedirectHandlerOption, RetryHandlerOption
+from kiota_http.middleware.options import (
+    BodyInspectionHandlerOption,
+    RedirectHandlerOption,
+    RetryHandlerOption,
+)
 from kiota_http.middleware.user_agent_handler import UserAgentHandler
 
 
@@ -120,32 +130,37 @@ def test_get_default_middleware():
     """Test fetching of default middleware with no custom options passed"""
     middleware = KiotaClientFactory.get_default_middleware(None)
 
-    assert len(middleware) == 6
+    assert len(middleware) == 7
     assert isinstance(middleware[0], RedirectHandler)
     assert isinstance(middleware[1], RetryHandler)
     assert isinstance(middleware[2], ParametersNameDecodingHandler)
     assert isinstance(middleware[3], UrlReplaceHandler)
     assert isinstance(middleware[4], UserAgentHandler)
     assert isinstance(middleware[5], HeadersInspectionHandler)
+    assert isinstance(middleware[6], BodyInspectionHandler)
 
 
 def test_get_default_middleware_with_options():
     """Test fetching of default middleware with custom options passed"""
     retry_options = RetryHandlerOption(max_retries=7)
     redirect_options = RedirectHandlerOption(should_redirect=False)
+    body_inspection_options = BodyInspectionHandlerOption(inspect_request_body=True)
     options = {
         f'{retry_options.get_key()}': retry_options,
-        f'{redirect_options.get_key()}': redirect_options
+        f'{redirect_options.get_key()}': redirect_options,
+        f'{body_inspection_options.get_key()}': body_inspection_options,
     }
 
     middleware = KiotaClientFactory.get_default_middleware(options=options)
 
-    assert len(middleware) == 6
+    assert len(middleware) == 7
     assert isinstance(middleware[0], RedirectHandler)
     assert middleware[0].options.should_redirect is False
     assert isinstance(middleware[1], RetryHandler)
     assert middleware[1].options.max_retry == 7
     assert isinstance(middleware[2], ParametersNameDecodingHandler)
+    assert isinstance(middleware[6], BodyInspectionHandler)
+    assert middleware[6].options.inspect_request_body is True
 
 
 def test_create_middleware_pipeline():
