@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from kiota_abstractions.authentication import AllowedHostsValidator
 
@@ -52,6 +54,51 @@ async def test_get_authorization_token_async():
     token_provider = AzureIdentityAccessTokenProvider(DummyAsyncAzureTokenCredential(), None)
     token = await token_provider.get_authorization_token('https://graph.microsoft.com')
     assert token == "This is a dummy token"
+
+
+class ReusableAsyncCredential(DummyAsyncAzureTokenCredential):
+    def __init__(self):
+        self.closed = False
+
+    async def get_token(self, *args, **kwargs):
+        await asyncio.sleep(0)
+        if self.closed:
+            raise RuntimeError("Credential transport is closed")
+        return await super().get_token(*args, **kwargs)
+
+    async def close(self):
+        self.closed = True
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("shared", [False, True])
+async def test_async_credential_remains_reusable(shared):
+    credential = ReusableAsyncCredential()
+    provider = AzureIdentityAccessTokenProvider(credential, None)
+    next_provider = AzureIdentityAccessTokenProvider(credential, None) if shared else provider
+    try:
+        first = await provider.get_authorization_token('https://graph.microsoft.com')
+        second = await next_provider.get_authorization_token('https://graph.microsoft.com')
+        assert first == second == "This is a dummy token"
+        assert not credential.closed
+    finally:
+        await credential.close()
+    assert credential.closed
+
+
+@pytest.mark.asyncio
+async def test_async_credential_supports_concurrent_requests():
+    credential = ReusableAsyncCredential()
+    provider = AzureIdentityAccessTokenProvider(credential, None)
+    try:
+        tokens = await asyncio.gather(*[
+            provider.get_authorization_token('https://graph.microsoft.com')
+            for _ in range(3)
+        ])
+        assert tokens == ["This is a dummy token"] * 3
+        assert not credential.closed
+    finally:
+        await credential.close()
 
 
 @pytest.mark.asyncio

@@ -205,9 +205,12 @@ class FormSerializationWriter(SerializationWriter):
         if value and self._on_after_object_serialization:
             self._on_after_object_serialization(value)
 
-        if len(self.writer) > 0:
-            self.writer += "&"
-        self.writer += f"{quote_plus(key.strip()) if key is not None else ''}={temp_writer.writer}"
+        if key or temp_writer.writer:
+            if len(self.writer) > 0:
+                self.writer += "&"
+            if key:
+                self.writer += f"{quote_plus(key.strip())}="
+            self.writer += temp_writer.writer
         self.depth -= 1
 
     def write_null_value(self, key: Optional[str]) -> None:

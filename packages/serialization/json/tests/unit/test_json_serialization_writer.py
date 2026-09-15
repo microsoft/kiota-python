@@ -1,3 +1,4 @@
+import json
 from datetime import date, datetime
 from uuid import UUID
 
@@ -206,6 +207,47 @@ def test_write_collection_of_primitive_values():
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == '{"businessPhones": ["+1 412 555 0109", 1]}'
+
+
+@pytest.mark.parametrize("key", [None, "matrix"])
+@pytest.mark.parametrize("value", [
+    [[1, 2, 3]],
+    [[], [[1], [2, 3]]],
+    [[1, None], [False], [{"nested": [[], [3]]}]],
+])
+def test_write_any_value_nested_lists(key, value):
+    writer = JsonSerializationWriter()
+    writer.write_any_value(key, value)
+    expected = {key: value} if key else value
+    assert json.loads(writer.get_serialized_content()) == expected
+
+
+def test_write_additional_data_nested_lists():
+    writer = JsonSerializationWriter()
+    value = {"matrix": [[1, 2], [3, 4]]}
+    writer.write_additional_data_value(value)
+    assert json.loads(writer.get_serialized_content()) == value
+
+
+def test_write_any_value_nested_lists_serializes_models(user_2):
+    writer = JsonSerializationWriter()
+    writer.write_any_value(None, [[user_2], [date(2022, 1, 27)]])
+    assert json.loads(writer.get_serialized_content()) == [
+        [{"display_name": "John Doe", "age": 32}], ["2022-01-27"]
+    ]
+
+
+def test_write_any_value_nested_lists_rejects_unsupported_values():
+    writer = JsonSerializationWriter()
+    with pytest.raises(TypeError):
+        writer.write_any_value(None, [[object()]])
+
+
+@pytest.mark.parametrize("value", [[1, [2]], [{"value": 1}, [2]], [[1], None]])
+def test_write_any_value_rejects_mixed_collection_types(value):
+    writer = JsonSerializationWriter()
+    with pytest.raises(TypeError, match="Encountered an unknown collection type"):
+        writer.write_any_value(None, value)
 
 
 def test_write_collection_of_object_values(user_1, user_2):

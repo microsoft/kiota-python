@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.12.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.12.2...microsoft-kiota-serialization-form-v1.12.3) (2026-09-11)
+
+
+### Bug Fixes
+
+* **serialization-form:** omit the root object assignment prefix ([be31baf](https://github.com/microsoft/kiota-python/commit/be31baf206e8a8255e26fec96628e19efef0c93d))
+
 ## [1.12.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.12.1...microsoft-kiota-serialization-form-v1.12.2) (2026-09-10)
 
 

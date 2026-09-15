@@ -20,6 +20,8 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
     """
     Access token provider that leverages the Azure Identity library to retrieve
     an access token.
+
+    The caller owns the credential and must close it when it is no longer needed.
     """
 
     IS_VALID_URL = "com.microsoft.kiota.authentication.is_url_valid"
@@ -112,7 +114,6 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
 
             if inspect.isawaitable(result):
                 result = await result
-                await self._credentials.close()  # type: ignore
 
             if result and isinstance(result, AccessToken):
                 return result.token

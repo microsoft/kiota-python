@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.12.2...microsoft-kiota-authentication-azure-v1.12.3) (2026-09-11)
+
+
+### Bug Fixes
+
+* **authentication-azure:** preserve caller-owned async credentials ([9893377](https://github.com/microsoft/kiota-python/commit/98933771cc798e1963964113b31642795d5f6dfa))
+* **authentication-azure:** preserve caller-owned async credentials ([38850ae](https://github.com/microsoft/kiota-python/commit/38850ae46f9dfd6b208b98974ff9dfc379f4d1d0))
+
 ## [1.12.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.12.1...microsoft-kiota-authentication-azure-v1.12.2) (2026-09-10)
 
 

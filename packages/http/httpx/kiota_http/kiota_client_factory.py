@@ -146,11 +146,10 @@ class KiotaClientFactory:
                     options=body_inspection_handler_options
                 )
 
-        middleware = [
+        return [
             redirect_handler, retry_handler, parameters_name_decoding_handler, url_replace_handler,
             user_agent_handler, headers_inspection_handler, body_inspection_handler
         ]
-        return middleware
 
     @staticmethod
     def create_middleware_pipeline(
