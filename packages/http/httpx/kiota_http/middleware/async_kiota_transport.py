@@ -18,3 +18,7 @@ class AsyncKiotaTransport(httpx.AsyncBaseTransport):
 
         response = await self.transport.handle_async_request(request)
         return response
+
+    async def aclose(self) -> None:
+        """Close the wrapped transport."""
+        await self.transport.aclose()

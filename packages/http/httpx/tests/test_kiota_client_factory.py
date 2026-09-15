@@ -1,3 +1,5 @@
+import asyncio
+
 import httpx
 import pytest
 
@@ -157,3 +159,81 @@ def test_create_middleware_pipeline():
     )
 
     assert isinstance(pipeline, MiddlewarePipeline)
+
+
+class ClosingTransport(httpx.MockTransport):
+
+    def __init__(self, handler):
+        super().__init__(handler)
+        self.close_count = 0
+
+    async def aclose(self):
+        self.close_count += 1
+        await super().aclose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('use_context_manager', [False, True])
+async def test_client_closes_wrapped_transports(use_context_manager):
+    transport = ClosingTransport(lambda request: httpx.Response(200))
+    mounted_transport = ClosingTransport(lambda request: httpx.Response(200))
+    client = KiotaClientFactory.create_with_default_middleware(
+        httpx.AsyncClient(
+            transport=transport,
+            mounts={'https://mounted.example.com': mounted_transport},
+            trust_env=False
+        )
+    )
+
+    async def send_requests():
+        assert (await client.get('https://example.com')).status_code == 200
+        assert (await client.get('https://mounted.example.com')).status_code == 200
+        assert transport.close_count == 0
+        assert mounted_transport.close_count == 0
+
+    if use_context_manager:
+        async with client:
+            await send_requests()
+    else:
+        await send_requests()
+        await client.aclose()
+
+    assert client.is_closed
+    assert transport.close_count == 1
+    assert mounted_transport.close_count == 1
+    await client.aclose()
+    assert transport.close_count == 1
+    assert mounted_transport.close_count == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('error_type', [RuntimeError, asyncio.CancelledError])
+async def test_client_closes_wrapped_transport_after_request_failure(error_type):
+    def fail_request(request):
+        raise error_type('request interrupted')
+
+    transport = ClosingTransport(fail_request)
+    client = KiotaClientFactory.create_with_default_middleware(
+        httpx.AsyncClient(transport=transport, trust_env=False)
+    )
+
+    with pytest.raises(error_type, match='request interrupted'):
+        async with client:
+            await client.get('https://example.com')
+
+    assert client.is_closed
+    assert transport.close_count == 1
+
+
+@pytest.mark.asyncio
+async def test_client_propagates_wrapped_transport_close_failure(mocker):
+    transport = httpx.MockTransport(lambda request: httpx.Response(200))
+    close = mocker.patch.object(transport, 'aclose', side_effect=RuntimeError('close failed'))
+    client = KiotaClientFactory.create_with_default_middleware(
+        httpx.AsyncClient(transport=transport, trust_env=False)
+    )
+
+    with pytest.raises(RuntimeError, match='close failed'):
+        await client.aclose()
+
+    close.assert_awaited_once()
