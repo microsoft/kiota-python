@@ -65,6 +65,8 @@ class RedirectHandler(BaseMiddleware):
         _enable_span = self._create_observability_span(request, "RedirectHandler_send")
         current_options = self._get_current_options(request)
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
+        if request_options is None:
+            request_options = getattr(request, "options", None)
         _enable_span.set_attribute(REDIRECT_ENABLE_KEY, True)
         _enable_span.end()
 
@@ -114,7 +116,9 @@ class RedirectHandler(BaseMiddleware):
         Returns:
             RedirectHandlerOption: The options to used.
         """
-        request_options = getattr(request, "options", None)
+        request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
+        if request_options is None:
+            request_options = getattr(request, "options", None)
         if request_options:
             current_options = request_options.get( # type:ignore
                 RedirectHandlerOption.get_key(), self.options)

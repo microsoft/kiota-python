@@ -8,7 +8,7 @@ from typing import Optional
 
 import httpx
 
-from .middleware import BaseMiddleware
+from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import BodyInspectionHandlerOption
 
 BODY_INSPECTION_KEY = "com.microsoft.kiota.handler.bodyInspection.enable"
@@ -92,7 +92,9 @@ class BodyInspectionHandler(BaseMiddleware):
             BodyInspectionHandlerOption: The options to be used.
         """
         current_options = None
-        request_options = getattr(request, "options", None)
+        request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
+        if request_options is None:
+            request_options = getattr(request, "options", None)
         if request_options:
             current_options = request_options.get(BodyInspectionHandlerOption.get_key(), None)
         if not current_options:

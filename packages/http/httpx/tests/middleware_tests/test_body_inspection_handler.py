@@ -442,11 +442,13 @@ async def test_inspected_buffered_response_keeps_consumed_raw_stream_state():
     compressed_content = gzip.compress(b"decoded response")
 
     def request_handler(request: httpx.Request):
-        return httpx.Response(
+        response = httpx.Response(
             200,
             headers={"Content-Encoding": "gzip"},
-            content=compressed_content,
+            stream=httpx.ByteStream(compressed_content),
         )
+        response.read()
+        return response
 
     options = BodyInspectionHandlerOption(inspect_response_body=True)
     handler = BodyInspectionHandler(options=options)
@@ -516,6 +518,37 @@ async def test_per_request_options_apply_to_redirected_response():
             REQUEST_OPTIONS_KEY: {
                 BodyInspectionHandlerOption.get_key(): per_request_option,
             }
+        },
+    )
+
+    response = await redirect_handler.send(request, httpx.MockTransport(request_handler))
+
+    assert response.status_code == 200
+    assert per_request_option.response_body == b"final response"
+
+
+@pytest.mark.asyncio
+async def test_legacy_request_options_apply_to_redirected_response():
+    """Ensures redirect requests retain options configured on legacy request.options attribute."""
+
+    def request_handler(request: httpx.Request):
+        if request.url.path == "/redirected":
+            return httpx.Response(200, content=b"final response")
+        return httpx.Response(
+            302,
+            headers={"Location": "/redirected"},
+            content=b"redirect response",
+        )
+
+    redirect_handler = RedirectHandler()
+    redirect_handler.next = BodyInspectionHandler()
+    per_request_option = BodyInspectionHandlerOption(inspect_response_body=True)
+    request = httpx.Request("GET", "https://localhost")
+    setattr(
+        request,
+        "options",
+        {
+            BodyInspectionHandlerOption.get_key(): per_request_option,
         },
     )
 
