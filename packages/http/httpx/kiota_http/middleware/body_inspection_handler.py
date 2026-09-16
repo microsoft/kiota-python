@@ -93,8 +93,6 @@ class BodyInspectionHandler(BaseMiddleware):
         """
         current_options = None
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
-        if request_options is None:
-            request_options = getattr(request, "options", None)
         if request_options:
             current_options = request_options.get(BodyInspectionHandlerOption.get_key(), None)
         if not current_options:

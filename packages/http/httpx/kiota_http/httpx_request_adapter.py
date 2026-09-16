@@ -698,9 +698,6 @@ class HttpxRequestAdapter(RequestAdapter):
             content=request_info.content,
             extensions={REQUEST_OPTIONS_KEY: request_options},
         )
-        # Preserve the existing middleware contract while request options migrate to
-        # HTTPX's native extension mechanism.
-        setattr(request, "options", request_options)
 
         if content_length := request.headers.get("Content-Length", None):
             otel_attributes.update({"http.request.body.size": content_length})
