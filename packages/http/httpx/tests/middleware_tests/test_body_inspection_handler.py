@@ -5,6 +5,7 @@ from io import BytesIO
 import pytest
 
 import httpx
+import kiota_http.middleware.options.body_inspection_handler_option as option_module
 from kiota_http.middleware.body_inspection_handler import BodyInspectionHandler
 from kiota_http.middleware.options.body_inspection_handler_option import BodyInspectionHandlerOption
 from kiota_http.middleware.redirect_handler import RedirectHandler
@@ -246,6 +247,23 @@ async def test_disabled_inspection_does_not_capture():
 
 
 @pytest.mark.asyncio
+async def test_disabled_inspection_does_not_allocate_capture_state():
+    """Ensures the default-disabled handler does not initialize context capture state."""
+    token = option_module._BODY_CAPTURES.set(None)
+    try:
+        handler = BodyInspectionHandler()
+
+        await handler.send(
+            httpx.Request("GET", "https://localhost"),
+            httpx.MockTransport(lambda _: httpx.Response(204)),
+        )
+
+        assert option_module._BODY_CAPTURES.get() is None
+    finally:
+        option_module._BODY_CAPTURES.reset(token)
+
+
+@pytest.mark.asyncio
 async def test_empty_bodies_returns_none():
     """Ensures empty request and response bodies result in None."""
 
@@ -389,6 +407,31 @@ async def test_already_consumed_uncached_response_does_not_fail_inspection():
     assert options.response_body is None
     assert not hasattr(response, "_content")
     assert response.is_stream_consumed
+    assert response.is_closed
+
+
+@pytest.mark.asyncio
+async def test_closed_unconsumed_response_does_not_fail_inspection():
+    """Ensures an unreadable closed stream is returned without inspection."""
+
+    async def resp_gen():
+        yield b"closed before consumption"
+
+    async def request_handler(request: httpx.Request):
+        response = httpx.Response(200, content=resp_gen(), request=request)
+        await response.aclose()
+        return response
+
+    options = BodyInspectionHandlerOption(inspect_response_body=True)
+    handler = BodyInspectionHandler(options=options)
+
+    response = await handler.send(
+        httpx.Request("GET", "https://localhost"), httpx.MockTransport(request_handler)
+    )
+
+    assert options.response_body is None
+    assert not hasattr(response, "_content")
+    assert not response.is_stream_consumed
     assert response.is_closed
 
 

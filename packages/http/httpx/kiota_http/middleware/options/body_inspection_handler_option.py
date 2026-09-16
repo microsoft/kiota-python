@@ -85,6 +85,11 @@ class BodyInspectionHandlerOption(RequestOption):
         captures[self] = (request_body, response_body)
         _BODY_CAPTURES.set(captures)
 
+    def _clear_captured_bodies(self) -> None:
+        request_body, response_body = self._get_captured_bodies()
+        if request_body is not None or response_body is not None:
+            self._set_captured_bodies(None, None)
+
     @staticmethod
     def get_key() -> str:
         return BodyInspectionHandlerOption.BODY_INSPECTION_HANDLER_OPTION_KEY

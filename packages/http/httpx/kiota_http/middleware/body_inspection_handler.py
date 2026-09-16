@@ -66,7 +66,7 @@ class BodyInspectionHandler(BaseMiddleware):
                 # A consumed stream is inspectable only when HTTPX cached its content.
                 if hasattr(response, "_content"):
                     response_content = response.content
-                elif not response.is_stream_consumed:
+                elif not response.is_stream_consumed and not response.is_closed:
                     num_bytes_downloaded = response.num_bytes_downloaded
                     raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
                     self._restore_response_stream(response, raw_content, num_bytes_downloaded)
@@ -98,9 +98,7 @@ class BodyInspectionHandler(BaseMiddleware):
         if not current_options:
             current_options = self.options
 
-        # Clear body per request
-        current_options.request_body = None
-        current_options.response_body = None
+        current_options._clear_captured_bodies()
         return current_options
 
     @staticmethod
