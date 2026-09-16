@@ -300,6 +300,7 @@ async def test_streaming_payloads_inspection():
     assert received == [b"chunk1 chunk2"]
     assert handler.options.request_body == b"chunk1 chunk2"
     assert handler.options.response_body == b"stream1 stream2"
+    assert await response.aread() == b"stream1 stream2"
     assert response.content == b"stream1 stream2"
 
 
@@ -326,6 +327,69 @@ async def test_inspected_streaming_response_remains_raw_iterable():
     assert raw_content == b"stream1 stream2"
     assert response.num_bytes_downloaded == len(raw_content)
     assert options.response_body == b"stream1 stream2"
+
+
+@pytest.mark.asyncio
+async def test_inspected_streaming_response_remains_decoded_iterable():
+    """Ensures decoded iteration consumes the restored stream and updates accounting."""
+    decoded_content = b"decoded streaming response"
+    compressed_content = gzip.compress(decoded_content)
+
+    async def resp_gen():
+        yield compressed_content[:5]
+        yield compressed_content[5:]
+
+    def request_handler(request: httpx.Request):
+        return httpx.Response(
+            200,
+            headers={"Content-Encoding": "gzip"},
+            content=resp_gen(),
+        )
+
+    options = BodyInspectionHandlerOption(inspect_response_body=True)
+    handler = BodyInspectionHandler(options=options)
+
+    response = await handler.send(
+        httpx.Request("GET", "https://localhost"), httpx.MockTransport(request_handler)
+    )
+
+    assert options.response_body == decoded_content
+    assert not hasattr(response, "_content")
+    assert not response.is_stream_consumed
+    assert not response.is_closed
+    assert response.num_bytes_downloaded == 0
+
+    content = b"".join([chunk async for chunk in response.aiter_bytes()])
+
+    assert content == decoded_content
+    assert response.is_stream_consumed
+    assert response.is_closed
+    assert response.num_bytes_downloaded == len(compressed_content)
+
+
+@pytest.mark.asyncio
+async def test_already_consumed_uncached_response_does_not_fail_inspection():
+    """Ensures an unrecoverable consumed stream is returned without inspection."""
+
+    async def resp_gen():
+        yield b"already consumed"
+
+    async def request_handler(request: httpx.Request):
+        response = httpx.Response(200, content=resp_gen(), request=request)
+        assert b"".join([chunk async for chunk in response.aiter_raw()]) == b"already consumed"
+        return response
+
+    options = BodyInspectionHandlerOption(inspect_response_body=True)
+    handler = BodyInspectionHandler(options=options)
+
+    response = await handler.send(
+        httpx.Request("GET", "https://localhost"), httpx.MockTransport(request_handler)
+    )
+
+    assert options.response_body is None
+    assert not hasattr(response, "_content")
+    assert response.is_stream_consumed
+    assert response.is_closed
 
 
 @pytest.mark.asyncio

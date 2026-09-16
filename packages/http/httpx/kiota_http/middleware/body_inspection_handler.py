@@ -62,17 +62,18 @@ class BodyInspectionHandler(BaseMiddleware):
             response = await super().send(request, transport)
 
             if current_options and current_options.inspect_response_body:
-                if response.is_stream_consumed:
-                    content = await response.aread()
-                    raw_content = content
-                else:
+                response_content: Optional[bytes] = None
+                # A consumed stream is inspectable only when HTTPX cached its content.
+                if hasattr(response, "_content"):
+                    response_content = response.content
+                elif not response.is_stream_consumed:
                     num_bytes_downloaded = response.num_bytes_downloaded
                     raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
                     self._restore_response_stream(response, raw_content, num_bytes_downloaded)
-                    content = await response.aread()
+                    response_content = await response.aread()
                     self._restore_response_stream(response, raw_content, num_bytes_downloaded)
-                if content:
-                    current_options.response_body = content
+                if response_content:
+                    current_options.response_body = response_content
                 else:
                     current_options.response_body = None
 
@@ -106,6 +107,11 @@ class BodyInspectionHandler(BaseMiddleware):
     def _restore_response_stream(
         response: httpx.Response, content: bytes, num_bytes_downloaded: int
     ) -> None:
+        # aread() caches decoded content and a stateful decoder; discard both when rewinding.
+        if hasattr(response, "_content"):
+            del response._content
+        if hasattr(response, "_decoder"):
+            del response._decoder
         response.stream = httpx.ByteStream(content)
         response.is_stream_consumed = False
         response.is_closed = False
