@@ -66,10 +66,11 @@ class BodyInspectionHandler(BaseMiddleware):
                     content = await response.aread()
                     raw_content = content
                 else:
+                    num_bytes_downloaded = response.num_bytes_downloaded
                     raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
-                    self._restore_response_stream(response, raw_content)
+                    self._restore_response_stream(response, raw_content, num_bytes_downloaded)
                     content = await response.aread()
-                    self._restore_response_stream(response, raw_content)
+                    self._restore_response_stream(response, raw_content, num_bytes_downloaded)
                 if content:
                     current_options.response_body = content
                 else:
@@ -102,7 +103,10 @@ class BodyInspectionHandler(BaseMiddleware):
         return current_options
 
     @staticmethod
-    def _restore_response_stream(response: httpx.Response, content: bytes) -> None:
+    def _restore_response_stream(
+        response: httpx.Response, content: bytes, num_bytes_downloaded: int
+    ) -> None:
         response.stream = httpx.ByteStream(content)
         response.is_stream_consumed = False
         response.is_closed = False
+        response._num_bytes_downloaded = num_bytes_downloaded

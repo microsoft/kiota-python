@@ -1,3 +1,4 @@
+import asyncio
 import gzip
 from io import BytesIO
 
@@ -319,9 +320,11 @@ async def test_inspected_streaming_response_remains_raw_iterable():
     response = await handler.send(
         httpx.Request("GET", "https://localhost"), httpx.MockTransport(request_handler)
     )
+    assert response.num_bytes_downloaded == 0
     raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
 
     assert raw_content == b"stream1 stream2"
+    assert response.num_bytes_downloaded == len(raw_content)
     assert options.response_body == b"stream1 stream2"
 
 
@@ -474,3 +477,41 @@ async def test_handler_clears_body_on_subsequent_requests():
     await handler.send(req3, mock_transport)
     assert handler.options.request_body is None
     assert handler.options.response_body is None
+
+
+@pytest.mark.asyncio
+async def test_concurrent_requests_keep_captures_isolated():
+    """Ensures overlapping requests do not overwrite each other's captured bodies."""
+    request_count = 0
+    requests_ready = asyncio.Event()
+
+    async def request_handler(request: httpx.Request):
+        nonlocal request_count
+        request_count += 1
+        if request_count == 2:
+            requests_ready.set()
+        await requests_ready.wait()
+        content = await request.aread()
+        return httpx.Response(200, content=b"response: " + content)
+
+    options = BodyInspectionHandlerOption(
+        inspect_request_body=True,
+        inspect_response_body=True,
+    )
+    handler = BodyInspectionHandler(options=options)
+    transport = httpx.MockTransport(request_handler)
+
+    async def send_and_capture(content: bytes):
+        request = httpx.Request("POST", "https://localhost", content=content)
+        await handler.send(request, transport)
+        return options.request_body, options.response_body
+
+    captures = await asyncio.gather(
+        send_and_capture(b"request 1"),
+        send_and_capture(b"request 2"),
+    )
+
+    assert set(captures) == {
+        (b"request 1", b"response: request 1"),
+        (b"request 2", b"response: request 2"),
+    }
