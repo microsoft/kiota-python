@@ -44,35 +44,40 @@ class BodyInspectionHandler(BaseMiddleware):
         Returns:
             httpx.Response: The response object.
         """
+        if request is None:
+            raise TypeError("request cannot be null")
+
         current_options = self._get_current_options(request)
         span = self._create_observability_span(request, "BodyInspectionHandler_send")
-        span.set_attribute(BODY_INSPECTION_KEY, True)
-        span.end()
+        try:
+            span.set_attribute(BODY_INSPECTION_KEY, True)
 
-        if current_options and current_options.inspect_request_body:
-            content = await request.aread()
-            if content:
-                current_options.request_body = content
-            else:
-                current_options.request_body = None
+            if current_options and current_options.inspect_request_body:
+                content = await request.aread()
+                if content:
+                    current_options.request_body = content
+                else:
+                    current_options.request_body = None
 
-        response = await super().send(request, transport)
+            response = await super().send(request, transport)
 
-        if current_options and current_options.inspect_response_body:
-            if response.is_stream_consumed:
-                content = await response.aread()
-                raw_content = content
-            else:
-                raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
-                self._restore_response_stream(response, raw_content)
-                content = await response.aread()
-                self._restore_response_stream(response, raw_content)
-            if content:
-                current_options.response_body = content
-            else:
-                current_options.response_body = None
+            if current_options and current_options.inspect_response_body:
+                if response.is_stream_consumed:
+                    content = await response.aread()
+                    raw_content = content
+                else:
+                    raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
+                    self._restore_response_stream(response, raw_content)
+                    content = await response.aread()
+                    self._restore_response_stream(response, raw_content)
+                if content:
+                    current_options.response_body = content
+                else:
+                    current_options.response_body = None
 
-        return response
+            return response
+        finally:
+            span.end()
 
     def _get_current_options(self, request: httpx.Request) -> BodyInspectionHandlerOption:
         """Returns the options to use for the request. Overrides default options if

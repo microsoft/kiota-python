@@ -83,9 +83,19 @@ def test_body_inspection_handler_construction():
 
 
 @pytest.mark.asyncio
-async def test_uses_standard_observability_attribute(monkeypatch):
-    """Ensures telemetry uses the cross-language body inspection attribute."""
+async def test_rejects_null_request():
+    """Ensures a null request produces an intentional error."""
+    handler = BodyInspectionHandler()
+
+    with pytest.raises(TypeError, match="request cannot be null"):
+        await handler.send(None, httpx.MockTransport(lambda _: httpx.Response(204)))
+
+
+@pytest.mark.asyncio
+async def test_observability_span_covers_full_send(monkeypatch):
+    """Ensures telemetry covers the full body inspection handler execution."""
     attributes = {}
+    events = []
 
     class RecordingSpan:
 
@@ -93,15 +103,52 @@ async def test_uses_standard_observability_attribute(monkeypatch):
             attributes[key] = value
 
         def end(self):
+            events.append("span ended")
+
+    async def response_body():
+        events.append("response inspected")
+        yield b"response body"
+
+    def request_handler(request: httpx.Request):
+        events.append("request sent")
+        return httpx.Response(200, content=response_body())
+
+    options = BodyInspectionHandlerOption(inspect_response_body=True)
+    handler = BodyInspectionHandler(options=options)
+    monkeypatch.setattr(handler, "_create_observability_span", lambda *_: RecordingSpan())
+
+    request = httpx.Request("GET", "https://localhost")
+    await handler.send(request, httpx.MockTransport(request_handler))
+
+    assert attributes == {"com.microsoft.kiota.handler.bodyInspection.enable": True}
+    assert events == ["request sent", "response inspected", "span ended"]
+
+
+@pytest.mark.asyncio
+async def test_observability_span_ends_when_send_raises(monkeypatch):
+    """Ensures telemetry ends when the downstream transport raises."""
+    events = []
+
+    class RecordingSpan:
+
+        def set_attribute(self, key, value):
             pass
+
+        def end(self):
+            events.append("span ended")
+
+    def request_handler(request: httpx.Request):
+        events.append("request sent")
+        raise RuntimeError("transport failed")
 
     handler = BodyInspectionHandler()
     monkeypatch.setattr(handler, "_create_observability_span", lambda *_: RecordingSpan())
 
     request = httpx.Request("GET", "https://localhost")
-    await handler.send(request, httpx.MockTransport(lambda _: httpx.Response(204)))
+    with pytest.raises(RuntimeError, match="transport failed"):
+        await handler.send(request, httpx.MockTransport(request_handler))
 
-    assert attributes == {"com.microsoft.kiota.handler.bodyInspection.enable": True}
+    assert events == ["request sent", "span ended"]
 
 
 @pytest.mark.asyncio
