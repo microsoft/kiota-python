@@ -44,7 +44,7 @@ from kiota_http.middleware.parameters_name_decoding_handler import ParametersNam
 
 from ._version import VERSION
 from .kiota_client_factory import KiotaClientFactory
-from .middleware import ParametersNameDecodingHandler
+from .middleware import REQUEST_OPTIONS_KEY, ParametersNameDecodingHandler
 from .middleware.options import ParametersNameDecodingHandlerOption, ResponseHandlerOption
 from .observability_options import ObservabilityOptions
 
@@ -686,17 +686,20 @@ class HttpxRequestAdapter(RequestAdapter):
         if self.observability_options.include_euii_attributes:
             otel_attributes.update({URL_FULL: url.geturl()})
 
-        request = self._http_client.build_request(
-            method=method.value,
-            url=request_info.url,
-            headers=request_info.request_headers,
-            content=request_info.content,
-        )
         request_options = {
             self.observability_options.get_key(): self.observability_options,
             "parent_span": parent_span,
             **request_info.request_options,
         }
+        request = self._http_client.build_request(
+            method=method.value,
+            url=request_info.url,
+            headers=request_info.request_headers,
+            content=request_info.content,
+            extensions={REQUEST_OPTIONS_KEY: request_options},
+        )
+        # Preserve the existing middleware contract while request options migrate to
+        # HTTPX's native extension mechanism.
         setattr(request, "options", request_options)
 
         if content_length := request.headers.get("Content-Length", None):

@@ -6,6 +6,7 @@ import pytest
 
 import httpx
 import kiota_http.middleware.options.body_inspection_handler_option as option_module
+from kiota_http.middleware import REQUEST_OPTIONS_KEY
 from kiota_http.middleware.body_inspection_handler import BodyInspectionHandler
 from kiota_http.middleware.options.body_inspection_handler_option import BodyInspectionHandlerOption
 from kiota_http.middleware.redirect_handler import RedirectHandler
@@ -508,8 +509,15 @@ async def test_per_request_options_apply_to_redirected_response():
     redirect_handler = RedirectHandler()
     redirect_handler.next = BodyInspectionHandler()
     per_request_option = BodyInspectionHandlerOption(inspect_response_body=True)
-    request = httpx.Request("GET", "https://localhost")
-    request.options = {BodyInspectionHandlerOption.get_key(): per_request_option}
+    request = httpx.Request(
+        "GET",
+        "https://localhost",
+        extensions={
+            REQUEST_OPTIONS_KEY: {
+                BodyInspectionHandlerOption.get_key(): per_request_option,
+            }
+        },
+    )
 
     response = await redirect_handler.send(request, httpx.MockTransport(request_handler))
 

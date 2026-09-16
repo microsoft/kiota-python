@@ -10,6 +10,8 @@ from ..observability_options import ObservabilityOptions
 
 tracer = trace.get_tracer(ObservabilityOptions.get_tracer_instrumentation_name(), VERSION)
 
+REQUEST_OPTIONS_KEY = "kiota_request_options"
+
 
 class MiddlewarePipeline():
     """MiddlewarePipeline, entry point of middleware

@@ -14,6 +14,7 @@ from kiota_abstractions.serialization import (
 from opentelemetry import trace
 
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
+from kiota_http.middleware import REQUEST_OPTIONS_KEY
 from kiota_http.middleware.options import ResponseHandlerOption
 
 from .helpers import MockResponseObject
@@ -124,6 +125,7 @@ def test_get_request_from_request_information(request_adapter, request_info, moc
     span = mock_otel_span
     req = request_adapter.get_request_from_request_information(request_info, span, span)
     assert isinstance(req, httpx.Request)
+    assert req.extensions[REQUEST_OPTIONS_KEY] is req.options
 
 
 def test_get_response_handler(request_adapter, request_info):
