@@ -1,6 +1,9 @@
+import asyncio
+
 import httpx
 import pytest
 
+from kiota_http._exceptions import RedirectError
 from kiota_http.middleware import RedirectHandler
 from kiota_http.middleware.options import RedirectHandlerOption
 
@@ -13,6 +16,70 @@ FOUND = 302
 SEE_OTHER = 303
 TEMPORARY_REDIRECT = 307
 PERMANENT_REDIRECT = 308
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("redirects, should_redirect", [(0, True), (2, True), (1, False)])
+async def test_redirect_spans_end(redirects, should_redirect, span_exporter):
+    requests = []
+
+    def request_handler(request):
+        requests.append(request)
+        if len(requests) <= redirects:
+            return httpx.Response(302, headers={LOCATION_HEADER: f"/redirect/{len(requests)}"})
+        return httpx.Response(200)
+
+    options = RedirectHandlerOption()
+    options.should_redirect = should_redirect
+    async with httpx.MockTransport(request_handler) as transport:
+        response = await RedirectHandler(options).send(httpx.Request("GET", BASE_URL), transport)
+
+    attempts = redirects + 1 if should_redirect else 1
+    assert len(requests) == attempts
+    assert response.status_code == (200 if should_redirect else 302)
+    assert len(response.history) == attempts - 1
+    spans = span_exporter.get_finished_spans()
+    assert [span.name for span in spans] == ["RedirectHandler_send"] + [
+        f"RedirectHandler_send - redirect {index}" for index in range(attempts)
+    ]
+    assert spans[-1].attributes["http.response.status_code"] == response.status_code
+
+
+@pytest.mark.asyncio
+async def test_redirect_limit_span_records_error_before_ending(span_exporter):
+    options = RedirectHandlerOption()
+    options.max_redirect = 1
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(302, headers={LOCATION_HEADER: "/next"})
+    )
+    async with transport:
+        with pytest.raises(RedirectError, match="Too many redirects") as error:
+            await RedirectHandler(options).send(httpx.Request("GET", BASE_URL), transport)
+
+    spans = span_exporter.get_finished_spans()
+    assert [span.name for span in spans] == [
+        "RedirectHandler_send", "RedirectHandler_send - redirect 0",
+        "RedirectHandler_send - redirect 1"
+    ]
+    assert spans[-1].events[0].name == "exception"
+    assert spans[-1].events[0].attributes["exception.message"] == str(error.value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("error_type", [httpx.ReadError, asyncio.CancelledError])
+async def test_redirect_span_ends_on_transport_failure(error_type, span_exporter):
+    error = error_type("request interrupted")
+
+    def request_handler(request):
+        raise error
+
+    async with httpx.MockTransport(request_handler) as transport:
+        with pytest.raises(error_type) as raised:
+            await RedirectHandler().send(httpx.Request("GET", BASE_URL), transport)
+    assert raised.value is error
+    assert [span.name for span in span_exporter.get_finished_spans()] == [
+        "RedirectHandler_send", "RedirectHandler_send - redirect 0"
+    ]
 
 
 @pytest.fixture

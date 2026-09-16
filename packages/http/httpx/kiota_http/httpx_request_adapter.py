@@ -626,26 +626,29 @@ class HttpxRequestAdapter(RequestAdapter):
         self, resp: httpx.Response, request_info: RequestInformation, claims: str
     ) -> httpx.Response:
         parent_span = self.start_tracing_span(request_info, "retry_cae_response_if_required")
-        if (
-            resp.status_code == 401
-            and not claims  # previous claims exist. Means request has already been retried
-            and resp.headers.get(self.RESPONSE_AUTH_HEADER)
-        ):
-            auth_header_value = resp.headers.get(self.RESPONSE_AUTH_HEADER)
-            if auth_header_value.casefold().startswith(
-                self.BEARER_AUTHENTICATION_SCHEME.casefold()
+        try:
+            if (
+                resp.status_code == 401
+                and not claims  # previous claims exist. Means request has already been retried
+                and resp.headers.get(self.RESPONSE_AUTH_HEADER)
             ):
-                claims_match = re.search('claims="([^"]+)"', auth_header_value)
-                if not claims_match:
-                    return resp
-                response_claims = claims_match.group(1)
-                parent_span.add_event(AUTHENTICATE_CHALLENGED_EVENT_KEY)
-                parent_span.set_attribute("http.retry_count", 1)
-                return await self.get_http_response_message(
-                    request_info, parent_span, response_claims
-                )
+                auth_header_value = resp.headers.get(self.RESPONSE_AUTH_HEADER)
+                if auth_header_value.casefold().startswith(
+                    self.BEARER_AUTHENTICATION_SCHEME.casefold()
+                ):
+                    claims_match = re.search('claims="([^"]+)"', auth_header_value)
+                    if not claims_match:
+                        return resp
+                    response_claims = claims_match.group(1)
+                    parent_span.add_event(AUTHENTICATE_CHALLENGED_EVENT_KEY)
+                    parent_span.set_attribute("http.retry_count", 1)
+                    return await self.get_http_response_message(
+                        request_info, parent_span, response_claims
+                    )
+                return resp
             return resp
-        return resp
+        finally:
+            parent_span.end()
 
     def get_response_handler(self, request_info: RequestInformation) -> Any:
         response_handler_option = request_info.request_options.get(ResponseHandlerOption.get_key())
