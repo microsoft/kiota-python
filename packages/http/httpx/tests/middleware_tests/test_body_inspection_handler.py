@@ -5,6 +5,7 @@ import pytest
 import httpx
 from kiota_http.middleware.body_inspection_handler import BodyInspectionHandler
 from kiota_http.middleware.options.body_inspection_handler_option import BodyInspectionHandlerOption
+from kiota_http.middleware.redirect_handler import RedirectHandler
 
 
 def test_default_options():
@@ -78,6 +79,28 @@ def test_body_inspection_handler_construction():
     handler = BodyInspectionHandler()
     assert handler is not None
     assert isinstance(handler.options, BodyInspectionHandlerOption)
+
+
+@pytest.mark.asyncio
+async def test_uses_standard_observability_attribute(monkeypatch):
+    """Ensures telemetry uses the cross-language body inspection attribute."""
+    attributes = {}
+
+    class RecordingSpan:
+
+        def set_attribute(self, key, value):
+            attributes[key] = value
+
+        def end(self):
+            pass
+
+    handler = BodyInspectionHandler()
+    monkeypatch.setattr(handler, "_create_observability_span", lambda *_: RecordingSpan())
+
+    request = httpx.Request("GET", "https://localhost")
+    await handler.send(request, httpx.MockTransport(lambda _: httpx.Response(204)))
+
+    assert attributes == {"com.microsoft.kiota.handler.bodyInspection.enable": True}
 
 
 @pytest.mark.asyncio
@@ -230,6 +253,29 @@ async def test_streaming_payloads_inspection():
 
 
 @pytest.mark.asyncio
+async def test_inspected_streaming_response_remains_raw_iterable():
+    """Ensures inspection does not consume the response stream returned to the caller."""
+
+    async def resp_gen():
+        yield b"stream1 "
+        yield b"stream2"
+
+    def request_handler(request: httpx.Request):
+        return httpx.Response(200, content=resp_gen())
+
+    options = BodyInspectionHandlerOption(inspect_response_body=True)
+    handler = BodyInspectionHandler(options=options)
+
+    response = await handler.send(
+        httpx.Request("GET", "https://localhost"), httpx.MockTransport(request_handler)
+    )
+    raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
+
+    assert raw_content == b"stream1 stream2"
+    assert options.response_body == b"stream1 stream2"
+
+
+@pytest.mark.asyncio
 async def test_per_request_options_override():
     """Ensures request-level options override handler-level options."""
 
@@ -256,6 +302,31 @@ async def test_per_request_options_override():
     # Handler options remained None
     assert handler.options.request_body is None
     assert handler.options.response_body is None
+
+
+@pytest.mark.asyncio
+async def test_per_request_options_apply_to_redirected_response():
+    """Ensures redirect requests retain the original body inspection option."""
+
+    def request_handler(request: httpx.Request):
+        if request.url.path == "/redirected":
+            return httpx.Response(200, content=b"final response")
+        return httpx.Response(
+            302,
+            headers={"Location": "/redirected"},
+            content=b"redirect response",
+        )
+
+    redirect_handler = RedirectHandler()
+    redirect_handler.next = BodyInspectionHandler()
+    per_request_option = BodyInspectionHandlerOption(inspect_response_body=True)
+    request = httpx.Request("GET", "https://localhost")
+    request.options = {BodyInspectionHandlerOption.get_key(): per_request_option}
+
+    response = await redirect_handler.send(request, httpx.MockTransport(request_handler))
+
+    assert response.status_code == 200
+    assert per_request_option.response_body == b"final response"
 
 
 @pytest.mark.asyncio

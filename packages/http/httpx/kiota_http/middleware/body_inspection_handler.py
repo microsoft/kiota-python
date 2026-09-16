@@ -11,7 +11,7 @@ import httpx
 from .middleware import BaseMiddleware
 from .options import BodyInspectionHandlerOption
 
-BODY_INSPECTION_KEY = "com.microsoft.kiota.handler.body_inspection.enable"
+BODY_INSPECTION_KEY = "com.microsoft.kiota.handler.bodyInspection.enable"
 
 
 class BodyInspectionHandler(BaseMiddleware):
@@ -59,7 +59,14 @@ class BodyInspectionHandler(BaseMiddleware):
         response = await super().send(request, transport)
 
         if current_options and current_options.inspect_response_body:
-            content = await response.aread()
+            if response.is_stream_consumed:
+                content = await response.aread()
+                raw_content = content
+            else:
+                raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
+                self._restore_response_stream(response, raw_content)
+                content = await response.aread()
+            self._restore_response_stream(response, raw_content)
             if content:
                 current_options.response_body = content
             else:
@@ -88,3 +95,9 @@ class BodyInspectionHandler(BaseMiddleware):
         self.options.request_body = None
         self.options.response_body = None
         return self.options
+
+    @staticmethod
+    def _restore_response_stream(response: httpx.Response, content: bytes) -> None:
+        response.stream = httpx.ByteStream(content)
+        response.is_stream_consumed = False
+        response.is_closed = False

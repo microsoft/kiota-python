@@ -64,6 +64,7 @@ class RedirectHandler(BaseMiddleware):
         """
         _enable_span = self._create_observability_span(request, "RedirectHandler_send")
         current_options = self._get_current_options(request)
+        request_options = getattr(request, "options", None)
         _enable_span.set_attribute(REDIRECT_ENABLE_KEY, True)
         _enable_span.end()
 
@@ -83,7 +84,9 @@ class RedirectHandler(BaseMiddleware):
                 if not self.increment(response, max_redirect, history[:]):
                     break
                 _redirect_span.set_attribute(REDIRECT_COUNT_KEY, len(history))
-                new_request = self._build_redirect_request(request, response, current_options)
+                new_request = self._build_redirect_request(
+                    request, response, current_options, request_options
+                )
                 history.append(request)
                 request = new_request
                 await response.aclose()
@@ -116,7 +119,11 @@ class RedirectHandler(BaseMiddleware):
         return self.options
 
     def _build_redirect_request(
-        self, request: httpx.Request, response: httpx.Response, options: RedirectHandlerOption
+        self,
+        request: httpx.Request,
+        response: httpx.Response,
+        options: RedirectHandlerOption,
+        request_options: typing.Optional[dict] = None,
     ) -> httpx.Request:
         """
         Given a request and a redirect response, return a new request that
@@ -151,7 +158,7 @@ class RedirectHandler(BaseMiddleware):
 
         if hasattr(request, "context"):
             new_request.context = request.context  #type: ignore
-        new_request.options = {}  #type: ignore
+        new_request.options = request_options.copy() if request_options else {}  #type: ignore
         return new_request
 
     def _redirect_method(self, request: httpx.Request, response: httpx.Response) -> str:
