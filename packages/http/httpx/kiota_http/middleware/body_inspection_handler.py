@@ -66,7 +66,7 @@ class BodyInspectionHandler(BaseMiddleware):
                 raw_content = b"".join([chunk async for chunk in response.aiter_raw()])
                 self._restore_response_stream(response, raw_content)
                 content = await response.aread()
-            self._restore_response_stream(response, raw_content)
+                self._restore_response_stream(response, raw_content)
             if content:
                 current_options.response_body = content
             else:
@@ -88,13 +88,13 @@ class BodyInspectionHandler(BaseMiddleware):
         request_options = getattr(request, "options", None)
         if request_options:
             current_options = request_options.get(BodyInspectionHandlerOption.get_key(), None)
-        if current_options:
-            return current_options
+        if not current_options:
+            current_options = self.options
 
         # Clear body per request
-        self.options.request_body = None
-        self.options.response_body = None
-        return self.options
+        current_options.request_body = None
+        current_options.response_body = None
+        return current_options
 
     @staticmethod
     def _restore_response_stream(response: httpx.Response, content: bytes) -> None:

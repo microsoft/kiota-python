@@ -1,3 +1,4 @@
+import gzip
 from io import BytesIO
 
 import pytest
@@ -230,9 +231,11 @@ async def test_streaming_payloads_inspection():
         yield b"stream1 "
         yield b"stream2"
 
-    def request_handler(request: httpx.Request):
-        received.append(request.read())
-        return httpx.Response(200, content=resp_gen())
+    class RecordingTransport(httpx.AsyncBaseTransport):
+
+        async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+            received.append(b"".join([chunk async for chunk in request.stream]))
+            return httpx.Response(200, content=resp_gen())
 
     options = BodyInspectionHandlerOption(
         inspect_request_body=True,
@@ -241,9 +244,7 @@ async def test_streaming_payloads_inspection():
     handler = BodyInspectionHandler(options=options)
 
     request = httpx.Request("POST", "https://localhost", content=req_gen())
-    mock_transport = httpx.MockTransport(request_handler)
-
-    response = await handler.send(request, mock_transport)
+    response = await handler.send(request, RecordingTransport())
 
     assert response.status_code == 200
     assert received == [b"chunk1 chunk2"]
@@ -273,6 +274,33 @@ async def test_inspected_streaming_response_remains_raw_iterable():
 
     assert raw_content == b"stream1 stream2"
     assert options.response_body == b"stream1 stream2"
+
+
+@pytest.mark.asyncio
+async def test_inspected_buffered_response_keeps_consumed_raw_stream_state():
+    """Ensures decoded buffered content is not exposed as replayable raw bytes."""
+    compressed_content = gzip.compress(b"decoded response")
+
+    def request_handler(request: httpx.Request):
+        return httpx.Response(
+            200,
+            headers={"Content-Encoding": "gzip"},
+            content=compressed_content,
+        )
+
+    options = BodyInspectionHandlerOption(inspect_response_body=True)
+    handler = BodyInspectionHandler(options=options)
+
+    response = await handler.send(
+        httpx.Request("GET", "https://localhost"), httpx.MockTransport(request_handler)
+    )
+
+    assert options.response_body == b"decoded response"
+    assert response.content == b"decoded response"
+    assert response.is_stream_consumed
+    assert response.is_closed
+    with pytest.raises(httpx.StreamConsumed):
+        b"".join([chunk async for chunk in response.aiter_raw()])
 
 
 @pytest.mark.asyncio
@@ -327,6 +355,37 @@ async def test_per_request_options_apply_to_redirected_response():
 
     assert response.status_code == 200
     assert per_request_option.response_body == b"final response"
+
+
+@pytest.mark.asyncio
+async def test_reused_per_request_option_clears_previous_bodies():
+    """Ensures disabled inspection does not retain captures from a previous request."""
+
+    def request_handler(request: httpx.Request):
+        return httpx.Response(200, content=b"response body")
+
+    handler = BodyInspectionHandler()
+    option = BodyInspectionHandlerOption(
+        inspect_request_body=True,
+        inspect_response_body=True,
+    )
+    first_request = httpx.Request("POST", "https://localhost", content=b"request body")
+    first_request.options = {BodyInspectionHandlerOption.get_key(): option}
+    transport = httpx.MockTransport(request_handler)
+
+    await handler.send(first_request, transport)
+    assert option.request_body == b"request body"
+    assert option.response_body == b"response body"
+
+    option.inspect_request_body = False
+    option.inspect_response_body = False
+    second_request = httpx.Request("GET", "https://localhost")
+    second_request.options = {BodyInspectionHandlerOption.get_key(): option}
+
+    await handler.send(second_request, transport)
+
+    assert option.request_body is None
+    assert option.response_body is None
 
 
 @pytest.mark.asyncio
