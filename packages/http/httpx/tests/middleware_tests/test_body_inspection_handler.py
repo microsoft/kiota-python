@@ -86,9 +86,10 @@ def test_body_inspection_handler_construction():
 async def test_rejects_null_request():
     """Ensures a null request produces an intentional error."""
     handler = BodyInspectionHandler()
+    transport = httpx.MockTransport(lambda _: httpx.Response(204))
 
     with pytest.raises(TypeError, match="request cannot be null"):
-        await handler.send(None, httpx.MockTransport(lambda _: httpx.Response(204)))
+        await handler.send(None, transport)
 
 
 @pytest.mark.asyncio
@@ -145,8 +146,9 @@ async def test_observability_span_ends_when_send_raises(monkeypatch):
     monkeypatch.setattr(handler, "_create_observability_span", lambda *_: RecordingSpan())
 
     request = httpx.Request("GET", "https://localhost")
+    transport = httpx.MockTransport(request_handler)
     with pytest.raises(RuntimeError, match="transport failed"):
-        await handler.send(request, httpx.MockTransport(request_handler))
+        await handler.send(request, transport)
 
     assert events == ["request sent", "span ended"]
 
@@ -346,8 +348,9 @@ async def test_inspected_buffered_response_keeps_consumed_raw_stream_state():
     assert response.content == b"decoded response"
     assert response.is_stream_consumed
     assert response.is_closed
+    raw_stream = response.aiter_raw()
     with pytest.raises(httpx.StreamConsumed):
-        b"".join([chunk async for chunk in response.aiter_raw()])
+        await anext(raw_stream)
 
 
 @pytest.mark.asyncio
