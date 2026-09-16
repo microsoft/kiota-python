@@ -22,6 +22,59 @@ APPLICATION_JSON = "application/json"
 BASE_URL = "https://graph.microsoft.com"
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status, header, claims", [
+    (200, None, ""),
+    (401, None, ""),
+    (401, 'Bearer claims="challenge"', "previous-claims"),
+    (401, "Basic realm=test", ""),
+    (401, "Bearer", ""),
+])
+async def test_cae_span_ends_without_retry(
+    status, header, claims, request_adapter, request_info, span_exporter
+):
+    headers = {"WWW-Authenticate": header} if header else {}
+    response = httpx.Response(status, headers=headers)
+    request_adapter.get_http_response_message = AsyncMock()
+    result = await request_adapter.retry_cae_response_if_required(response, request_info, claims)
+    assert result is response
+    request_adapter.get_http_response_message.assert_not_awaited()
+    spans = span_exporter.get_finished_spans()
+    assert [span.name for span in spans] == ["retry_cae_response_if_required - UNKNOWN"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("error_type", [None, httpx.ReadError, asyncio.CancelledError])
+async def test_cae_span_ends_after_retry(
+    error_type, request_adapter, request_info, span_exporter
+):
+    response = httpx.Response(401, headers={"WWW-Authenticate": 'Bearer claims="challenge"'})
+    retried_response = httpx.Response(200)
+    error = error_type("retry interrupted") if error_type else None
+
+    async def retry(info, span, claims):
+        assert info is request_info
+        assert claims == "challenge"
+        assert span.is_recording()
+        if error is not None:
+            raise error
+        return retried_response
+
+    request_adapter.get_http_response_message = AsyncMock(side_effect=retry)
+    if error_type:
+        with pytest.raises(error_type) as raised:
+            await request_adapter.retry_cae_response_if_required(response, request_info, "")
+        assert raised.value is error
+    else:
+        result = await request_adapter.retry_cae_response_if_required(response, request_info, "")
+        assert result is retried_response
+    request_adapter.get_http_response_message.assert_awaited_once()
+    spans = span_exporter.get_finished_spans()
+    assert [span.name for span in spans] == ["retry_cae_response_if_required - UNKNOWN"]
+    assert spans[0].attributes["http.retry_count"] == 1
+    assert spans[0].events[0].name == "com.microsoft.kiota.authenticate_challenge_received"
+
+
 def test_create_request_adapter(auth_provider):
     request_adapter = HttpxRequestAdapter(auth_provider)
     assert request_adapter._authentication_provider is auth_provider
@@ -420,7 +473,7 @@ async def test_observability(
 
 @pytest.mark.asyncio
 async def test_retries_on_cae_failure(
-    request_adapter, request_info_mock, mock_cae_failure_response, mock_otel_span
+    request_adapter, request_info_mock, mock_cae_failure_response, mock_otel_span, span_exporter
 ):
     request_adapter._http_client.send = AsyncMock(return_value=mock_cae_failure_response)
     request_adapter._authentication_provider.authenticate_request = AsyncMock()
@@ -439,6 +492,13 @@ async def test_retries_on_cae_failure(
         ),
     ]
     request_adapter._authentication_provider.authenticate_request.assert_has_awaits(calls)
+    cae_spans = [
+        span for span in span_exporter.get_finished_spans()
+        if span.name.startswith("retry_cae_response_if_required - ")
+    ]
+    assert len(cae_spans) == 2
+    assert cae_spans[0].attributes.get("http.retry_count") is None
+    assert cae_spans[1].attributes["http.retry_count"] == 1
 
 
 @pytest.mark.asyncio

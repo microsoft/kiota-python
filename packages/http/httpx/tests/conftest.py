@@ -8,10 +8,25 @@ from kiota_abstractions.authentication import AnonymousAuthenticationProvider
 from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
 from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 
 from .helpers import MockTransport, MockErrorObject, MockResponseObject, OfficeLocation
+
+
+@pytest.fixture
+def span_exporter(monkeypatch):
+    exporter = InMemorySpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    tracer = provider.get_tracer(__name__)
+    monkeypatch.setattr("kiota_http.middleware.middleware.tracer", tracer)
+    monkeypatch.setattr("kiota_http.httpx_request_adapter.tracer", tracer)
+    yield exporter
+    provider.shutdown()
 
 
 @pytest.fixture
