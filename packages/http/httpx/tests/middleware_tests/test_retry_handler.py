@@ -24,7 +24,7 @@ def test_no_config():
     assert retry_handler.options.max_retry == options.max_retry
     assert retry_handler.options.max_delay == options.max_delay
     assert retry_handler.allowed_methods == frozenset(
-        ['HEAD', 'GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS']
+        ['HEAD', 'GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'QUERY']
     )
     assert retry_handler.respect_retry_after_header
 

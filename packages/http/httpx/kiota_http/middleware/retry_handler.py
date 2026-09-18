@@ -39,7 +39,7 @@ class RetryHandler(BaseMiddleware):
     DEFAULT_RETRY_STATUS_CODES: set[int] = {429, 503, 504}
 
     DEFAULT_ALLOWED_METHODS: frozenset[str] = frozenset(
-        ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+        ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'QUERY']
     )
 
     def __init__(self, options: RetryHandlerOption = RetryHandlerOption()) -> None:
