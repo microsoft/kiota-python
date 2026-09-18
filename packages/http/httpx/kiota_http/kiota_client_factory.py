@@ -11,6 +11,7 @@ from kiota_http.middleware.user_agent_handler import UserAgentHandler
 from .middleware import (
     AsyncKiotaTransport,
     BaseMiddleware,
+    BodyInspectionHandler,
     HeadersInspectionHandler,
     MiddlewarePipeline,
     ParametersNameDecodingHandler,
@@ -19,6 +20,7 @@ from .middleware import (
     UrlReplaceHandler,
 )
 from .middleware.options import (
+    BodyInspectionHandlerOption,
     HeadersInspectionHandlerOption,
     ParametersNameDecodingHandlerOption,
     RedirectHandlerOption,
@@ -91,6 +93,7 @@ class KiotaClientFactory:
         url_replace_handler = UrlReplaceHandler()
         user_agent_handler = UserAgentHandler()
         headers_inspection_handler = HeadersInspectionHandler()
+        body_inspection_handler = BodyInspectionHandler()
 
         if options:
             redirect_handler_options = options.get(RedirectHandlerOption.get_key())
@@ -135,11 +138,18 @@ class KiotaClientFactory:
                     options=headers_inspection_handler_options
                 )
 
-        middleware = [
+            body_inspection_handler_options = options.get(BodyInspectionHandlerOption.get_key())
+            if body_inspection_handler_options and isinstance(
+                body_inspection_handler_options, BodyInspectionHandlerOption
+            ):
+                body_inspection_handler = BodyInspectionHandler(
+                    options=body_inspection_handler_options
+                )
+
+        return [
             redirect_handler, retry_handler, parameters_name_decoding_handler, url_replace_handler,
-            user_agent_handler, headers_inspection_handler
+            user_agent_handler, headers_inspection_handler, body_inspection_handler
         ]
-        return middleware
 
     @staticmethod
     def create_middleware_pipeline(

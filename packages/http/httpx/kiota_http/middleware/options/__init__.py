@@ -1,3 +1,4 @@
+from .body_inspection_handler_option import BodyInspectionHandlerOption
 from .headers_inspection_handler_option import HeadersInspectionHandlerOption
 from .parameters_name_decoding_handler_option import ParametersNameDecodingHandlerOption
 from .redirect_handler_option import RedirectHandlerOption

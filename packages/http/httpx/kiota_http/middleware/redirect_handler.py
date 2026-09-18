@@ -6,7 +6,7 @@ from opentelemetry.semconv.attributes.http_attributes import HTTP_RESPONSE_STATU
 import httpx
 
 from .._exceptions import RedirectError
-from .middleware import BaseMiddleware
+from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import RedirectHandlerOption
 
 REDIRECT_ENABLE_KEY = "com.microsoft.kiota.handler.redirect.enable"
@@ -64,6 +64,7 @@ class RedirectHandler(BaseMiddleware):
         """
         _enable_span = self._create_observability_span(request, "RedirectHandler_send")
         current_options = self._get_current_options(request)
+        request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         _enable_span.set_attribute(REDIRECT_ENABLE_KEY, True)
         _enable_span.end()
 
@@ -89,7 +90,9 @@ class RedirectHandler(BaseMiddleware):
                             raise exc
                         break
                     _redirect_span.set_attribute(REDIRECT_COUNT_KEY, len(history))
-                    new_request = self._build_redirect_request(request, response, current_options)
+                    new_request = self._build_redirect_request(
+                        request, response, current_options, request_options
+                    )
                     history.append(request)
                     request = new_request
                     await response.aclose()
@@ -111,7 +114,7 @@ class RedirectHandler(BaseMiddleware):
         Returns:
             RedirectHandlerOption: The options to used.
         """
-        request_options = getattr(request, "options", None)
+        request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
             current_options = request_options.get( # type:ignore
                 RedirectHandlerOption.get_key(), self.options)
@@ -119,7 +122,11 @@ class RedirectHandler(BaseMiddleware):
         return self.options
 
     def _build_redirect_request(
-        self, request: httpx.Request, response: httpx.Response, options: RedirectHandlerOption
+        self,
+        request: httpx.Request,
+        response: httpx.Response,
+        options: RedirectHandlerOption,
+        request_options: typing.Optional[dict] = None,
     ) -> httpx.Request:
         """
         Given a request and a redirect response, return a new request that
@@ -129,13 +136,18 @@ class RedirectHandler(BaseMiddleware):
         url = self._redirect_url(request, response, options)
         stream = self._redirect_stream(request, method)
 
+        new_request_options = request_options.copy() if request_options else {}
+        extensions = request.extensions.copy()
+        if request_options is not None:
+            extensions[REQUEST_OPTIONS_KEY] = new_request_options
+
         # Create the new request with the redirect URL and original headers
         new_request = httpx.Request(
             method=method,
             url=url,
             headers=request.headers.copy(),
             stream=stream,
-            extensions=request.extensions,
+            extensions=extensions,
         )
 
         # Scrub sensitive headers before following the redirect
@@ -154,7 +166,6 @@ class RedirectHandler(BaseMiddleware):
 
         if hasattr(request, "context"):
             new_request.context = request.context  #type: ignore
-        new_request.options = {}  #type: ignore
         return new_request
 
     def _redirect_method(self, request: httpx.Request, response: httpx.Response) -> str:

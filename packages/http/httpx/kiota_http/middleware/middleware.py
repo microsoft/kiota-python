@@ -10,6 +10,8 @@ from ..observability_options import ObservabilityOptions
 
 tracer = trace.get_tracer(ObservabilityOptions.get_tracer_instrumentation_name(), VERSION)
 
+REQUEST_OPTIONS_KEY = "kiota_request_options"
+
 
 class MiddlewarePipeline():
     """MiddlewarePipeline, entry point of middleware
@@ -56,8 +58,8 @@ class BaseMiddleware():
     async def send(self, request, transport):
         if self.next is None:
             # Remove request options if there's no other middleware in the chain.
-            if hasattr(request, "options") and request.options:
-                delattr(request, 'options')
+            if hasattr(request, "extensions") and isinstance(request.extensions, dict):
+                request.extensions.pop(REQUEST_OPTIONS_KEY, None)
             response = await transport.handle_async_request(request)
             response.request = request
             return response
@@ -68,11 +70,13 @@ class BaseMiddleware():
         If no parent_span is found in the request, uses the parent_span in the
         object. If parent_span is None, current context will be used."""
         _span = None
-        if options := getattr(request, "options", None):
-            if parent_span := options.get("parent_span", None):
-                self.parent_span = parent_span
-                _context = trace.set_span_in_context(parent_span)
-                _span = tracer.start_span(span_name, _context)
+        options = None
+        if hasattr(request, "extensions") and isinstance(request.extensions, dict):
+            options = request.extensions.get(REQUEST_OPTIONS_KEY)
+        if options and (parent_span := options.get("parent_span", None)):
+            self.parent_span = parent_span
+            _context = trace.set_span_in_context(parent_span)
+            _span = tracer.start_span(span_name, _context)
         if _span is None:
             _context = trace.set_span_in_context(self.parent_span)
             _span = tracer.start_span(span_name, _context)

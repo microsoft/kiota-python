@@ -10,7 +10,7 @@ from kiota_abstractions.request_option import RequestOption
 
 import httpx
 
-from .middleware import BaseMiddleware
+from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import HeadersInspectionHandlerOption
 
 HEADERS_INSPECTION_KEY = "com.microsoft.kiota.handler.headers_inspection.enable"
@@ -71,11 +71,9 @@ class HeadersInspectionHandler(BaseMiddleware):
             HeadersInspectionHandlerOption: The options to be used.
         """
         current_options = None
-        request_options = getattr(request, "options", None)
+        request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
-            current_options = request_options.get(  # type:ignore
-                HeadersInspectionHandlerOption.get_key(), None
-            )
+            current_options = request_options.get(HeadersInspectionHandlerOption.get_key(), None)
         if current_options:
             return current_options
 

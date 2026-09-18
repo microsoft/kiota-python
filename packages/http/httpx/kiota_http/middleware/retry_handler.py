@@ -9,7 +9,7 @@ from opentelemetry.semconv.attributes.http_attributes import HTTP_RESPONSE_STATU
 
 import httpx
 
-from .middleware import BaseMiddleware
+from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import RetryHandlerOption
 
 RETRY_ATTEMPT = "Retry-Attempt"
@@ -105,10 +105,9 @@ class RetryHandler(BaseMiddleware):
         Returns:
             RetryHandlerOption: The options to used.
         """
-        request_options = getattr(request, "options", None)
+        request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
-            current_options = request_options.get( # type:ignore
-                RetryHandlerOption.get_key(), self.options)
+            current_options = request_options.get(RetryHandlerOption.get_key(), self.options)
             return current_options
         return self.options
 
