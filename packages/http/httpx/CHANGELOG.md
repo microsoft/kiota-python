@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.12.3...microsoft-kiota-http-v1.13.0) (2026-09-18)
+
+
+### Features
+
+* **http:** implement body inspection handler ([bb78cc0](https://github.com/microsoft/kiota-python/commit/bb78cc0a37f21e5c4a92d6cf2478453a25f82425))
+* **http:** implement body inspection handler (closes [#418](https://github.com/microsoft/kiota-python/issues/418)) ([244d00a](https://github.com/microsoft/kiota-python/commit/244d00aaae7cc6210f2e49a8cd4414b125f1b0fb))
+
+
+### Bug Fixes
+
+* **http:** address body inspection review feedback ([ee0ea54](https://github.com/microsoft/kiota-python/commit/ee0ea54ea78439e08f120cf6735758b446d68a7a))
+* **http:** align inspection guard and span lifecycle ([867f2e6](https://github.com/microsoft/kiota-python/commit/867f2e6af848138da9bcbbe25287727e65c15a6a))
+* **http:** close the wrapped async transport ([0590bc3](https://github.com/microsoft/kiota-python/commit/0590bc39730e87d3a0f2f64574b5eefa3bebbcbd))
+* **http:** close the wrapped async transport ([09acb74](https://github.com/microsoft/kiota-python/commit/09acb746beec27822d6665e0da5f78c458d36218))
+* **http:** eliminate request options reflection across middleware handlers in favor of request extensions ([d9180bb](https://github.com/microsoft/kiota-python/commit/d9180bbc143afcd660c22987d798e2810a75d6cc))
+* **http:** end redirect and CAE retry spans ([ac310b4](https://github.com/microsoft/kiota-python/commit/ac310b435899d2c3295989303b706f606cd93682))
+* **http:** end redirect and CAE retry spans ([ee1682a](https://github.com/microsoft/kiota-python/commit/ee1682a686ceb9587c6ee1fa9ff846d0dc7014c5)), closes [#508](https://github.com/microsoft/kiota-python/issues/508)
+* **http:** guard body inspection fast paths ([22d08e5](https://github.com/microsoft/kiota-python/commit/22d08e57aa7ebfc656104207020cf1b90be25d43))
+* **http:** isolate captures and byte accounting ([b80f4fc](https://github.com/microsoft/kiota-python/commit/b80f4fc053a372bbe50ca8e47c1dc37b05aa62a4))
+* **http:** preserve inspection stream state ([1dc4c07](https://github.com/microsoft/kiota-python/commit/1dc4c078b379516dc3b1ee9c27d81922dad13b30))
+* **http:** preserve options with request extensions ([eaa50db](https://github.com/microsoft/kiota-python/commit/eaa50dba45a181b48df0f3694b23ae2a45cacd8b))
+* **http:** preserve restored response lifecycle ([ae25c49](https://github.com/microsoft/kiota-python/commit/ae25c4934aba99b88475b28c1c550b86e376e84a))
+* **http:** read request extensions in body inspection and fallback to request.options in redirect handler ([925196e](https://github.com/microsoft/kiota-python/commit/925196e35df33875edd15f63c041068c26b79f65))
+
 ## [1.12.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.12.2...microsoft-kiota-http-v1.12.3) (2026-09-11)
 
 
