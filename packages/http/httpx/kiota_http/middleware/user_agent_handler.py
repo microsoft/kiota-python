@@ -41,9 +41,7 @@ class UserAgentHandler(BaseMiddleware):
         """
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
-            current_options = request_options.get(
-                UserAgentHandlerOption.get_key(), self.options
-            )
+            current_options = request_options.get(UserAgentHandlerOption.get_key(), self.options)
             return current_options
         return self.options
 
