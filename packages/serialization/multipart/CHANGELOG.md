@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.14.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.13.0...microsoft-kiota-serialization-multipart-v1.14.0) (2026-09-21)
+
+
+### Miscellaneous Chores
+
+* **microsoft-kiota-serialization-multipart:** Synchronize microsoft-kiota versions
+
 ## [1.13.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.12.3...microsoft-kiota-serialization-multipart-v1.13.0) (2026-09-18)
 
 
