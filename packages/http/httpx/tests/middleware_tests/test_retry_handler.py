@@ -206,6 +206,24 @@ async def test_retries_valid():
 
 
 @pytest.mark.asyncio
+async def test_query_request_is_retried():
+    """Test that a QUERY request with a body is retried"""
+
+    def request_handler(request: httpx.Request):
+        if RETRY_ATTEMPT in request.headers:
+            return httpx.Response(200, )
+        return httpx.Response(SERVICE_UNAVAILABLE, )
+
+    handler = RetryHandler()
+    request = httpx.Request('QUERY', BASE_URL, content=b'select *')
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert resp.request.method == 'QUERY'
+    assert resp.request.headers[RETRY_ATTEMPT] == '1'
+
+
+@pytest.mark.asyncio
 async def test_should_retry_false():
     """Test that a request is not retried if should_retry is set to False"""
 
