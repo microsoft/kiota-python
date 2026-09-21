@@ -25,11 +25,16 @@ class JsonSerializationWriter(SerializationWriter):
     def __init__(self) -> None:
         self.writer: dict = {}
         self.value: Any = None
+        self._has_root_value = False
 
         self._on_start_object_serialization: Optional[Callable[[Parsable, SerializationWriter],
                                                                None]] = None
         self._on_before_object_serialization: Optional[Callable[[Parsable], None]] = None
         self._on_after_object_serialization: Optional[Callable[[Parsable], None]] = None
+
+    def _write_root_value(self, value: Any) -> None:
+        self.value = value
+        self._has_root_value = True
 
     def write_str_value(self, key: Optional[str], value: Optional[str]) -> None:
         """Writes the specified string value to the stream with an optional given key.
@@ -41,7 +46,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = value
             else:
-                self.value = value
+                self._write_root_value(value)
 
     def write_bool_value(self, key: Optional[str], value: Optional[bool]) -> None:
         """Writes the specified boolean value to the stream with an optional given key.
@@ -53,7 +58,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = value
             else:
-                self.value = value
+                self._write_root_value(value)
 
     def write_int_value(self, key: Optional[str], value: Optional[int]) -> None:
         """Writes the specified integer value to the stream with an optional given key.
@@ -65,7 +70,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = value
             else:
-                self.value = value
+                self._write_root_value(value)
 
     def write_float_value(self, key: Optional[str], value: Optional[float]) -> None:
         """Writes the specified float value to the stream with an optional given key.
@@ -77,7 +82,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = float(value)
             else:
-                self.value = float(value)
+                self._write_root_value(float(value))
 
     def write_uuid_value(self, key: Optional[str], value: Optional[UUID]) -> None:
         """Writes the specified uuid value to the stream with an optional given key.
@@ -89,14 +94,14 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = str(value)
             else:
-                self.value = str(value)
+                self._write_root_value(str(value))
         elif isinstance(value, str):
             try:
                 UUID(value)
                 if key is not None:
                     self.writer[key] = value
                 else:
-                    self.value = value
+                    self._write_root_value(value)
             except ValueError:
                 if key is not None:
                     raise ValueError(f"Invalid UUID string value found for property {key}")
@@ -112,14 +117,14 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = value.isoformat()
             else:
-                self.value = value.isoformat()
+                self._write_root_value(value.isoformat())
         elif isinstance(value, str):
             try:
                 datetime.fromisoformat(value)
                 if key is not None:
                     self.writer[key] = value
                 else:
-                    self.value = value
+                    self._write_root_value(value)
             except ValueError:
                 if key is not None:
                     raise ValueError(f"Invalid datetime string value found for property {key}")
@@ -135,14 +140,14 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = str(value)
             else:
-                self.value = str(value)
+                self._write_root_value(str(value))
         elif isinstance(value, str):
             try:
                 parse_timedelta_string(value)
                 if key is not None:
                     self.writer[key] = value
                 else:
-                    self.value = value
+                    self._write_root_value(value)
             except ValueError:
                 if key is not None:
                     raise ValueError(f"Invalid timedelta string value found for property {key}")
@@ -158,14 +163,14 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = str(value)
             else:
-                self.value = str(value)
+                self._write_root_value(str(value))
         elif isinstance(value, str):
             try:
                 date.fromisoformat(value)
                 if key is not None:
                     self.writer[key] = value
                 else:
-                    self.value = value
+                    self._write_root_value(value)
             except ValueError:
                 if key is not None:
                     raise ValueError(f"Invalid date string value found for property {key}")
@@ -181,14 +186,14 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = str(value)
             else:
-                self.value = str(value)
+                self._write_root_value(str(value))
         elif isinstance(value, str):
             try:
                 time.fromisoformat(value)
                 if key is not None:
                     self.writer[key] = value
                 else:
-                    self.value = value
+                    self._write_root_value(value)
             except ValueError:
                 if key is not None:
                     raise ValueError(f"Invalid time string value found for property {key}")
@@ -213,7 +218,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = result
             else:
-                self.value = result
+                self._write_root_value(result)
 
     def write_collection_of_object_values(
         self, key: Optional[str], values: Optional[list[U]]
@@ -234,7 +239,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = obj_list
             else:
-                self.value = obj_list
+                self._write_root_value(obj_list)
 
     def write_collection_of_enum_values(
         self, key: Optional[str], values: Optional[list[K]]
@@ -254,7 +259,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = result
             else:
-                self.value = result
+                self._write_root_value(result)
 
     def __write_collection_of_dict_values(
         self, key: Optional[str], values: Optional[list[dict[str, Any]]]
@@ -276,7 +281,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = result
             else:
-                self.value = result
+                self._write_root_value(result)
 
     def write_bytes_value(self, key: Optional[str], value: Optional[bytes]) -> None:
         """Writes the specified byte array as a base64 string to the stream with an optional
@@ -291,7 +296,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = base64_string
             else:
-                self.value = base64_string
+                self._write_root_value(base64_string)
 
     def write_object_value(
         self, key: Optional[str], value: Optional[U], *additional_values_to_merge: Optional[U]
@@ -321,12 +326,12 @@ class JsonSerializationWriter(SerializationWriter):
             # Use temp_writer.value if available (for composed types like oneOf wrappers),
             # otherwise fall back to temp_writer.writer (for regular objects with properties)
             serialized_value = (
-                temp_writer.value if temp_writer.value is not None else temp_writer.writer
+                temp_writer.value if temp_writer._has_root_value else temp_writer.writer
             )
             if key is not None:
                 self.writer[key] = serialized_value
             else:
-                self.value = serialized_value
+                self._write_root_value(serialized_value)
 
     def write_enum_value(self, key: Optional[str], value: Optional[K]) -> None:
         """Writes the specified enum value to the stream with an optional given key.
@@ -338,7 +343,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = value.value
             else:
-                self.value = value.value
+                self._write_root_value(value.value)
 
     def write_null_value(self, key: Optional[str]) -> None:
         """Writes a null value for the specified key.
@@ -348,7 +353,7 @@ class JsonSerializationWriter(SerializationWriter):
         if key is not None:
             self.writer[key] = None
         else:
-            self.value = None
+            self._write_root_value(None)
 
     def __write_dict_value(self, key: Optional[str], value: dict[str, Any]) -> None:
         """Writes the specified dictionary value to the stream with an optional given key.
@@ -363,7 +368,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = temp_writer.writer
             else:
-                self.value = temp_writer.writer
+                self._write_root_value(temp_writer.writer)
 
     def write_additional_data_value(self, value: dict[str, Any]) -> None:
         """Writes the specified additional data to the stream.
@@ -379,14 +384,15 @@ class JsonSerializationWriter(SerializationWriter):
         Returns:
             bytes: The value of the serialized content.
         """
-        if self.writer and self.value:
+        if self.writer and self._has_root_value:
             # Json output is invalid if it has a mix of values
             # and key-value pairs.
             raise ValueError("Invalid Json output")
 
-        if self.value:
+        if self._has_root_value:
             json_string = json.dumps(self.value)
             self.value = None
+            self._has_root_value = False
         else:
             json_string = json.dumps(self.writer)
             self.writer.clear()
@@ -462,7 +468,7 @@ class JsonSerializationWriter(SerializationWriter):
             if key is not None:
                 self.writer[key] = value.__dict__
             else:
-                self.value = value.__dict__
+                self._write_root_value(value.__dict__)
 
     def write_any_value(self, key: Optional[str], value: Any) -> Any:
         """Writes the specified value to the stream with an optional given key.
