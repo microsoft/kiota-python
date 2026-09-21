@@ -23,6 +23,8 @@ The best way to get started with a contribution is to start a dialog with the ow
 
 Feel free to submit a pull request with a linked issue against the __main__ branch.  The main branch will be updated frequently.
 
+The changelog is generated automatically as part of the release process and should not be updated in pull requests.
+
 ## Commit message format
 
 To support our automated release process, pull requests are required to follow the [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/)
@@ -180,4 +182,3 @@ Or run the following command in the terminal:
 pwsh -File ./kiota-python.ps1 format
 pwsh -File ./kiota-python.ps1 check-all
 ```
-
