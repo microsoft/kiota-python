@@ -379,12 +379,12 @@ class JsonSerializationWriter(SerializationWriter):
         Returns:
             bytes: The value of the serialized content.
         """
-        if self.writer and self.value:
+        if self.writer and self.value is not None:
             # Json output is invalid if it has a mix of values
             # and key-value pairs.
             raise ValueError("Invalid Json output")
 
-        if self.value:
+        if self.value is not None:
             json_string = json.dumps(self.value)
             self.value = None
         else:
