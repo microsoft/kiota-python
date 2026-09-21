@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.13.0...microsoft-kiota-http-v1.14.0) (2026-09-21)
+
+
+### Features
+
+* add support for the HTTP QUERY verb (RFC 10008) ([ade9630](https://github.com/microsoft/kiota-python/commit/ade96300e1bdb7899a13ec87a1506f84bd40036f))
+* Add support for the HTTP QUERY verb (RFC 10008) ([6fbde05](https://github.com/microsoft/kiota-python/commit/6fbde052933da03d5ce3078a567bf744ab45a017))
+
+
+### Bug Fixes
+
+* don't turn redirected QUERY requests into GETs ([96b1113](https://github.com/microsoft/kiota-python/commit/96b11134a9a9fedb26a2ad7028b1007a564e1ddb))
+
 ## [1.13.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.12.3...microsoft-kiota-http-v1.13.0) (2026-09-18)
 
 

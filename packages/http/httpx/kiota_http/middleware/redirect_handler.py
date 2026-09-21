@@ -180,8 +180,8 @@ class RedirectHandler(BaseMiddleware):
             method = "GET"
 
         # Do what the browsers do, despite standards...
-        # Turn 302s into GETs.
-        if response.status_code == 302 and method != "HEAD":
+        # Turn 302s into GETs, except QUERY which must be preserved (RFC 10008).
+        if response.status_code == 302 and method not in ("HEAD", "QUERY"):
             method = "GET"
 
         # If a POST is responded to with a 301, turn it into a GET.

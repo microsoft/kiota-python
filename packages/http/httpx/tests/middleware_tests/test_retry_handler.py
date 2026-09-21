@@ -24,7 +24,7 @@ def test_no_config():
     assert retry_handler.options.max_retry == options.max_retry
     assert retry_handler.options.max_delay == options.max_delay
     assert retry_handler.allowed_methods == frozenset(
-        ['HEAD', 'GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS']
+        ['HEAD', 'GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'QUERY']
     )
     assert retry_handler.respect_retry_after_header
 
@@ -202,6 +202,24 @@ async def test_retries_valid():
     resp = await handler.send(request, mock_transport)
     assert resp.status_code == 200
     assert RETRY_ATTEMPT in resp.request.headers
+    assert resp.request.headers[RETRY_ATTEMPT] == '1'
+
+
+@pytest.mark.asyncio
+async def test_query_request_is_retried():
+    """Test that a QUERY request with a body is retried"""
+
+    def request_handler(request: httpx.Request):
+        if RETRY_ATTEMPT in request.headers:
+            return httpx.Response(200, )
+        return httpx.Response(SERVICE_UNAVAILABLE, )
+
+    handler = RetryHandler()
+    request = httpx.Request('QUERY', BASE_URL, content=b'select *')
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert resp.request.method == 'QUERY'
     assert resp.request.headers[RETRY_ATTEMPT] == '1'
 
 
