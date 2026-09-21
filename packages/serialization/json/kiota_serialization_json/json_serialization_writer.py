@@ -24,12 +24,23 @@ class JsonSerializationWriter(SerializationWriter):
 
     def __init__(self) -> None:
         self.writer: dict = {}
-        self.value: Any = None
+        self._value: Any = None
+        self._has_root_value = False
 
         self._on_start_object_serialization: Optional[Callable[[Parsable, SerializationWriter],
                                                                None]] = None
         self._on_before_object_serialization: Optional[Callable[[Parsable], None]] = None
         self._on_after_object_serialization: Optional[Callable[[Parsable], None]] = None
+
+    @property
+    def value(self) -> Any:
+        """The root payload, which may itself be JSON null."""
+        return self._value
+
+    @value.setter
+    def value(self, value: Any) -> None:
+        self._value = value
+        self._has_root_value = True
 
     def write_str_value(self, key: Optional[str], value: Optional[str]) -> None:
         """Writes the specified string value to the stream with an optional given key.
@@ -321,7 +332,7 @@ class JsonSerializationWriter(SerializationWriter):
             # Use temp_writer.value if available (for composed types like oneOf wrappers),
             # otherwise fall back to temp_writer.writer (for regular objects with properties)
             serialized_value = (
-                temp_writer.value if temp_writer.value is not None else temp_writer.writer
+                temp_writer.value if temp_writer._has_root_value else temp_writer.writer
             )
             if key:
                 self.writer[key] = serialized_value
@@ -379,14 +390,15 @@ class JsonSerializationWriter(SerializationWriter):
         Returns:
             bytes: The value of the serialized content.
         """
-        if self.writer and self.value is not None:
+        if self.writer and self._has_root_value:
             # Json output is invalid if it has a mix of values
             # and key-value pairs.
             raise ValueError("Invalid Json output")
 
-        if self.value is not None:
+        if self._has_root_value:
             json_string = json.dumps(self.value)
-            self.value = None
+            self._value = None
+            self._has_root_value = False
         else:
             json_string = json.dumps(self.writer)
             self.writer.clear()
