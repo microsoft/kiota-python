@@ -183,6 +183,27 @@ async def test_redirects_valid():
 
 
 @pytest.mark.asyncio
+async def test_query_redirect_with_302_preserves_method_and_body():
+    """Test that a QUERY request keeps its method and body on a 302 redirect (RFC 10008)"""
+
+    def request_handler(request: httpx.Request):
+        if request.url == REDIRECT_URL:
+            return httpx.Response(200, )
+        return httpx.Response(
+            FOUND,
+            headers={LOCATION_HEADER: REDIRECT_URL},
+        )
+
+    handler = RedirectHandler()
+    request = httpx.Request('QUERY', BASE_URL, content=b'select *')
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert resp.request.method == 'QUERY'
+    assert resp.request.read() == b'select *'
+
+
+@pytest.mark.asyncio
 async def test_redirect_to_different_host_removes_auth_header():
     """Test that if a request is redirected to a different host,
     the Authorization header is removed"""

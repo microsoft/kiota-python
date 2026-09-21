@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.13.0...microsoft-kiota-abstractions-v1.14.0) (2026-09-21)
+
+
+### Features
+
+* add support for the HTTP QUERY verb (RFC 10008) ([ade9630](https://github.com/microsoft/kiota-python/commit/ade96300e1bdb7899a13ec87a1506f84bd40036f))
+* Add support for the HTTP QUERY verb (RFC 10008) ([6fbde05](https://github.com/microsoft/kiota-python/commit/6fbde052933da03d5ce3078a567bf744ab45a017))
+
 ## [1.13.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.12.3...microsoft-kiota-abstractions-v1.13.0) (2026-09-18)
 
 
