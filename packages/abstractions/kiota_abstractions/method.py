@@ -21,3 +21,5 @@ class Method(Enum):
     HEAD = "HEAD"
     # The HTTP PUT method
     PUT = "PUT"
+    # The HTTP QUERY method
+    QUERY = "QUERY"
