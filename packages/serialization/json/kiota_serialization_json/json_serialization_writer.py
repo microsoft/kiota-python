@@ -38,7 +38,7 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[str]): The string value to be written.
         """
         if isinstance(value, str):
-            if key:
+            if key is not None:
                 self.writer[key] = value
             else:
                 self.value = value
@@ -50,7 +50,7 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[bool]): The boolean value to be written.
         """
         if isinstance(value, bool):
-            if key:
+            if key is not None:
                 self.writer[key] = value
             else:
                 self.value = value
@@ -62,7 +62,7 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[int]): The integer value to be written.
         """
         if isinstance(value, int):
-            if key:
+            if key is not None:
                 self.writer[key] = value
             else:
                 self.value = value
@@ -74,7 +74,7 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[float]): The float value to be written.
         """
         if isinstance(value, (float, int)):
-            if key:
+            if key is not None:
                 self.writer[key] = float(value)
             else:
                 self.value = float(value)
@@ -86,19 +86,19 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[UUID]): The uuid value to be written.
         """
         if isinstance(value, UUID):
-            if key:
+            if key is not None:
                 self.writer[key] = str(value)
             else:
                 self.value = str(value)
         elif isinstance(value, str):
             try:
                 UUID(value)
-                if key:
+                if key is not None:
                     self.writer[key] = value
                 else:
                     self.value = value
             except ValueError:
-                if key:
+                if key is not None:
                     raise ValueError(f"Invalid UUID string value found for property {key}")
                 raise ValueError("Invalid UUID string value found")
 
@@ -109,19 +109,19 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[datetime]): The datetime offset value to be written.
         """
         if isinstance(value, datetime):
-            if key:
+            if key is not None:
                 self.writer[key] = value.isoformat()
             else:
                 self.value = value.isoformat()
         elif isinstance(value, str):
             try:
                 datetime.fromisoformat(value)
-                if key:
+                if key is not None:
                     self.writer[key] = value
                 else:
                     self.value = value
             except ValueError:
-                if key:
+                if key is not None:
                     raise ValueError(f"Invalid datetime string value found for property {key}")
                 raise ValueError("Invalid datetime string value found")
 
@@ -132,19 +132,19 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[timedelta]): The timedelta value to be written.
         """
         if isinstance(value, timedelta):
-            if key:
+            if key is not None:
                 self.writer[key] = str(value)
             else:
                 self.value = str(value)
         elif isinstance(value, str):
             try:
                 parse_timedelta_string(value)
-                if key:
+                if key is not None:
                     self.writer[key] = value
                 else:
                     self.value = value
             except ValueError:
-                if key:
+                if key is not None:
                     raise ValueError(f"Invalid timedelta string value found for property {key}")
                 raise ValueError("Invalid timedelta string value found")
 
@@ -155,19 +155,19 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[date]): The date value to be written.
         """
         if isinstance(value, date):
-            if key:
+            if key is not None:
                 self.writer[key] = str(value)
             else:
                 self.value = str(value)
         elif isinstance(value, str):
             try:
                 date.fromisoformat(value)
-                if key:
+                if key is not None:
                     self.writer[key] = value
                 else:
                     self.value = value
             except ValueError:
-                if key:
+                if key is not None:
                     raise ValueError(f"Invalid date string value found for property {key}")
                 raise ValueError("Invalid date string value found")
 
@@ -178,19 +178,19 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[time]): The time value to be written.
         """
         if isinstance(value, time):
-            if key:
+            if key is not None:
                 self.writer[key] = str(value)
             else:
                 self.value = str(value)
         elif isinstance(value, str):
             try:
                 time.fromisoformat(value)
-                if key:
+                if key is not None:
                     self.writer[key] = value
                 else:
                     self.value = value
             except ValueError:
-                if key:
+                if key is not None:
                     raise ValueError(f"Invalid time string value found for property {key}")
                 raise ValueError("Invalid time string value found")
 
@@ -210,7 +210,7 @@ class JsonSerializationWriter(SerializationWriter):
                 temp_writer.write_any_value(None, val)
                 result.append(temp_writer.value)
 
-            if key:
+            if key is not None:
                 self.writer[key] = result
             else:
                 self.value = result
@@ -231,7 +231,7 @@ class JsonSerializationWriter(SerializationWriter):
                 temp_writer.write_object_value(None, val)
                 obj_list.append(temp_writer.value)
 
-            if key:
+            if key is not None:
                 self.writer[key] = obj_list
             else:
                 self.value = obj_list
@@ -251,7 +251,7 @@ class JsonSerializationWriter(SerializationWriter):
                 temp_writer.write_enum_value(None, val)
                 result.append(temp_writer.value)
 
-            if key:
+            if key is not None:
                 self.writer[key] = result
             else:
                 self.value = result
@@ -273,7 +273,7 @@ class JsonSerializationWriter(SerializationWriter):
                 temp_writer.__write_dict_value(None, val)
                 result.append(temp_writer.value)
 
-            if key:
+            if key is not None:
                 self.writer[key] = result
             else:
                 self.value = result
@@ -288,7 +288,7 @@ class JsonSerializationWriter(SerializationWriter):
         if isinstance(value, bytes):
             base64_bytes = base64.b64encode(value)
             base64_string = base64_bytes.decode('utf-8')
-            if key:
+            if key is not None:
                 self.writer[key] = base64_string
             else:
                 self.value = base64_string
@@ -323,7 +323,7 @@ class JsonSerializationWriter(SerializationWriter):
             serialized_value = (
                 temp_writer.value if temp_writer.value is not None else temp_writer.writer
             )
-            if key:
+            if key is not None:
                 self.writer[key] = serialized_value
             else:
                 self.value = serialized_value
@@ -335,7 +335,7 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[K]): The enum value to be written.
         """
         if isinstance(value, Enum):
-            if key:
+            if key is not None:
                 self.writer[key] = value.value
             else:
                 self.value = value.value
@@ -345,7 +345,7 @@ class JsonSerializationWriter(SerializationWriter):
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
         """
-        if key:
+        if key is not None:
             self.writer[key] = None
         else:
             self.value = None
@@ -360,7 +360,7 @@ class JsonSerializationWriter(SerializationWriter):
             temp_writer: JsonSerializationWriter = self._create_new_writer()
             for dict_key, dict_value in value.items():
                 temp_writer.write_any_value(dict_key, dict_value)
-            if key:
+            if key is not None:
                 self.writer[key] = temp_writer.writer
             else:
                 self.value = temp_writer.writer
@@ -459,7 +459,7 @@ class JsonSerializationWriter(SerializationWriter):
             value (object): The value to be written.
         """
         if hasattr(value, '__dict__'):
-            if key:
+            if key is not None:
                 self.writer[key] = value.__dict__
             else:
                 self.value = value.__dict__
