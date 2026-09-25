@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.14.0...microsoft-kiota-serialization-json-v1.14.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* **json:** preserve empty property names during serialization ([6071049](https://github.com/microsoft/kiota-python/commit/6071049b6ce675d63a92a17dd867d8d4802c5846))
+* **json:** preserve falsy root values in serialized content ([8336f05](https://github.com/microsoft/kiota-python/commit/8336f0584be441a26659379372ea356aeddfc56d))
+
 ## [1.14.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.13.0...microsoft-kiota-serialization-json-v1.14.0) (2026-09-21)
 
 
