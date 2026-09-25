@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from unittest.mock import AsyncMock, Mock, call, patch
 from urllib.parse import unquote
 
@@ -7,6 +8,7 @@ import pytest
 from kiota_abstractions.api_error import APIError
 from kiota_abstractions.method import Method
 from kiota_abstractions.native_response_handler import NativeResponseHandler
+from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import (
     ParseNodeFactoryRegistry,
     SerializationWriterFactoryRegistry,
@@ -14,6 +16,7 @@ from kiota_abstractions.serialization import (
 from opentelemetry import trace
 from opentelemetry.sdk.trace import SpanProcessor, TracerProvider
 
+import kiota_http.httpx_request_adapter
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 from kiota_http.middleware import REQUEST_OPTIONS_KEY
 from kiota_http.middleware.options import ResponseHandlerOption
@@ -128,6 +131,32 @@ def test_get_request_from_request_information(request_adapter, request_info, moc
     assert isinstance(req, httpx.Request)
     assert REQUEST_OPTIONS_KEY in req.extensions
     assert req.extensions[REQUEST_OPTIONS_KEY]
+
+
+def test_raw_url_request_has_no_uri_template_attribute(request_adapter, request_info, span_exporter, caplog):
+    request_info.http_method = Method.GET
+    request_info.url = "https://graph.microsoft.com/v1.0/me/messages?$skiptoken=abc"
+    span = kiota_http.httpx_request_adapter.tracer.start_span("parent")
+
+    with caplog.at_level(logging.WARNING, logger="opentelemetry"):
+        request_adapter.get_request_from_request_information(request_info, span, span)
+    span.end()
+
+    assert not [r for r in caplog.records if "url.uri_template" in r.getMessage()]
+    assert all("url.uri_template" not in s.attributes for s in span_exporter.get_finished_spans())
+
+
+def test_templated_request_keeps_its_uri_template_attribute(request_adapter, span_exporter):
+    request_info = RequestInformation(Method.GET, "{+baseurl}/me/messages")
+    request_info.path_parameters = {"baseurl": BASE_URL}
+    span = kiota_http.httpx_request_adapter.tracer.start_span("parent")
+
+    request_adapter.get_request_from_request_information(request_info, span, span)
+    span.end()
+
+    assert {s.attributes.get("url.uri_template") for s in span_exporter.get_finished_spans()} == {
+        "{+baseurl}/me/messages"
+    }
 
 
 def test_get_response_handler(request_adapter, request_info):

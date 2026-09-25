@@ -675,9 +675,11 @@ class HttpxRequestAdapter(RequestAdapter):
             HTTP_REQUEST_METHOD: method.value,
             SERVER_ADDRESS: url.hostname,
             URL_SCHEME: url.scheme,
-            "url.uri_template": request_info.url_template,
         }
 
+        # A request whose URL was set directly (PageIterator, LargeFileUploadTask) has no template
+        if request_info.url_template is not None:
+            otel_attributes["url.uri_template"] = request_info.url_template
         if url.port is not None:
             otel_attributes["http.port"] = str(url.port)
 
