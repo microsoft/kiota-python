@@ -48,7 +48,7 @@ class RequestInformation:
         self,
         method: Optional[Method] = None,
         url_template: Optional[str] = None,
-        path_parameters: dict[str, Any] = {}
+        path_parameters: Optional[dict[str, Any]] = None
     ) -> None:
         """Creates a new instance of the RequestInformation class.
 
@@ -56,15 +56,15 @@ class RequestInformation:
             method (Method): The request method.
             url_template (str): The given url template.
             path_parameters (dict[str, Any], optional): Path parameters
-            for the request. Defaults to {}.
+            for the request. Defaults to a new empty dict.
         """
         # The uri of the request
         self.__uri: Optional[Url] = None
 
         self.__request_options: dict[str, RequestOption] = {}
 
-        # The path parameters for the current request
-        self.path_parameters: dict[str, Any] = path_parameters
+        # The path parameters for the current request, a new dict unless the caller passes one
+        self.path_parameters: dict[str, Any] = {} if path_parameters is None else path_parameters
 
         # The URL template for the request
         self.url_template: Optional[str] = url_template
