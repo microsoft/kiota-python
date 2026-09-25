@@ -12,12 +12,13 @@ from kiota_abstractions.serialization import (
     SerializationWriterFactoryRegistry,
 )
 from opentelemetry import trace
+from opentelemetry.sdk.trace import SpanProcessor, TracerProvider
 
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 from kiota_http.middleware import REQUEST_OPTIONS_KEY
 from kiota_http.middleware.options import ResponseHandlerOption
 
-from .helpers import MockResponseObject
+from .helpers import MockErrorObject, MockResponseObject
 
 APPLICATION_JSON = "application/json"
 BASE_URL = "https://graph.microsoft.com"
@@ -237,9 +238,54 @@ async def test_throw_failed_responses_not_apierror(
         span = mock_otel_span
         await request_adapter.throw_failed_responses(resp, mock_error_500_map, span, span)
     assert (
-        "The server returned an unexpected status code and the error registered"
-        " for this code failed to deserialize"
-    ) in str(e.value.message)
+        str(e.value.message) == "The server returned an unexpected status code and the error"
+        " registered for this code failed to deserialize: 500"
+    )
+
+
+@pytest.mark.asyncio
+async def test_throw_failed_responses_empty_error_body(
+    request_adapter, mock_apierror_XXX_map, mock_otel_span
+):
+    resp = httpx.Response(status_code=503)
+    assert request_adapter.get_response_content_type(resp) is None
+
+    with pytest.raises(APIError) as e:
+        span = mock_otel_span
+        await request_adapter.throw_failed_responses(resp, mock_apierror_XXX_map, span, span)
+    assert (
+        str(e.value.message) == "The server returned an unexpected status code and the error"
+        " registered for this code failed to deserialize: 503"
+    )
+    assert e.value.response_status_code == 503
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "root_node", [
+        None,
+        MockErrorObject,
+        Mock(get_object_value=Mock(side_effect=ValueError("unexpected value"))),
+    ],
+    ids=["no error body", "error body", "error body that fails to deserialize"]
+)
+async def test_throw_failed_responses_ends_every_span(
+    root_node, request_adapter, mock_apierror_XXX_map, mock_otel_span, monkeypatch
+):
+    processor = Mock(spec=SpanProcessor)
+    provider = TracerProvider()
+    provider.add_span_processor(processor)
+    monkeypatch.setattr("kiota_http.httpx_request_adapter.tracer", provider.get_tracer(__name__))
+    request_adapter.get_root_parse_node = AsyncMock(return_value=root_node)
+    resp = httpx.Response(status_code=503, headers={"Content-Type": "application/json"})
+
+    with pytest.raises(APIError):
+        await request_adapter.throw_failed_responses(
+            resp, mock_apierror_XXX_map, mock_otel_span, mock_otel_span
+        )
+    started = [start.args[0] for start in processor.on_start.call_args_list]
+    assert "throw_failed_responses" in [s.name for s in started]
+    assert [s.name for s in started if s.end_time is None] == []
 
 
 @pytest.mark.asyncio
