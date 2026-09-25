@@ -227,3 +227,40 @@ def test_sets_time_only_values_in_path_parameters():
     
 
     
+
+def test_each_request_information_gets_its_own_path_parameters():
+    first = RequestInformation(Method.GET, "{+baseurl}/users/{user%2Did}/messages")
+    second = RequestInformation(Method.GET, "{+baseurl}/users/{user%2Did}/calendar")
+
+    first.path_parameters["user%2Did"] = "alice"
+
+    assert first.path_parameters is not second.path_parameters
+    assert "user%2Did" not in second.path_parameters
+
+
+def test_a_path_parameter_set_on_one_request_does_not_reach_another_url():
+    first = RequestInformation(Method.GET, "{+baseurl}/users/{user%2Did}/messages")
+    first.path_parameters.update({"baseurl": "https://graph.microsoft.com/v1.0", "user%2Did": "alice"})
+    second = RequestInformation(Method.GET, "{+baseurl}/me/calendar")
+    second.path_parameters["baseurl"] = "https://graph.microsoft.com/v1.0"
+
+    assert first.url == "https://graph.microsoft.com/v1.0/users/alice/messages"
+    assert second.path_parameters == {"baseurl": "https://graph.microsoft.com/v1.0"}
+
+
+def test_passed_path_parameters_are_used_as_given():
+    path_parameters = {"baseurl": "https://graph.microsoft.com/v1.0"}
+
+    request_info = RequestInformation(Method.GET, "{+baseurl}/me", path_parameters)
+
+    assert request_info.path_parameters is path_parameters
+
+
+def test_setting_a_raw_url_does_not_clear_another_requests_path_parameters():
+    templated = RequestInformation(Method.GET, "{+baseurl}/users/{user%2Did}/messages")
+    templated.path_parameters.update({"baseurl": "https://graph.microsoft.com/v1.0", "user%2Did": "bob"})
+    raw = RequestInformation(Method.GET)
+
+    raw.url = "https://graph.microsoft.com/v1.0/me/messages?$skiptoken=abc"
+
+    assert templated.url == "https://graph.microsoft.com/v1.0/users/bob/messages"
