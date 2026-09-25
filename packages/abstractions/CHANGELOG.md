@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.14.0...microsoft-kiota-abstractions-v1.14.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* **abstractions:** give each RequestInformation its own path_parameters dict ([e336ff8](https://github.com/microsoft/kiota-python/commit/e336ff8887fbe3e56f154760ac75442984769d4b))
+* **abstractions:** give each RequestInformation its own path_parameters dict ([3ca6799](https://github.com/microsoft/kiota-python/commit/3ca6799377761a83c9facb9e38474902a0b98b29))
+* **json:** preserve empty property names during serialization ([6071049](https://github.com/microsoft/kiota-python/commit/6071049b6ce675d63a92a17dd867d8d4802c5846))
+* **multipart:** serialize JSON parts as root objects ([79455e0](https://github.com/microsoft/kiota-python/commit/79455e0f7d57d05f8b37d27bcb4a431ed039621d))
+
 ## [1.14.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.13.0...microsoft-kiota-abstractions-v1.14.0) (2026-09-21)
 
 

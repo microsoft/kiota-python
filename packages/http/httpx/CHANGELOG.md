@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.14.0...microsoft-kiota-http-v1.14.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* **http:** name the status code for an error without a body and end the get_object_value span ([480ad44](https://github.com/microsoft/kiota-python/commit/480ad44e04fc6f762439b468238d55e037b25ffb))
+* **http:** name the status code for an error without a body and end the get_object_value span ([0c94dd8](https://github.com/microsoft/kiota-python/commit/0c94dd871fbc069c1a38237d16e9c908b856b805))
+* **http:** set url.uri_template only when the request has a template ([b442a5c](https://github.com/microsoft/kiota-python/commit/b442a5ce44c7d6af877e81dde6baa9049efbfad6))
+* **http:** set url.uri_template only when the request has a template ([431540a](https://github.com/microsoft/kiota-python/commit/431540a56e9632c87ff1de687ade357374370cfc))
+
 ## [1.14.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.13.0...microsoft-kiota-http-v1.14.0) (2026-09-21)
 
 
