@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import warnings
 from datetime import datetime
 from typing import Any, Optional, TypeVar, Union
 from urllib import parse
@@ -87,7 +88,16 @@ class HttpxRequestAdapter(RequestAdapter):
         if not http_client:
             http_client = KiotaClientFactory.create_with_default_middleware()
         self._http_client: httpx.AsyncClient = http_client
-        self._base_url: str = str(http_client.base_url) if http_client.base_url is not None else ""
+        if base_url:
+            warnings.warn(
+                "The base_url argument is deprecated. "
+                "Set base_url on the http_client or on the request adapter instead.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+        else:
+            base_url = str(http_client.base_url) if http_client.base_url is not None else ""
+        self._base_url: str = base_url
         if not observability_options:
             observability_options = ObservabilityOptions()
         self.observability_options = observability_options
