@@ -84,3 +84,15 @@ def test_parse_timedelta_string_valid(text:str, expected_hours:int):
     result = parse_timedelta_string(text)
     assert result.days == 0
     assert result.seconds == expected_hours * 3600
+
+
+@pytest.mark.parametrize("text", ["P1000000000D", "PT24000000000H", "P" + "9" * 400 + "D"])
+def test_parse_timedelta_from_iso_format_out_of_range(text: str):
+    with pytest.raises(ValueError, match="out of range"):
+        parse_timedelta_from_iso_format(text)
+
+
+@pytest.mark.parametrize("text", ["50001140846:00021", "P1000000000D"])
+def test_parse_timedelta_string_out_of_range(text: str):
+    with pytest.raises(ValueError):
+        parse_timedelta_string(text)

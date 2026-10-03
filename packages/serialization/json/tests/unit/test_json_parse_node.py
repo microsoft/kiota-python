@@ -105,6 +105,12 @@ def test_get_timedelta_value():
     assert str(result) == "0:00:30"
 
 
+@pytest.mark.parametrize("value", ["50001140846:00021", "P1000000000D"])
+def test_get_timedelta_value_out_of_range(value):
+    parse_node = JsonParseNode(value)
+    assert parse_node.get_timedelta_value() is None
+
+
 def test_get_collection_of_primitive_values():
     parse_node = JsonParseNode([12.1, 12.2, 12.3, 12.4, 12.5])
     result = parse_node.get_collection_of_primitive_values(float)

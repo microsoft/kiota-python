@@ -175,6 +175,13 @@ def test_get_object_value():
     assert result.additional_data["mobilePhone"]
     assert result.additional_data["accountEnabled"] == "true"
     assert result.additional_data["jobTitle"] == "Auditor"
+
+
+@pytest.mark.parametrize("value", ["50001140846:00021", "P1000000000D"])
+def test_get_object_value_keeps_out_of_range_duration_as_string(value):
+    parse_node = FormParseNode(f"jobTitle=Auditor&extra={value}")
+    result = parse_node.get_object_value(TestEntity)
+    assert result.additional_data["extra"] == value
     
 def returns_default_if_child_node_does_not_exist():
     parse_node = FormParseNode(TEST_USER_FORM)

@@ -48,13 +48,16 @@ def parse_timedelta_from_iso_format(text: str) -> timedelta:
         raise ValueError("Combining weeks with other date/time parts is not supported")
 
     _total_days = (years * 365) + (months * 30) + days
-    return timedelta(
-        days=_total_days,
-        hours=hours,
-        minutes=minutes,
-        seconds=seconds,
-        weeks=weeks,
-    )
+    try:
+        return timedelta(
+            days=_total_days,
+            hours=hours,
+            minutes=minutes,
+            seconds=seconds,
+            weeks=weeks,
+        )
+    except OverflowError as exc:
+        raise ValueError(f"ISO8601 duration out of range: {text}") from exc
 
 
 _TIMEDELTA_PATTERN = re.compile(r"^(?P<hours>\d+):(?P<minutes>\d+)(?::(?P<seconds>\d+))?$")
@@ -73,7 +76,10 @@ def parse_timedelta_string(text: str) -> timedelta:
         hours = int(m.group("hours"))
         minutes = int(m.group("minutes"))
         seconds = int(m.group("seconds") or 0)
-        return timedelta(hours=hours, minutes=minutes, seconds=seconds)
+        try:
+            return timedelta(hours=hours, minutes=minutes, seconds=seconds)
+        except OverflowError as overflow:
+            raise ValueError(f"Timedelta string out of range: {text}") from overflow
 
 
 _TIME_REPLACEMENT_PATTERN = re.compile(r'(\d)([.,])(\d+)')
