@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.14.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.14.1...microsoft-kiota-serialization-form-v1.14.2) (2026-10-05)
+
+
+### Bug Fixes
+
+* **abstractions:** raise ValueError for out-of-range timedelta strings ([#760](https://github.com/microsoft/kiota-python/issues/760)) ([2658939](https://github.com/microsoft/kiota-python/commit/26589398ff5ada8e8a35cb423afe64276991aad1))
+
 ## [1.14.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.14.0...microsoft-kiota-serialization-form-v1.14.1) (2026-09-25)
 
 

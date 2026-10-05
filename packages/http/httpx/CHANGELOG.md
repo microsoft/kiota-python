@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.14.1...microsoft-kiota-http-v1.14.2) (2026-10-05)
+
+
+### Bug Fixes
+
+* **http:** honor and deprecate HttpxRequestAdapter's base_url argument ([85c6976](https://github.com/microsoft/kiota-python/commit/85c6976a9804970d07b00b6ce9a9c6a4dcb541ab))
+* **http:** honor and deprecate HttpxRequestAdapter's base_url argument ([f2206fd](https://github.com/microsoft/kiota-python/commit/f2206fdc08f1d06c8501e66c1f74fc86246b59fe))
+* **http:** warn when base_url is passed as an empty string ([af66edd](https://github.com/microsoft/kiota-python/commit/af66eddd81b1f923b3ef71ecb18a7aa13002b246))
+
 ## [1.14.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.14.0...microsoft-kiota-http-v1.14.1) (2026-09-25)
 
 
