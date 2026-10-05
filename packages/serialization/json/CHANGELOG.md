@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.14.1...microsoft-kiota-serialization-json-v1.14.2) (2026-10-05)
+
+
+### Bug Fixes
+
+* **abstractions:** raise ValueError for out-of-range timedelta strings ([#760](https://github.com/microsoft/kiota-python/issues/760)) ([2658939](https://github.com/microsoft/kiota-python/commit/26589398ff5ada8e8a35cb423afe64276991aad1))
+* **json:** distinguish null from the none enum member ([9f98830](https://github.com/microsoft/kiota-python/commit/9f98830571512a6ec3053d62c1def91ac842ce6e))
+* **json:** distinguish null from the none enum member ([7669fec](https://github.com/microsoft/kiota-python/commit/7669fec5210b89abf9e0e6d913e4437db817093b))
+
 ## [1.14.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.14.0...microsoft-kiota-serialization-json-v1.14.1) (2026-09-25)
 
 
