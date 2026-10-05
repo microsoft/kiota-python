@@ -185,6 +185,8 @@ class JsonParseNode(ParseNode):
         Returns:
             Optional[K]: The enum value of the node
         """
+        if self._json_node is None:
+            return None
         raw_key = str(self._json_node)
         if not raw_key:
             return None
