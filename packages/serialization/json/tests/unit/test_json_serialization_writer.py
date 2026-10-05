@@ -150,6 +150,13 @@ def test_write_timedelta_value_invalid_string():
     assert "Invalid timedelta string value found for property diff" in str(excinfo.value)
 
 
+@pytest.mark.parametrize("value", ["50001140846:00021", "P1000000000D"])
+def test_write_timedelta_value_out_of_range_string(value):
+    json_serialization_writer = JsonSerializationWriter()
+    with pytest.raises(ValueError, match="Invalid timedelta string value found for property diff"):
+        json_serialization_writer.write_timedelta_value("diff", value)
+
+
 def test_write_date_value():
     json_serialization_writer = JsonSerializationWriter()
     json_serialization_writer.write_date_value("birthday", date(2000,9,4))
