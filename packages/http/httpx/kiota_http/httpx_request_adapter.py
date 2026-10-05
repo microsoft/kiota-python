@@ -88,14 +88,14 @@ class HttpxRequestAdapter(RequestAdapter):
         if not http_client:
             http_client = KiotaClientFactory.create_with_default_middleware()
         self._http_client: httpx.AsyncClient = http_client
-        if base_url:
+        if base_url is not None:
             warnings.warn(
                 "The base_url argument is deprecated. "
                 "Set base_url on the http_client or on the request adapter instead.",
                 DeprecationWarning,
                 stacklevel=2
             )
-        else:
+        if not base_url:
             base_url = str(http_client.base_url) if http_client.base_url is not None else ""
         self._base_url: str = base_url
         if not observability_options:

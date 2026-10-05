@@ -638,6 +638,12 @@ def test_httpx_request_adapter_base_url_parameter_wins_over_http_client(auth_pro
         request_adapter = HttpxRequestAdapter(auth_provider, http_client=http_client, base_url="https://no.com")
     assert request_adapter.base_url == "https://no.com"
 
+def test_httpx_request_adapter_empty_base_url_parameter_warns_and_uses_http_client(auth_provider):
+    http_client = httpx.AsyncClient(base_url=BASE_URL)
+    with pytest.warns(DeprecationWarning, match="base_url argument is deprecated"):
+        request_adapter = HttpxRequestAdapter(auth_provider, http_client=http_client, base_url="")
+    assert request_adapter.base_url == BASE_URL
+
 def test_httpx_request_adapter_uses_http_client_base_url(auth_provider):
     http_client = httpx.AsyncClient(base_url=BASE_URL)
     with warnings.catch_warnings():
