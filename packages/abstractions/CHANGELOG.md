@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.14.2...microsoft-kiota-abstractions-v1.14.3) (2026-10-09)
+
+
+### Bug Fixes
+
+* declare public exports for strict type checkers and ship py.typed in bundle ([cf69dc3](https://github.com/microsoft/kiota-python/commit/cf69dc39e530affebb05cde8f7613f0412c09dcb))
+* declare public exports for strict type checkers and ship py.typed in bundle ([8a657b4](https://github.com/microsoft/kiota-python/commit/8a657b4756583a81a8213fa7cee7fe70ac4a34e3))
+
 ## [1.14.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.14.1...microsoft-kiota-abstractions-v1.14.2) (2026-10-05)
 
 
