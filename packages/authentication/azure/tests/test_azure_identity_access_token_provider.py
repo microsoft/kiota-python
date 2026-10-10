@@ -2,6 +2,9 @@ import asyncio
 
 import pytest
 from kiota_abstractions.authentication import AllowedHostsValidator
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
 from kiota_authentication_azure.azure_identity_access_token_provider import (
     AzureIdentityAccessTokenProvider,
@@ -107,6 +110,21 @@ async def test_get_authorization_token_sync():
     token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
     token = await token_provider.get_authorization_token('https://graph.microsoft.com')
     assert token == "This is a dummy token"
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_marks_valid_url_span_attribute_true(monkeypatch):
+    exporter = InMemorySpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    monkeypatch.setattr(
+        "kiota_authentication_azure.azure_identity_access_token_provider.tracer",
+        provider.get_tracer(__name__)
+    )
+    token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
+    await token_provider.get_authorization_token('https://graph.microsoft.com')
+    [span] = exporter.get_finished_spans()
+    assert span.attributes[AzureIdentityAccessTokenProvider.IS_VALID_URL] is True
 
 
 @pytest.mark.asyncio
