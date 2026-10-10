@@ -3,8 +3,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
-from typing import Generic, Optional, TypeVar, Union
+from typing import Generic, Optional, Union
 from uuid import UUID
+
+from typing_extensions import TypeVar
 
 from .request_information import RequestInformation
 from .serialization import Parsable, ParsableFactory, SerializationWriterFactory
@@ -12,13 +14,13 @@ from .store import BackingStoreFactory
 
 ResponseType = TypeVar("ResponseType")
 ModelType = TypeVar("ModelType", bound=Parsable)
-RequestType = TypeVar("RequestType")
+RequestType_co = TypeVar("RequestType_co", covariant=True, default=object)
 PrimitiveType = TypeVar(
     "PrimitiveType", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes
 )
 
 
-class RequestAdapter(ABC, Generic[RequestType]):
+class RequestAdapter(ABC, Generic[RequestType_co]):
     """Service responsible for translating abstract Request Info into concrete native HTTP requests.
     """
     # The base url for every request.
@@ -143,13 +145,13 @@ class RequestAdapter(ABC, Generic[RequestType]):
         pass
 
     @abstractmethod
-    async def convert_to_native_async(self, request_info: RequestInformation) -> RequestType:
+    async def convert_to_native_async(self, request_info: RequestInformation) -> RequestType_co:
         """Translates the request information object into a native HTTP client request object.
 
         Args:
             request_info (RequestInformation): request information object to be converted.
 
         Returns:
-            RequestType: the natively typed HTTP request of the client.
+            RequestType_co: the natively typed HTTP request of the client.
         """
         pass
