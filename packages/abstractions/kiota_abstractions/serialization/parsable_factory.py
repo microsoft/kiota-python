@@ -1,10 +1,12 @@
 from abc import abstractmethod
-from typing import Generic, Optional, Protocol, TypeVar
+from typing import Generic, Optional, Protocol
+
+from typing_extensions import TypeVar
 
 from .parsable import Parsable
 from .parse_node import ParseNode
 
-U_co = TypeVar("U_co", bound="Parsable", covariant=True)
+U_co = TypeVar("U_co", bound="Parsable", covariant=True, default="Parsable")
 
 
 class ParsableFactory(Protocol, Generic[U_co]):

@@ -1,5 +1,6 @@
 [tool.mypy]
 warn_unused_configs = true
+strict = true
 files = "validation"
 
 [tool.yapf]

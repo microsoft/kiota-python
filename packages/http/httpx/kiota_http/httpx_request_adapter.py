@@ -215,7 +215,7 @@ class HttpxRequestAdapter(RequestAdapter):
     async def send_collection_async(
         self,
         request_info: RequestInformation,
-        parsable_factory: ParsableFactory,
+        parsable_factory: ParsableFactory[ModelType],
         error_map: Optional[dict[str, type[ParsableFactory]]],
     ) -> Optional[list[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the
