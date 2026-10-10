@@ -38,6 +38,7 @@ name = "kiota_authentication_azure"
 
 [tool.mypy]
 warn_unused_configs = true
+strict = true
 files = "kiota_authentication_azure"
 
 [tool.yapf]
