@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any, Optional
 
 from .parse_node import ParseNode
 from .parse_node_factory import ParseNodeFactory
@@ -11,9 +12,9 @@ class ParseNodeFactoryRegistry(ParseNodeFactory):
     """
     CONTENT_TYPE_ASSOCIATED_FACTORIES: dict[str, ParseNodeFactory] = {}
 
-    __instance = None
+    __instance: Optional[ParseNodeFactoryRegistry] = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Any, **kwargs: Any) -> ParseNodeFactoryRegistry:
         """Default singleton instance of the registry to be used when registering new
         factories that should be available by default.
 

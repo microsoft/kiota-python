@@ -41,10 +41,11 @@ def test_get_int_value():
     assert result == 1454
 
 
-def test_get_bool_value():
-    parse_node = TextParseNode(False)
+@pytest.mark.parametrize("text, expected", [("true", True), ("false", False), ("True\n", True)])
+def test_get_bool_value(text, expected):
+    parse_node = TextParseNode(text)
     result = parse_node.get_bool_value()
-    assert result is False
+    assert result is expected
 
 
 def test_get_float_value():
