@@ -1,10 +1,27 @@
 from uuid import UUID
-from urllib.parse import unquote_plus
+from urllib.parse import parse_qs, unquote_plus
 import pytest
 
 from datetime import datetime, timedelta, date, time
 from kiota_serialization_form.form_serialization_writer import FormSerializationWriter
 from ..helpers import TestEntity, TestEnum
+
+
+@pytest.mark.parametrize("value", [
+    " padded ", "leading ", " trailing", " \t\r\n", "\u2003café\u2003", "plain",
+])
+def test_write_str_value_preserves_whitespace(value):
+    writer = FormSerializationWriter()
+    writer.write_str_value("label", value)
+    assert parse_qs(writer.get_serialized_content().decode("utf-8"))["label"] == [value]
+
+
+@pytest.mark.parametrize("value", [None, ""])
+def test_write_str_value_still_omits_absent_or_empty_values(value):
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "present")
+    writer.write_str_value("label", value)
+    assert writer.get_serialized_content() == b"first=present"
 
 
 @pytest.fixture
