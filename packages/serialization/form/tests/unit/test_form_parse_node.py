@@ -1,10 +1,13 @@
 import base64
 from datetime import date, datetime, time, timedelta
+from enum import Enum
 from uuid import UUID
 
 import pytest
 
 from kiota_serialization_form.form_parse_node import FormParseNode
+from kiota_serialization_form.form_parse_node_factory import FormParseNodeFactory
+from kiota_serialization_form.form_serialization_writer import FormSerializationWriter
 from ..helpers import TestEntity, TestEnum
 
 TEST_USER_FORM: str = (
@@ -28,6 +31,47 @@ TEST_USER_FORM: str = (
     "otherPhones=123456789&otherPhones=987654321&" #collection property for additionalData
     "id=48d31887-5fad-4d73-a9f5-3c356e68a038"
 )
+
+
+@pytest.mark.parametrize("encoded, expected", [
+    ("a%2Bb", ["a+b"]),
+    ("%252F", ["%2F"]),
+    ("a%2Cb", ["a,b"]),
+    ("a,b", ["a", "b"]),
+    ("Megan+Bowen", ["Megan Bowen"]),
+    ("caf%C3%A9", ["café"]),
+])
+def test_primitive_collection_decodes_each_encoded_value_once(encoded, expected):
+    assert FormParseNode(encoded).get_collection_of_primitive_values(str) == expected
+
+
+def test_primitive_collection_round_trips_repeated_encoded_fields():
+    values = ["a+b", "%2F", "a,b", "plain", "Megan Bowen", "café", "a+b"]
+    writer = FormSerializationWriter()
+    writer.write_collection_of_primitive_values("tags", values)
+    root = FormParseNodeFactory().get_root_parse_node(
+        "application/x-www-form-urlencoded", writer.get_serialized_content()
+    )
+    node = root.get_child_node("tags")
+    assert node is not None
+    assert node.get_collection_of_primitive_values(str) == values
+
+
+def test_enum_collection_round_trips_encoded_values():
+    class EncodedEnum(Enum):
+        Plus = "a+b"
+        Percent = "%2F"
+        Comma = "a,b"
+
+    values = [EncodedEnum.Plus, EncodedEnum.Percent, EncodedEnum.Comma, EncodedEnum.Plus]
+    writer = FormSerializationWriter()
+    writer.write_collection_of_enum_values("tags", values)
+    root = FormParseNodeFactory().get_root_parse_node(
+        "application/x-www-form-urlencoded", writer.get_serialized_content()
+    )
+    node = root.get_child_node("tags")
+    assert node is not None
+    assert node.get_collection_of_enum_values(EncodedEnum) == values
 
 def test_get_str_value():
     parse_node = FormParseNode("Megan+Bowen")
