@@ -35,7 +35,7 @@ class FormSerializationWriter(SerializationWriter):
         if key and value:
             if len(self.writer) > 0:
                 self.writer += "&"
-            self.writer += f"{quote_plus(key.strip())}={quote_plus(value.strip())}"
+            self.writer += f"{quote_plus(key.strip())}={quote_plus(value)}"
 
     def write_bool_value(self, key: Optional[str], value: Optional[bool]) -> None:
         """Writes the specified boolean value to the stream with an optional given key.
