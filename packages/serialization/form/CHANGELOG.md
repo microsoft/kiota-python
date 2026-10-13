@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.14.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.14.2...microsoft-kiota-serialization-form-v1.14.3) (2026-10-13)
+
+
+### Bug Fixes
+
+* **serialization-form:** decode collection elements exactly once ([83be2e2](https://github.com/microsoft/kiota-python/commit/83be2e2fe012182b1f1b74428adf6d48ca920ab1))
+* **serialization-form:** decode collection elements exactly once ([22893db](https://github.com/microsoft/kiota-python/commit/22893db6a351c05335d9913ce3f61d633e4d5ae7))
+* **serialization-form:** preserve whitespace in string values ([06e7026](https://github.com/microsoft/kiota-python/commit/06e70261aadfea43d5e5e96c5640c9345f8ff3be))
+* **serialization-form:** preserve whitespace in string values ([3dc5580](https://github.com/microsoft/kiota-python/commit/3dc5580abe640436b521e0449fc0c4ace9834755))
+
 ## [1.14.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.14.1...microsoft-kiota-serialization-form-v1.14.2) (2026-10-05)
 
 
