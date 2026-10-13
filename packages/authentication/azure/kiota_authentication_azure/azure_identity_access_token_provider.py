@@ -1,6 +1,5 @@
 import base64
 import inspect
-from pickle import TRUE
 from typing import Any, Optional, Union
 from urllib.parse import urlparse
 
@@ -85,7 +84,7 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
                 span.record_exception(exc)
                 raise exc
 
-            span.set_attribute(self.IS_VALID_URL, TRUE)
+            span.set_attribute(self.IS_VALID_URL, True)
 
             decoded_claim = None
             if all(
