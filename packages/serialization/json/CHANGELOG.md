@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.14.3...microsoft-kiota-serialization-json-v1.14.4) (2026-10-14)
+
+
+### Bug Fixes
+
+* pass mypy --strict in the small packages and read "false" as False in text ([70a6190](https://github.com/microsoft/kiota-python/commit/70a61903afd0e126eea79ad9140a883f2eb999a0))
+
 ## [1.14.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.14.2...microsoft-kiota-serialization-json-v1.14.3) (2026-10-13)
 
 

@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.14.3...microsoft-kiota-serialization-form-v1.14.4) (2026-10-14)
+
+
+### Bug Fixes
+
+* pass mypy --strict in the small packages and read "false" as False in text ([70a6190](https://github.com/microsoft/kiota-python/commit/70a61903afd0e126eea79ad9140a883f2eb999a0))
+* **serialization-form:** preserve additional data values ([d672077](https://github.com/microsoft/kiota-python/commit/d6720770727d46b73a91408905af107d3abd4595))
+* **serialization-form:** preserve additional data values ([dd04035](https://github.com/microsoft/kiota-python/commit/dd040358e25342684a7690ba839c11d94af5eaf6))
+
 ## [1.14.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.14.2...microsoft-kiota-serialization-form-v1.14.3) (2026-10-13)
 
 
