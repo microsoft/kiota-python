@@ -1,10 +1,13 @@
 import base64
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
+from enum import Enum
 from uuid import UUID
 
 import pytest
 
 from kiota_serialization_form.form_parse_node import FormParseNode
+from kiota_serialization_form.form_parse_node_factory import FormParseNodeFactory
+from kiota_serialization_form.form_serialization_writer import FormSerializationWriter
 from ..helpers import TestEntity, TestEnum
 
 TEST_USER_FORM: str = (
@@ -28,6 +31,47 @@ TEST_USER_FORM: str = (
     "otherPhones=123456789&otherPhones=987654321&" #collection property for additionalData
     "id=48d31887-5fad-4d73-a9f5-3c356e68a038"
 )
+
+
+@pytest.mark.parametrize("encoded, expected", [
+    ("a%2Bb", ["a+b"]),
+    ("%252F", ["%2F"]),
+    ("a%2Cb", ["a,b"]),
+    ("a,b", ["a", "b"]),
+    ("Megan+Bowen", ["Megan Bowen"]),
+    ("caf%C3%A9", ["café"]),
+])
+def test_primitive_collection_decodes_each_encoded_value_once(encoded, expected):
+    assert FormParseNode(encoded).get_collection_of_primitive_values(str) == expected
+
+
+def test_primitive_collection_round_trips_repeated_encoded_fields():
+    values = ["a+b", "%2F", "a,b", "plain", "Megan Bowen", "café", "a+b"]
+    writer = FormSerializationWriter()
+    writer.write_collection_of_primitive_values("tags", values)
+    root = FormParseNodeFactory().get_root_parse_node(
+        "application/x-www-form-urlencoded", writer.get_serialized_content()
+    )
+    node = root.get_child_node("tags")
+    assert node is not None
+    assert node.get_collection_of_primitive_values(str) == values
+
+
+def test_enum_collection_round_trips_encoded_values():
+    class EncodedEnum(Enum):
+        Plus = "a+b"
+        Percent = "%2F"
+        Comma = "a,b"
+
+    values = [EncodedEnum.Plus, EncodedEnum.Percent, EncodedEnum.Comma, EncodedEnum.Plus]
+    writer = FormSerializationWriter()
+    writer.write_collection_of_enum_values("tags", values)
+    root = FormParseNodeFactory().get_root_parse_node(
+        "application/x-www-form-urlencoded", writer.get_serialized_content()
+    )
+    node = root.get_child_node("tags")
+    assert node is not None
+    assert node.get_collection_of_enum_values(EncodedEnum) == values
 
 def test_get_str_value():
     parse_node = FormParseNode("Megan+Bowen")
@@ -182,6 +226,43 @@ def test_get_object_value_keeps_out_of_range_duration_as_string(value):
     parse_node = FormParseNode(f"jobTitle=Auditor&extra={value}")
     result = parse_node.get_object_value(TestEntity)
     assert result.additional_data["extra"] == value
+
+
+@pytest.mark.parametrize("value", [
+    "a&b", "hello world", "a+b", "%2F", "café", "one,two", " padded ", "plain",
+])
+def test_additional_data_strings_round_trip(value):
+    writer = FormSerializationWriter()
+    writer.write_object_value(None, TestEntity(additional_data={"custom": value}))
+    node = FormParseNodeFactory().get_root_parse_node(
+        "application/x-www-form-urlencoded", writer.get_serialized_content()
+    )
+    result = node.get_object_value(TestEntity)
+    assert result.additional_data["custom"] == value
+
+
+def test_known_and_additional_fields_decode_the_same_value():
+    node = FormParseNode("officeLocation=hello+world&custom=hello+world")
+    result = node.get_object_value(TestEntity)
+    assert result.office_location == "hello world"
+    assert result.additional_data["custom"] == "hello world"
+
+
+def test_additional_data_decodes_keys_and_repeated_values():
+    node = FormParseNode("custom%2Bfield=one%2Btwo&custom%2Bfield=three%2Cfour")
+    result = node.get_object_value(TestEntity)
+    assert result.additional_data["custom+field"] == "one+two,three,four"
+
+
+@pytest.mark.parametrize("value, expected", [
+    ("2017-07-29T03%3A07%3A25Z", datetime(2017, 7, 29, 3, 7, 25, tzinfo=timezone.utc)),
+    ("50001140846%3A00021", "50001140846:00021"),
+    ("", ""),
+    ("null", "null"),
+])
+def test_additional_data_preserves_existing_value_inference(value, expected):
+    result = FormParseNode(f"extra={value}").get_object_value(TestEntity)
+    assert result.additional_data["extra"] == expected
     
 def returns_default_if_child_node_does_not_exist():
     parse_node = FormParseNode(TEST_USER_FORM)

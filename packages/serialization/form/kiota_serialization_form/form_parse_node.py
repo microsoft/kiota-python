@@ -137,8 +137,9 @@ class FormParseNode(ParseNode):
         converter = converters.get(primitive_type)
         if converter is None:
             raise Exception(f"Encountered an unknown type during deserialization {primitive_type}")
+        values = self._raw_value.split(',')
         return [
-            converter(unquote_plus(item)) for item in self._node.split(',')  # type: ignore[misc]
+            converter(unquote_plus(item)) for item in values  # type: ignore[misc]
         ]
 
     def get_collection_of_object_values(self, factory: ParsableFactory[U]) -> Optional[list[U]]:
@@ -149,7 +150,7 @@ class FormParseNode(ParseNode):
         Returns:
             list[K]: The collection of enum values
         """
-        values = self._node.split(',')
+        values = self._raw_value.split(',')
         if values:
             return list(
                 map(
@@ -250,7 +251,7 @@ class FormParseNode(ParseNode):
                 field_deserializer = field_deserializers[field_name]
                 field_deserializer(FormParseNode(field_value))
             elif item_additional_data is not None:
-                item_additional_data[field_name] = self.try_get_anything(field_value)
+                item_additional_data[field_name] = self.try_get_anything(unquote_plus(field_value))
             else:
                 warnings.warn(
                     f"Found additional property {field_name} to \
