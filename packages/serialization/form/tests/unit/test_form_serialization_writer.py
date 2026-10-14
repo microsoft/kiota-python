@@ -202,10 +202,37 @@ def test_write_object_value(user_1):
         "startWorkTime=08%3A00%3A00&"
         "createdDateTime=2022-01-27T12%3A59%3A45.596117%2B00%3A00&"
         "otherPhones=123456789&otherPhones=987654321&"
+        "accountEnabled=false&"
         "jobTitle=Auditor&"
         "intValue=1&"
         "floatValue=3.14"
     )
+
+
+@pytest.mark.parametrize("value, expected", [
+    (False, b"custom=false"),
+    (0, b"custom=0"),
+    (0.0, b"custom=0.0"),
+    (True, b"custom=true"),
+    (1, b"custom=1"),
+    (1.5, b"custom=1.5"),
+    (None, b""),
+    ("", b""),
+    ([], b""),
+])
+def test_write_additional_data_preserves_false_and_zero(value, expected):
+    writer = FormSerializationWriter()
+    writer.write_object_value(None, TestEntity(additional_data={"custom": value}))
+    assert writer.get_serialized_content() == expected
+
+
+def test_write_additional_data_false_and_zero_after_existing_field():
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "present")
+    writer.write_object_value(
+        None, TestEntity(additional_data={"enabled": False, "count": 0, "ratio": 0.0})
+    )
+    assert writer.get_serialized_content() == b"first=present&enabled=false&count=0&ratio=0.0"
 
 
 @pytest.mark.parametrize("key", [None, ""])

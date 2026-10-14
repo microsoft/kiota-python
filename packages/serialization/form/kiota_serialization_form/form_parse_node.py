@@ -251,7 +251,7 @@ class FormParseNode(ParseNode):
                 field_deserializer = field_deserializers[field_name]
                 field_deserializer(FormParseNode(field_value))
             elif item_additional_data is not None:
-                item_additional_data[field_name] = self.try_get_anything(field_value)
+                item_additional_data[field_name] = self.try_get_anything(unquote_plus(field_value))
             else:
                 warnings.warn(
                     f"Found additional property {field_name} to \
