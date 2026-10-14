@@ -324,7 +324,7 @@ extends:
             runOnce:
               deploy:
                 steps:
-                - task: EsrpRelease@12
+                - task: EsrpRelease@14
                   displayName: 'Publish Kiota Python packages via ESRP Release'
                   inputs:
                     connectedservicename: "Federated DevX ESRP Managed Identity Connection"
