@@ -321,7 +321,7 @@ class FormSerializationWriter(SerializationWriter):
             value Any): The value to be written.
         """
         primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time, Enum]
-        if key and value:
+        if key and value is not None:
             value_type = type(value)
             if value_type in primitive_types:
                 method = getattr(self, f'write_{value_type.__name__.lower()}_value')

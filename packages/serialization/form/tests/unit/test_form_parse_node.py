@@ -1,5 +1,5 @@
 import base64
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from enum import Enum
 from uuid import UUID
 
@@ -226,6 +226,43 @@ def test_get_object_value_keeps_out_of_range_duration_as_string(value):
     parse_node = FormParseNode(f"jobTitle=Auditor&extra={value}")
     result = parse_node.get_object_value(TestEntity)
     assert result.additional_data["extra"] == value
+
+
+@pytest.mark.parametrize("value", [
+    "a&b", "hello world", "a+b", "%2F", "café", "one,two", " padded ", "plain",
+])
+def test_additional_data_strings_round_trip(value):
+    writer = FormSerializationWriter()
+    writer.write_object_value(None, TestEntity(additional_data={"custom": value}))
+    node = FormParseNodeFactory().get_root_parse_node(
+        "application/x-www-form-urlencoded", writer.get_serialized_content()
+    )
+    result = node.get_object_value(TestEntity)
+    assert result.additional_data["custom"] == value
+
+
+def test_known_and_additional_fields_decode_the_same_value():
+    node = FormParseNode("officeLocation=hello+world&custom=hello+world")
+    result = node.get_object_value(TestEntity)
+    assert result.office_location == "hello world"
+    assert result.additional_data["custom"] == "hello world"
+
+
+def test_additional_data_decodes_keys_and_repeated_values():
+    node = FormParseNode("custom%2Bfield=one%2Btwo&custom%2Bfield=three%2Cfour")
+    result = node.get_object_value(TestEntity)
+    assert result.additional_data["custom+field"] == "one+two,three,four"
+
+
+@pytest.mark.parametrize("value, expected", [
+    ("2017-07-29T03%3A07%3A25Z", datetime(2017, 7, 29, 3, 7, 25, tzinfo=timezone.utc)),
+    ("50001140846%3A00021", "50001140846:00021"),
+    ("", ""),
+    ("null", "null"),
+])
+def test_additional_data_preserves_existing_value_inference(value, expected):
+    result = FormParseNode(f"extra={value}").get_object_value(TestEntity)
+    assert result.additional_data["extra"] == expected
     
 def returns_default_if_child_node_does_not_exist():
     parse_node = FormParseNode(TEST_USER_FORM)
