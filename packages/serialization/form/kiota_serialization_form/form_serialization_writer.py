@@ -341,7 +341,7 @@ class FormSerializationWriter(SerializationWriter):
                         with key {key}"
                 )
 
-    def _serialize_value(self, temp_writer: FormSerializationWriter, value: U):
+    def _serialize_value(self, temp_writer: FormSerializationWriter, value: U) -> None:
         if on_before := self.on_before_object_serialization:
             on_before(value)
         if on_start := self.on_start_object_serialization:

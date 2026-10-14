@@ -39,6 +39,7 @@ name = "kiota_bundle"
 
 [tool.mypy]
 warn_unused_configs = true
+strict = true
 files = "kiota_bundle"
 
 [tool.yapf]

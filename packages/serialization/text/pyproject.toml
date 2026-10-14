@@ -34,6 +34,7 @@ name = "kiota_serialization_text"
 
 [tool.mypy]
 warn_unused_configs = true
+strict = true
 files = "kiota_serialization_text"
 
 [tool.yapf]

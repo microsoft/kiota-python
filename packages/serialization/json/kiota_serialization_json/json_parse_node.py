@@ -131,7 +131,7 @@ class JsonParseNode(ParseNode):
             bytes: self._get_bytes_value,
         }
 
-        def func(item):
+        def func(item: Any) -> Any:
             t = primitive_type if primitive_type else type(item)
             converter = converters.get(t)
             if converter is None:
@@ -150,7 +150,7 @@ class JsonParseNode(ParseNode):
         if isinstance(self._json_node, list):
             return list(
                 map(
-                    lambda x: self._create_new_node(x).get_object_value(factory),  # type: ignore
+                    lambda x: self._create_new_node(x).get_object_value(factory),
                     self._json_node,
                 )
             )
