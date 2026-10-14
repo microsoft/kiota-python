@@ -4,6 +4,10 @@ The Kiota libraries provide the essential building blocks for Kiota-generated SD
 
 To learn more about Kiota, visit the [Kiota repository](https://github.com/microsoft/kiota).
 
+## Supported Python Versions
+
+All packages support Python 3.10, 3.11, 3.12, 3.13, 3.14, and 3.15.
+
 ## Build Status
 
 [![CI Actions Status](https://github.com/microsoft/kiota-python/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/microsoft/kiota-python/actions)
