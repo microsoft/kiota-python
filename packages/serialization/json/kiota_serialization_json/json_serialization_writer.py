@@ -23,7 +23,7 @@ class JsonSerializationWriter(SerializationWriter):
     PROPERTY_SEPARATOR: str = ','
 
     def __init__(self) -> None:
-        self.writer: dict = {}
+        self.writer: dict[str, Any] = {}
         self.value: Any = None
         self._has_root_value = False
 
@@ -515,7 +515,7 @@ class JsonSerializationWriter(SerializationWriter):
                     f"Encountered an unknown type during serialization {type(value)} with key {key}"
                 )
 
-    def _serialize_value(self, temp_writer: JsonSerializationWriter, value: U):
+    def _serialize_value(self, temp_writer: JsonSerializationWriter, value: U) -> None:
         if on_before := self.on_before_object_serialization:
             on_before(value)
         if on_start := self.on_start_object_serialization:

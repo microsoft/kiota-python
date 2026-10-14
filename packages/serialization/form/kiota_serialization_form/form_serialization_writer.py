@@ -35,7 +35,7 @@ class FormSerializationWriter(SerializationWriter):
         if key and value:
             if len(self.writer) > 0:
                 self.writer += "&"
-            self.writer += f"{quote_plus(key.strip())}={quote_plus(value.strip())}"
+            self.writer += f"{quote_plus(key.strip())}={quote_plus(value)}"
 
     def write_bool_value(self, key: Optional[str], value: Optional[bool]) -> None:
         """Writes the specified boolean value to the stream with an optional given key.
@@ -321,7 +321,7 @@ class FormSerializationWriter(SerializationWriter):
             value Any): The value to be written.
         """
         primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time, Enum]
-        if key and value:
+        if key and value is not None:
             value_type = type(value)
             if value_type in primitive_types:
                 method = getattr(self, f'write_{value_type.__name__.lower()}_value')
@@ -341,7 +341,7 @@ class FormSerializationWriter(SerializationWriter):
                         with key {key}"
                 )
 
-    def _serialize_value(self, temp_writer: FormSerializationWriter, value: U):
+    def _serialize_value(self, temp_writer: FormSerializationWriter, value: U) -> None:
         if on_before := self.on_before_object_serialization:
             on_before(value)
         if on_start := self.on_start_object_serialization:

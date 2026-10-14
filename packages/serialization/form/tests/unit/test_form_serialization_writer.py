@@ -1,10 +1,27 @@
 from uuid import UUID
-from urllib.parse import unquote_plus
+from urllib.parse import parse_qs, unquote_plus
 import pytest
 
 from datetime import datetime, timedelta, date, time
 from kiota_serialization_form.form_serialization_writer import FormSerializationWriter
 from ..helpers import TestEntity, TestEnum
+
+
+@pytest.mark.parametrize("value", [
+    " padded ", "leading ", " trailing", " \t\r\n", "\u2003café\u2003", "plain",
+])
+def test_write_str_value_preserves_whitespace(value):
+    writer = FormSerializationWriter()
+    writer.write_str_value("label", value)
+    assert parse_qs(writer.get_serialized_content().decode("utf-8"))["label"] == [value]
+
+
+@pytest.mark.parametrize("value", [None, ""])
+def test_write_str_value_still_omits_absent_or_empty_values(value):
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "present")
+    writer.write_str_value("label", value)
+    assert writer.get_serialized_content() == b"first=present"
 
 
 @pytest.fixture
@@ -185,10 +202,37 @@ def test_write_object_value(user_1):
         "startWorkTime=08%3A00%3A00&"
         "createdDateTime=2022-01-27T12%3A59%3A45.596117%2B00%3A00&"
         "otherPhones=123456789&otherPhones=987654321&"
+        "accountEnabled=false&"
         "jobTitle=Auditor&"
         "intValue=1&"
         "floatValue=3.14"
     )
+
+
+@pytest.mark.parametrize("value, expected", [
+    (False, b"custom=false"),
+    (0, b"custom=0"),
+    (0.0, b"custom=0.0"),
+    (True, b"custom=true"),
+    (1, b"custom=1"),
+    (1.5, b"custom=1.5"),
+    (None, b""),
+    ("", b""),
+    ([], b""),
+])
+def test_write_additional_data_preserves_false_and_zero(value, expected):
+    writer = FormSerializationWriter()
+    writer.write_object_value(None, TestEntity(additional_data={"custom": value}))
+    assert writer.get_serialized_content() == expected
+
+
+def test_write_additional_data_false_and_zero_after_existing_field():
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "present")
+    writer.write_object_value(
+        None, TestEntity(additional_data={"enabled": False, "count": 0, "ratio": 0.0})
+    )
+    assert writer.get_serialized_content() == b"first=present&enabled=false&count=0&ratio=0.0"
 
 
 @pytest.mark.parametrize("key", [None, ""])

@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "microsoft-kiota-serialization-form"
-version = "1.14.2"
+version = "1.14.3"
 description = "Core abstractions for kiota generated libraries in Python"
 authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
 license = {text = "MIT"}
@@ -34,6 +34,7 @@ name = "kiota_serialization_form"
 
 [tool.mypy]
 warn_unused_configs = true
+strict = true
 files = "kiota_serialization_form"
 
 [tool.yapf]

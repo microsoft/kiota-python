@@ -1,8 +1,7 @@
 import base64
 import inspect
-from pickle import TRUE
 from typing import Any, Optional, Union
-from urllib.parse import urlparse
+from urllib.parse import ParseResult, urlparse
 
 from kiota_abstractions.authentication import AccessTokenProvider, AllowedHostsValidator
 from opentelemetry import trace
@@ -34,7 +33,7 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
     def __init__(
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
-        options: Optional[dict],
+        options: Optional[dict[str, Any]],
         scopes: list[str] = [],
         allowed_hosts: list[str] = [],
         is_cae_enabled: bool = True,
@@ -85,7 +84,7 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
                 span.record_exception(exc)
                 raise exc
 
-            span.set_attribute(self.IS_VALID_URL, TRUE)
+            span.set_attribute(self.IS_VALID_URL, True)
 
             decoded_claim = None
             if all(
@@ -126,7 +125,7 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
         """
         return self._allowed_hosts_validator
 
-    def _resolve_scopes(self, parsed_url, span) -> list[str]:
+    def _resolve_scopes(self, parsed_url: ParseResult, span: trace.Span) -> list[str]:
         """Return the scopes to pass to `get_token` for this request.
 
         Caller-supplied scopes are returned verbatim. Otherwise a default

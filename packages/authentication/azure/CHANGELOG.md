@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.3](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.14.2...microsoft-kiota-authentication-azure-v1.14.3) (2026-10-13)
+
+
+### Bug Fixes
+
+* **authentication-azure:** record is_url_valid as True, not pickle's TRUE opcode ([c383019](https://github.com/microsoft/kiota-python/commit/c3830199cc62662d861fa2d1e922840358d56529))
+* **authentication-azure:** record is_url_valid as True, not pickle's TRUE opcode ([d4968ca](https://github.com/microsoft/kiota-python/commit/d4968ca65912ad933e176237c319c2af9531f13a))
+
 ## [1.14.2](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.14.1...microsoft-kiota-authentication-azure-v1.14.2) (2026-10-05)
 
 
