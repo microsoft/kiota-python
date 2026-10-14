@@ -61,7 +61,7 @@ REQUEST_IS_NULL = RequestError("Request info cannot be null")
 tracer = trace.get_tracer(ObservabilityOptions.get_tracer_instrumentation_name(), VERSION)
 
 
-class HttpxRequestAdapter(RequestAdapter):
+class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
     CLAIMS_KEY = "claims"
     BEARER_AUTHENTICATION_SCHEME = "Bearer"
     RESPONSE_AUTH_HEADER = "WWW-Authenticate"
@@ -215,7 +215,7 @@ class HttpxRequestAdapter(RequestAdapter):
     async def send_collection_async(
         self,
         request_info: RequestInformation,
-        parsable_factory: ParsableFactory,
+        parsable_factory: ParsableFactory[ModelType],
         error_map: Optional[dict[str, type[ParsableFactory]]],
     ) -> Optional[list[ModelType]]:
         """Excutes the HTTP request specified by the given RequestInformation and returns the

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import re
+from typing import Any, Optional
 
 from .serialization_writer import SerializationWriter
 from .serialization_writer_factory import SerializationWriterFactory
@@ -10,9 +13,9 @@ class SerializationWriterFactoryRegistry(SerializationWriterFactory):
     # List of factories that are registered by content type.
     CONTENT_TYPE_ASSOCIATED_FACTORIES: dict[str, SerializationWriterFactory] = {}
 
-    __instance = None
+    __instance: Optional[SerializationWriterFactoryRegistry] = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Any, **kwargs: Any) -> SerializationWriterFactoryRegistry:
         """Default singleton instance of the registry to be used when registring new
         factories that should be available by default.
 

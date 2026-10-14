@@ -160,7 +160,7 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[K]): The enum value to be written.
         """
-        if key and value:
+        if key and value is not None:
             if isinstance(value, Enum):
                 self.write_str_value(key, str(value.value))
             if isinstance(value, list):
@@ -320,10 +320,12 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value Any): The value to be written.
         """
-        primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time, Enum]
+        primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time]
         if key and value is not None:
             value_type = type(value)
-            if value_type in primitive_types:
+            if isinstance(value, Enum):
+                self.write_enum_value(key, value)
+            elif value_type in primitive_types:
                 method = getattr(self, f'write_{value_type.__name__.lower()}_value')
                 method(key, value)
             elif isinstance(value, list):
@@ -341,7 +343,7 @@ class FormSerializationWriter(SerializationWriter):
                         with key {key}"
                 )
 
-    def _serialize_value(self, temp_writer: FormSerializationWriter, value: U):
+    def _serialize_value(self, temp_writer: FormSerializationWriter, value: U) -> None:
         if on_before := self.on_before_object_serialization:
             on_before(value)
         if on_start := self.on_start_object_serialization:
