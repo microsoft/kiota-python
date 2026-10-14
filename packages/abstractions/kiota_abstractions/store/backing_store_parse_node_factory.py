@@ -4,7 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from ..serialization import ParseNodeFactory, ParseNodeProxyFactory
+from ..serialization import Parsable, ParseNodeFactory, ParseNodeProxyFactory
 from .backed_model import BackedModel
 
 
@@ -18,11 +18,11 @@ class BackingStoreParseNodeFactory(ParseNodeProxyFactory):
         implementation ParseNodeFactory.
         """
 
-        def on_before_deserialization(x):
+        def on_before_deserialization(x: Parsable) -> None:
             if isinstance(x, BackedModel) and x.backing_store:
                 x.backing_store.is_initialization_completed = False
 
-        def on_after_deserialization(x):
+        def on_after_deserialization(x: Parsable) -> None:
             if isinstance(x, BackedModel) and x.backing_store:
                 x.backing_store.is_initialization_completed = True
 

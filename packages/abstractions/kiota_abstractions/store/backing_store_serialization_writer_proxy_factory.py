@@ -4,7 +4,12 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from ..serialization import SerializationWriterFactory, SerializationWriterProxyFactory
+from ..serialization import (
+    Parsable,
+    SerializationWriter,
+    SerializationWriterFactory,
+    SerializationWriterProxyFactory,
+)
 from .backed_model import BackedModel
 
 
@@ -22,14 +27,14 @@ class BackingStoreSerializationWriterProxyFactory(SerializationWriterProxyFactor
             SerializationWriterFactory to wrap.
         """
 
-        def on_before(x):
+        def on_before(x: Parsable) -> None:
             if isinstance(x, BackedModel):
                 backed_model = x
                 backing_store = backed_model.backing_store
                 if backing_store:
                     backing_store.return_only_changed_values = True
 
-        def on_after(x):
+        def on_after(x: Parsable) -> None:
             if isinstance(x, BackedModel):
                 backed_model = x
                 backing_store = backed_model.backing_store
@@ -37,7 +42,7 @@ class BackingStoreSerializationWriterProxyFactory(SerializationWriterProxyFactor
                     backing_store.return_only_changed_values = False
                     backing_store.is_initialization_completed = True
 
-        def on_start(x, y):
+        def on_start(x: Parsable, y: SerializationWriter) -> None:
             if isinstance(x, BackedModel):
                 backed_model = x
                 backing_store = backed_model.backing_store

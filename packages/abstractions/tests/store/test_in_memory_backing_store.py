@@ -215,3 +215,16 @@ def test_backing_store_embedded_in_model_by_updating_nested_backed_model_collect
     
 
         
+
+def test_stores_tuple_values_as_they_are():
+    backing_store = InMemoryBackingStore()
+    backing_store.set("coordinates", (1, 2))
+    assert backing_store.get("coordinates") == (1, 2)
+
+def test_subscribers_get_previous_and_new_values():
+    backing_store = InMemoryBackingStore()
+    changes = []
+    backing_store.subscribe(lambda key, old, new: changes.append((key, old, new)))
+    backing_store.set("name", "Samwel")
+    backing_store.set("name", "Bill")
+    assert changes == [("name", None, "Samwel"), ("name", "Samwel", "Bill")]

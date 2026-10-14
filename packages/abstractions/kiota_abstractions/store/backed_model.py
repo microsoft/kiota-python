@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 
 from dataclasses import dataclass, fields
+from typing import Any
 
 from .backing_store import BackingStore
 
@@ -16,7 +17,7 @@ class BackedModel:
     # Stores model information.
     backing_store: BackingStore
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.backing_store.is_initialization_completed = True
         for field in fields(self):
             if field.name != "backing_store":
@@ -24,7 +25,7 @@ class BackedModel:
                 if field_val is not field.default:
                     self.backing_store.set(field.name, field_val)
 
-    def __setattr__(self, prop, val):
+    def __setattr__(self, prop: str, val: Any) -> None:
         if prop == "backing_store":
             super().__setattr__(prop, val)
         else:
