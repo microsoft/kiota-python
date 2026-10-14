@@ -33,8 +33,7 @@ class TextParseNode(ParseNode):
         Args:
             text (str):The text value to initialize the node with
         """
-        if text or text is False:
-            self._text = text
+        self._text = text
 
     def get_str_value(self) -> Optional[str]:
         """Gets the string value from the text node
@@ -59,8 +58,8 @@ class TextParseNode(ParseNode):
         Returns:
             bool: The boolean value of the node
         """
-        if self._text or (self._text is False):
-            return bool(self._text)
+        if self._text:
+            return self._text.strip().lower() == "true"
         return None
 
     def get_int_value(self) -> Optional[int]:

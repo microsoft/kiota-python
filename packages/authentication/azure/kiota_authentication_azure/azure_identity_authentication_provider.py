@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from kiota_abstractions.authentication import BaseBearerTokenAuthenticationProvider
 
@@ -15,7 +15,7 @@ class AzureIdentityAuthenticationProvider(BaseBearerTokenAuthenticationProvider)
     def __init__(
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
-        options: Optional[dict] = None,
+        options: Optional[dict[str, Any]] = None,
         scopes: list[str] = [],
         allowed_hosts: list[str] = [],
         is_cae_enabled: bool = True,

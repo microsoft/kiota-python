@@ -260,7 +260,7 @@ class MultipartSerializationWriter(SerializationWriter):
         """
         self._on_start_object_serialization = value
 
-    def _serialize_value(self, temp_writer: MultipartSerializationWriter, value: U):
+    def _serialize_value(self, temp_writer: MultipartSerializationWriter, value: U) -> None:
         if on_before := self.on_before_object_serialization:
             on_before(value)
         if on_start := self.on_start_object_serialization:
