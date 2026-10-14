@@ -228,3 +228,34 @@ def test_subscribers_get_previous_and_new_values():
     backing_store.set("name", "Samwel")
     backing_store.set("name", "Bill")
     assert changes == [("name", None, "Samwel"), ("name", "Samwel", "Bill")]
+
+def test_list_items_notify_the_store_once_per_change():
+    backing_store = InMemoryBackingStore()
+    colleague = MockEntity(id="2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af")
+    backing_store.set("colleagues", [colleague])
+    backing_store.set("colleagues", [colleague])
+    changes = []
+    backing_store.subscribe(lambda key, old, new: changes.append(key))
+    for new_id in ("first", "second", "third"):
+        colleague.id = new_id
+    assert changes == ["colleagues"] * 3
+
+def test_list_item_shared_by_two_stores_notifies_both():
+    first, second = InMemoryBackingStore(), InMemoryBackingStore()
+    colleague = MockEntity(id="2f8c9b8c-8ea0-46b2-9c6d-660c9b7bf6af")
+    first.set("colleagues", [colleague])
+    second.set("colleagues", [colleague])
+    changes = []
+    first.subscribe(lambda key, old, new: changes.append("first"))
+    second.subscribe(lambda key, old, new: changes.append("second"))
+    colleague.id = "2fe22fe5-1132-42cf-90f9-1dc17e325a74"
+    assert changes == ["first", "second"]
+
+def test_completing_initialization_clears_a_resized_list():
+    backing_store = InMemoryBackingStore()
+    numbers = [1]
+    backing_store.set("numbers", numbers)
+    numbers.append(2)
+    backing_store.is_initialization_completed = True
+    backing_store.return_only_changed_values = True
+    assert not backing_store.enumerate_()
