@@ -61,7 +61,7 @@ REQUEST_IS_NULL = RequestError("Request info cannot be null")
 tracer = trace.get_tracer(ObservabilityOptions.get_tracer_instrumentation_name(), VERSION)
 
 
-class HttpxRequestAdapter(RequestAdapter):
+class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
     CLAIMS_KEY = "claims"
     BEARER_AUTHENTICATION_SCHEME = "Bearer"
     RESPONSE_AUTH_HEADER = "WWW-Authenticate"

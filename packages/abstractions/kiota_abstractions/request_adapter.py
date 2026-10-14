@@ -14,6 +14,7 @@ from .store import BackingStoreFactory
 
 ResponseType = TypeVar("ResponseType")
 ModelType = TypeVar("ModelType", bound=Parsable)
+RequestType = TypeVar("RequestType")
 RequestType_co = TypeVar("RequestType_co", covariant=True, default=object)
 PrimitiveType = TypeVar(
     "PrimitiveType", bool, str, int, float, UUID, datetime, timedelta, date, time, bytes
