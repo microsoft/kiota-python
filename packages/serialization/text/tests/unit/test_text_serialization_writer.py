@@ -1,7 +1,7 @@
 from uuid import UUID
 
 import pytest
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 from kiota_serialization_text.text_serialization_writer import TextSerializationWriter
@@ -81,6 +81,21 @@ def test_write_float_value_with_key():
     with pytest.raises(Exception) as e_info:
         text_serialization_writer = TextSerializationWriter()
         text_serialization_writer.write_float_value("gpa", 3.2)
+
+
+@pytest.mark.parametrize(
+    "method, value, expected",
+    [
+        ("write_int_value", 0, "0"),
+        ("write_float_value", 0.0, "0.0"),
+        ("write_timedelta_value", timedelta(0), "0:00:00"),
+    ],
+)
+def test_write_zero_values(method, value, expected):
+    text_serialization_writer = TextSerializationWriter()
+    getattr(text_serialization_writer, method)(None, value)
+    content = text_serialization_writer.get_serialized_content()
+    assert content.decode('utf-8') == expected
 
 
 def test_write_uuid_value():
