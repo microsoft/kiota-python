@@ -1,3 +1,4 @@
+from enum import Enum, IntEnum, IntFlag
 from uuid import UUID
 from urllib.parse import parse_qs, unquote_plus
 import pytest
@@ -280,3 +281,61 @@ def test_write_empty_named_object_after_existing_field():
     writer.write_str_value("first", "value")
     writer.write_object_value("empty", TestEntity())
     assert writer.get_serialized_content() == b"first=value&empty="
+
+
+class EscapedEnum(Enum):
+    VALUE = "a&b+c"
+
+
+class NumericEnum(IntEnum):
+    ZERO = 0
+    ONE = 1
+
+
+class NumericFlag(IntFlag):
+    NONE = 0
+    ONE = 1
+
+
+@pytest.mark.parametrize("value, expected", [
+    (TestEnum.One, b"custom=one"),
+    (EscapedEnum.VALUE, b"custom=a%26b%2Bc"),
+    (NumericEnum.ZERO, b"custom=0"),
+    (NumericEnum.ONE, b"custom=1"),
+    (NumericFlag.NONE, b"custom=0"),
+    (NumericFlag.ONE, b"custom=1"),
+])
+@pytest.mark.parametrize("route", ["typed", "additional", "model"])
+def test_enum_values_preserve_wire_values(value, expected, route):
+    writer = FormSerializationWriter()
+    if route == "typed":
+        writer.write_enum_value("custom", value)
+    elif route == "additional":
+        writer.write_additional_data_value({"custom": value})
+    else:
+        writer.write_object_value(None, TestEntity(additional_data={"custom": value}))
+    assert writer.get_serialized_content() == expected
+
+
+@pytest.mark.parametrize("value", [None, []])
+def test_enum_writer_still_omits_absent_or_empty_values(value):
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "present")
+    writer.write_enum_value("custom", value)
+    assert writer.get_serialized_content() == b"first=present"
+
+
+@pytest.mark.parametrize("key", [None, ""])
+def test_enum_writer_still_omits_missing_keys(key):
+    writer = FormSerializationWriter()
+    writer.write_enum_value(key, NumericEnum.ZERO)
+    assert writer.get_serialized_content() == b""
+
+
+def test_additional_data_enum_collection_preserves_zero_and_separators():
+    writer = FormSerializationWriter()
+    writer.write_str_value("first", "present")
+    writer.write_object_value(
+        None, TestEntity(additional_data={"custom": [NumericEnum.ZERO, NumericEnum.ONE]})
+    )
+    assert writer.get_serialized_content() == b"first=present&custom=0&custom=1"
