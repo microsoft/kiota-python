@@ -27,6 +27,7 @@ class InMemoryBackingStore(BackingStore[T], Generic[T]):
 
     def __init__(self) -> None:
 
+        self.__id = str(uuid4())
         self.__subscriptions: dict[str, Callable[[str, Any, Any], None]] = {}
         self.__store: dict[str, tuple[bool, T, Optional[_Collection]]] = {}
         self.__initialization_completed: bool = False
@@ -40,11 +41,13 @@ class InMemoryBackingStore(BackingStore[T], Generic[T]):
     @is_initialization_completed.setter
     def is_initialization_completed(self, value: bool) -> None:
         self.__initialization_completed = value
-        for key, (_, val, collection) in self.__store.items():
+        for key in list(self.__store):
+            _, val, collection = self.__store[key]
             if isinstance(val, BackedModel):
                 # forward the initialization status to nested BackedModel instances
                 val.backing_store.is_initialization_completed = value
             self._ensure_collection_size_is_consistent(key, val, collection)
+            _, val, collection = self.__store[key]
             self.__store[key] = (not value, val, collection)
 
     @property
@@ -110,7 +113,8 @@ class InMemoryBackingStore(BackingStore[T], Generic[T]):
                 if isinstance(item, BackedModel) and item.backing_store:
                     item.backing_store.is_initialization_completed = True
                     item.backing_store.subscribe(
-                        lambda prop_key, old_val, new_val: self.set(key, value)
+                        lambda prop_key, old_val, new_val: self.set(key, value),
+                        f"{self.__id}:{key}"
                     )
 
         self.__store[key] = value_to_add
