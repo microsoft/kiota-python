@@ -38,6 +38,7 @@ name = "kiota_abstractions"
 
 [tool.mypy]
 warn_unused_configs = true
+strict = true
 files = "kiota_abstractions"
 
 [tool.yapf]
