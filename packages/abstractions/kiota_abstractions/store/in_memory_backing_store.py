@@ -41,7 +41,8 @@ class InMemoryBackingStore(BackingStore[T], Generic[T]):
     @is_initialization_completed.setter
     def is_initialization_completed(self, value: bool) -> None:
         self.__initialization_completed = value
-        for key, (_, val, collection) in self.__store.items():
+        for key in list(self.__store):
+            _, val, collection = self.__store[key]
             if isinstance(val, BackedModel):
                 # forward the initialization status to nested BackedModel instances
                 val.backing_store.is_initialization_completed = value
