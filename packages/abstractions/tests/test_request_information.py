@@ -10,6 +10,7 @@ from kiota_abstractions.base_request_configuration import RequestConfiguration
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.serialization import SerializationWriter
 
 from .conftest import QueryParams, TestEnum
 
@@ -151,6 +152,18 @@ def test_sets_boundary_on_multipart_request_body(
     mock_request_information.set_content_from_parsable(mock_request_adapter, "multipart/form-data", mock_multipart_body)
     assert mock_multipart_body.boundary
     assert mock_request_information.headers.get("content-type") == {"multipart/form-data; boundary=" + mock_multipart_body.boundary}
+
+
+def test_sets_content_from_a_list_of_scalars(
+    mock_request_information, mock_request_adapter, mock_serialization_writer_factory
+):
+    writer = Mock(spec_set=SerializationWriter)
+    writer.get_serialized_content.return_value = b"[1,2]"
+    mock_serialization_writer_factory.get_serialization_writer = Mock(return_value=writer)
+    mock_request_adapter.get_serialization_writer_factory = Mock(return_value=mock_serialization_writer_factory)
+    mock_request_information.set_content_from_scalar(mock_request_adapter, "application/json", [1, 2])
+    writer.write_collection_of_primitive_values.assert_called_once_with(None, [1, 2])
+    assert mock_request_information.content == b"[1,2]"
 
 
 def test_sets_enum_value_in_query_parameters():

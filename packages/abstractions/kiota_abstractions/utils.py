@@ -1,8 +1,9 @@
 import importlib.util
 import sys
+from types import ModuleType
 
 
-def lazy_import(name):
+def lazy_import(name: str) -> ModuleType:
     """Lazily imports a python module given its absolute path.
 
     Note: This a utility method for use in Kiota generated code only and not
@@ -25,6 +26,9 @@ def lazy_import(name):
 
     if not spec:
         raise ValueError(f"No spec found for: {name}")
+
+    if not spec.loader:
+        raise ValueError(f"No loader found for: {name}")
 
     loader = importlib.util.LazyLoader(spec.loader)
 

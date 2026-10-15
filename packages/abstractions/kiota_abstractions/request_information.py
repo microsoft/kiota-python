@@ -81,7 +81,9 @@ class RequestInformation:
         # The Request Body
         self.content: Optional[bytes] = None
 
-    def configure(self, request_configuration: Optional[RequestConfiguration]) -> None:
+    def configure(
+        self, request_configuration: Optional[RequestConfiguration[QueryParameters]]
+    ) -> None:
         """Configures the current request information headers, query parameters, and options
         based on the request configuration provided
 
@@ -100,7 +102,7 @@ class RequestInformation:
         raw_url = self.path_parameters.get(self.RAW_URL_KEY)
         if self.__uri:
             return self.__uri
-        if raw_url:
+        if isinstance(raw_url, str) and raw_url:
             return raw_url
         if self.query_parameters is None:
             raise Exception("Query parameters cannot be null")
@@ -130,7 +132,7 @@ class RequestInformation:
         self.path_parameters.clear()
 
     @property
-    def request_headers(self) -> Optional[dict]:
+    def request_headers(self) -> Optional[dict[str, str]]:
         final = {}
         for key, values in self.headers.get_all().items():
             final[key] = ', '.join(values)
@@ -203,10 +205,10 @@ class RequestInformation:
             writer = self._get_serialization_writer(request_adapter, content_type, span)
 
             if isinstance(values, list):
-                writer.writer = writer.write_collection_of_primitive_values(None, values)
+                writer.write_collection_of_primitive_values(None, values)
                 span.set_attribute(self.REQUEST_TYPE_KEY, "[]")
             else:
-                function_values: dict[type, Callable] = {
+                function_values: dict[type, Callable[[Optional[str], Any], None]] = {
                     bool: writer.write_bool_value,
                     str: writer.write_str_value,
                     int: writer.write_int_value,
@@ -246,7 +248,7 @@ class RequestInformation:
                 for field in fields(q):
                     key = field.name
                     if hasattr(q, "get_query_parameter"):
-                        serialization_key = q.get_query_parameter(key)  # type: ignore
+                        serialization_key = q.get_query_parameter(key)
                         if serialization_key:
                             key = serialization_key
                     value = getattr(q, field.name)
@@ -258,7 +260,7 @@ class RequestInformation:
         request_adapter: Optional["RequestAdapter"],
         content_type: Optional[str],
         parent_span: trace.Span,
-    ):
+    ) -> SerializationWriter:
         """_summary_
 
         Args:
@@ -282,7 +284,7 @@ class RequestInformation:
 
     def _set_content_and_content_type_header(
         self, writer: SerializationWriter, content_type: Optional[str]
-    ):
+    ) -> None:
         if content_type:
             self.headers.try_add(self.CONTENT_TYPE_HEADER, content_type)
         self.content = writer.get_serialized_content()
