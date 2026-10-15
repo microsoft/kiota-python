@@ -160,7 +160,11 @@ class TextParseNode(ParseNode):
         raw_key = self.get_str_value()
         camel_case_key = None
         if raw_key:
-            camel_case_key = raw_key[0].upper() + raw_key[1:]
+            if raw_key.lower() == "none":
+                # None is a reserved keyword in python
+                camel_case_key = "None_"
+            else:
+                camel_case_key = raw_key[0].upper() + raw_key[1:]
         if camel_case_key:
             try:
                 return enum_class[camel_case_key]  # type: ignore
