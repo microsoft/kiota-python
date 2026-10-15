@@ -351,7 +351,7 @@ class JsonParseNode(ParseNode):
                 if field_value is None:
                     continue
                 field_deserializer = field_deserializers[field_name]
-                field_deserializer(JsonParseNode(field_value))
+                field_deserializer(self._create_new_node(field_value))
             elif item_additional_data is not None:
                 item_additional_data[field_name] = self.try_get_anything(field_value)
             else:
