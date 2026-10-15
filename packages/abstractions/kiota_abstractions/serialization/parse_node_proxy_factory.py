@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 
 from collections.abc import Callable
+from typing import Optional
 
 from .parsable import Parsable
 from .parse_node import ParseNode
@@ -16,18 +17,18 @@ class ParseNodeProxyFactory(ParseNodeFactory):
     """
 
     def __init__(
-        self, concrete: ParseNodeFactory, on_before: Callable[[Parsable], None],
-        on_after: Callable[[Parsable], None]
+        self, concrete: ParseNodeFactory, on_before: Optional[Callable[[Parsable], None]],
+        on_after: Optional[Callable[[Parsable], None]]
     ) -> None:
         """Creates a new proxy factory that wraps the specified concrete factory while composing
         the before and after callbacks.
 
         Args:
             concrete (ParseNodeFactory): The concrete factory to wrap.
-            on_before (Callable[[Parsable], None]): The callback to invoke before the
+            on_before (Optional[Callable[[Parsable], None]]): The callback to invoke before the
             deserialization of any model object.
-            on_after (Callable[[Parsable], None]): The callback to invoke after the deserialization
-            of any model object.
+            on_after (Optional[Callable[[Parsable], None]]): The callback to invoke after the
+            deserialization of any model object.
         """
         if not concrete:
             raise ValueError("Concrete factory cannot be None")
@@ -57,7 +58,7 @@ class ParseNodeProxyFactory(ParseNodeFactory):
         original_before = node.on_before_assign_field_values
         original_after = node.on_after_assign_field_values
 
-        def before_callback(value):
+        def before_callback(value: Parsable) -> None:
             if self._on_before:
                 self._on_before(value)
             if callable(original_before):
@@ -65,7 +66,7 @@ class ParseNodeProxyFactory(ParseNodeFactory):
 
         node.on_before_assign_field_values = before_callback
 
-        def after_callback(value):
+        def after_callback(value: Parsable) -> None:
             if self._on_after:
                 self._on_after(value)
             if callable(original_after):

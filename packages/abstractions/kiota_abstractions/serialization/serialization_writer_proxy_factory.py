@@ -62,7 +62,7 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
         original_after = writer.on_after_object_serialization
         original_start = writer.on_start_object_serialization
 
-        def before_callback(value):
+        def before_callback(value: Parsable) -> None:
             if self._on_before:
                 self._on_before(value)
             if original_before:
@@ -70,7 +70,7 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
 
         writer.on_before_object_serialization = before_callback
 
-        def after_callback(value):
+        def after_callback(value: Parsable) -> None:
             if self._on_after:
                 self._on_after(value)
             if original_after:
@@ -78,7 +78,7 @@ class SerializationWriterProxyFactory(SerializationWriterFactory):
 
         writer.on_after_object_serialization = after_callback
 
-        def start_callback(value1, value2):
+        def start_callback(value1: Parsable, value2: SerializationWriter) -> None:
             if self._on_start:
                 self._on_start(value1, value2)
             if original_start:
