@@ -56,7 +56,7 @@ class TextSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[int]): The integer value to be written.
         """
-        if value:
+        if value is not None:
             self.write_str_value(key, str(value))
 
     def write_float_value(self, key: Optional[str], value: Optional[float]) -> None:
@@ -65,7 +65,7 @@ class TextSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[float]): The float value to be written.
         """
-        if value:
+        if value is not None:
             self.write_str_value(key, str(value))
 
     def write_uuid_value(self, key: Optional[str], value: Optional[UUID]) -> None:
@@ -92,7 +92,7 @@ class TextSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[timedelta]): The timedelta value to be written.
         """
-        if value:
+        if value is not None:
             self.write_str_value(key, str(value))
 
     def write_date_value(self, key: Optional[str], value: Optional[date]) -> None:
