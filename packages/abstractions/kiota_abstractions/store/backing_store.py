@@ -6,9 +6,11 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional
 
-T = TypeVar("T")
+from typing_extensions import TypeVar
+
+T = TypeVar("T", default=object)
 
 
 class BackingStore(ABC, Generic[T]):

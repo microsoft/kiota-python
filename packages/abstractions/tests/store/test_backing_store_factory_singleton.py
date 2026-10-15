@@ -73,9 +73,7 @@ def test_backing_store_factory_default():
 
 def test_backing_store_factory_is_singleton():
     """
-    Test that the backing store factory that was initialized with the backing
-    store singleton is not overridden when you initialize backing store factory
-    singleton with a different backing store factory at runtime.
+    Test that every instantiation returns the same instance and backing store factory.
     """
     bsf = BackingStoreFactorySingleton(
         backing_store_factory=MockTestBackingStoreFactory()
@@ -85,3 +83,13 @@ def test_backing_store_factory_is_singleton():
     )
     assert bsf.get_instance() == bsf2.get_instance()
     assert bsf.backing_store_factory is bsf2.backing_store_factory
+
+
+def test_backing_store_factory_kept_when_none_is_passed():
+    custom = MockTestBackingStoreFactory()
+    try:
+        bsf = BackingStoreFactorySingleton(backing_store_factory=custom)
+        assert BackingStoreFactorySingleton(backing_store_factory=None) is bsf
+        assert bsf.backing_store_factory is custom
+    finally:
+        BackingStoreFactorySingleton(backing_store_factory=InMemoryBackingStoreFactory())

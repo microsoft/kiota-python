@@ -5,22 +5,30 @@
 # ------------------------------------------------------------------------------
 
 from collections.abc import Callable
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, NamedTuple, Optional
 from uuid import uuid4
+
+from typing_extensions import TypeVar
 
 from .backed_model import BackedModel
 from .backing_store import BackingStore
 
-T = TypeVar("T")
+T = TypeVar("T", default=object)
 
 
-class InMemoryBackingStore(BackingStore, Generic[T]):
+class _Collection(NamedTuple):
+    """A stored list and its size when it was set, so a size change marks it dirty."""
+    items: list[Any]
+    size: int
+
+
+class InMemoryBackingStore(BackingStore[T], Generic[T]):
     """In-memory implementation of the backing store. Allows for dirty tracking of changes."""
 
     def __init__(self) -> None:
 
         self.__subscriptions: dict[str, Callable[[str, Any, Any], None]] = {}
-        self.__store: dict[str, tuple[bool, Any]] = {}
+        self.__store: dict[str, tuple[bool, T, Optional[_Collection]]] = {}
         self.__initialization_completed: bool = False
         self.__return_only_changed_values: bool = False
 
@@ -32,12 +40,12 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
     @is_initialization_completed.setter
     def is_initialization_completed(self, value: bool) -> None:
         self.__initialization_completed = value
-        for key, val in self.__store.items():
-            if isinstance(val[1], BackedModel):
+        for key, (_, val, collection) in self.__store.items():
+            if isinstance(val, BackedModel):
                 # forward the initialization status to nested BackedModel instances
-                val[1].backing_store.is_initialization_completed = value
-            self._ensure_collection_size_is_consistent(key, val[1])
-            self.__store[key] = (not value, val[1])
+                val.backing_store.is_initialization_completed = value
+            self._ensure_collection_size_is_consistent(key, val, collection)
+            self.__store[key] = (not value, val, collection)
 
     @property
     def return_only_changed_values(self) -> bool:
@@ -64,10 +72,8 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
 
         result = self.__store.get(key)
         if result:
-            self._ensure_collection_size_is_consistent(key, result[1])
-            result_value = result[1]
-            if isinstance(result_value, tuple):
-                result_value = result_value[0]
+            _, result_value, collection = result
+            self._ensure_collection_size_is_consistent(key, result_value, collection)
             if self.return_only_changed_values is False or (
                 self.return_only_changed_values is True and self.__store[key][0]
             ):
@@ -75,7 +81,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             return None
         return None
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: T) -> None:
         """Sets the specified object with the given key in the store.
 
         Args:
@@ -86,9 +92,8 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
             raise ValueError("Key cannot be empty or None")
 
         old_value = self.__store.get(key)
-        value_to_add = (self.is_initialization_completed, value)
-        if isinstance(value, list):
-            value_to_add = (self.is_initialization_completed, (value, len(value)))  # type: ignore
+        collection = _Collection(value, len(value)) if isinstance(value, list) else None
+        value_to_add = (self.is_initialization_completed, value, collection)
 
         if key not in self.__store:
             if isinstance(value, BackedModel) and value.backing_store:
@@ -110,7 +115,7 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
 
         self.__store[key] = value_to_add
         for sub in list(self.__subscriptions):
-            self.__subscriptions[sub](key, old_value, value_to_add)
+            self.__subscriptions[sub](key, None if old_value is None else old_value[1], value)
             # sub(key, old_value, value_to_add)
 
     def enumerate_(self) -> list[tuple[str, Any]]:
@@ -124,13 +129,14 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
 
         # refresh the state of collection properties if they've changed in size.
         if self.return_only_changed_values:
-            for key, val in self.__store.items():
-                self._ensure_collection_size_is_consistent(key, val[1])
+            for key, (_, val, collection) in self.__store.items():
+                self._ensure_collection_size_is_consistent(key, val, collection)
 
-        keyval_pairs = list(self.__store.items())
-        if self.return_only_changed_values:
-            return [(key, val[1]) for key, val in keyval_pairs if val[0] is True]
-        return [(key, val[1]) for key, val in keyval_pairs]
+        return [
+            (key, val if collection is None else collection)
+            for key, (changed, val, collection) in list(self.__store.items())
+            if changed or not self.return_only_changed_values
+        ]
 
     def enumerate_keys_for_values_changed_to_null(self) -> list[str]:
         """Enumerate the values in the store that have changed to None
@@ -175,17 +181,19 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
         """Clears the store"""
         self.__store.clear()
 
-    def _ensure_collection_size_is_consistent(self, key: str, entry: Any) -> None:
+    def _ensure_collection_size_is_consistent(
+        self, key: str, entry: T, collection: Optional[_Collection]
+    ) -> None:
         """Checks if entry of type collection has changed in size.
         If so, dirty tracks the change by calling set()
 
         Args:
             key (str): _description_
-            entry(StoreEntry): _description_
+            entry (T): the stored value
+            collection (Optional[_Collection]): the stored list and its size, if entry is a list
         """
-        # Check if the entry is a tuple of a collection annotated with the size
-        if isinstance(entry, tuple) and isinstance(entry[0], list) and isinstance(entry[1], int):
-            backed_models = [item for item in entry[0] if isinstance(item, BackedModel)]
+        if collection is not None:
+            backed_models = [item for item in collection.items if isinstance(item, BackedModel)]
             for backed_model in backed_models:
                 values = backed_model.backing_store.enumerate_()
                 for value in values:
@@ -193,8 +201,8 @@ class InMemoryBackingStore(BackingStore, Generic[T]):
                     # to ensure collections are consistent
                     backed_model.backing_store.get(value[0])
 
-            if len(entry[0]) != entry[1]:  # if the size has changed since last update
-                self.set(key, entry[0])  # dirty track the change
+            if len(collection.items) != collection.size:
+                self.set(key, entry)  # dirty track the change
 
         elif isinstance(entry, BackedModel):
             values = entry.backing_store.enumerate_()
