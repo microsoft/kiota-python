@@ -21,34 +21,34 @@ class UserAgentHandlerOption(RequestOption):
         self._product_version = product_version
 
     @property
-    def is_enabled(self):
+    def is_enabled(self) -> bool:
         """Returns True if the option is allowed."""
         return self._enabled
 
     @is_enabled.setter
-    def is_enabled(self, value: bool):
+    def is_enabled(self, value: bool) -> None:
         """Sets the option enabled value."""
-        self._value = value
+        self._enabled = value
 
     @property
-    def product_name(self):
+    def product_name(self) -> str:
         """Returns kiota-python if the name is not supplied."""
         return self._product_name
 
     @product_name.setter
-    def product_name(self, value: str):
+    def product_name(self, value: str) -> None:
         """Sets the product name value."""
         if not value:
             raise ValueError("product_name cannot be empty.")
         self._product_name = value
 
     @property
-    def product_version(self):
+    def product_version(self) -> str:
         """Returns VERSION valuerif the name is not supplied."""
         return self._product_version
 
     @product_version.setter
-    def product_version(self, value: str):
+    def product_version(self, value: str) -> None:
         """Sets the product version value."""
         if not value:
             raise ValueError("product_version cannot be empty.")

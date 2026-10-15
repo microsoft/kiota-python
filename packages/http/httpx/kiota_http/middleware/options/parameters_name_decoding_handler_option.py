@@ -1,3 +1,5 @@
+from typing import Optional
+
 from kiota_abstractions.request_option import RequestOption
 
 
@@ -8,7 +10,7 @@ class ParametersNameDecodingHandlerOption(RequestOption):
     PARAMETERS_NAME_DECODING_HANDLER_OPTION_KEY = "ParametersNameDecodingHandlerOption"
 
     def __init__(
-        self, enable: bool = True, characters_to_decode: list[str] = [".", "-", "~", "$"]
+        self, enable: bool = True, characters_to_decode: Optional[list[str]] = None
     ) -> None:
         """To create an instance of ParametersNameDecodingHandlerOptions
 
@@ -19,25 +21,27 @@ class ParametersNameDecodingHandlerOption(RequestOption):
             Defaults to [".", "-", "~", "$"].
         """
         self._enable = enable
-        self._characters_to_decode = characters_to_decode
+        self._characters_to_decode = (
+            [".", "-", "~", "$"] if characters_to_decode is None else characters_to_decode
+        )
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         """Whether to decode the specified characters in the request query parameters"""
         return self._enable
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._enable = value
 
     @property
-    def characters_to_decode(self):
+    def characters_to_decode(self) -> list[str]:
         """The list of characters to decode in the request query parameters names before
         executing the request"""
         return self._characters_to_decode
 
     @characters_to_decode.setter
-    def characters_to_decode(self, value: list[str]):
+    def characters_to_decode(self, value: list[str]) -> None:
         self._characters_to_decode = value
 
     @staticmethod
