@@ -146,7 +146,9 @@ class MultipartBody(Parsable, Generic[T]):
             return f'form-data; name="{part_name}"; filename="{part_value[2]}"'
         return f'form-data; name="{part_name}"'
 
-    def _write_parsable(self, writer, part_value) -> None:
+    def _write_parsable(
+        self, writer: SerializationWriter, part_value: tuple[str, Any, Optional[str]]
+    ) -> None:
         if not self.request_adapter or not self.request_adapter.get_serialization_writer_factory():
             raise ValueError("Request adapter or serialization writer factory cannot be null")
         part_writer = (

@@ -119,7 +119,7 @@ class HeadersCollection():
         """
         return list(self._headers.keys())
 
-    def count(self):
+    def count(self) -> int:
         """Gets the number of headers present in the collection."""
         return len(self._headers)
 

@@ -4,7 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------
 from dataclasses import dataclass, field
-from typing import Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar
 from warnings import warn
 
 from .headers_collection import HeadersCollection
@@ -27,9 +27,9 @@ class RequestConfiguration(Generic[QueryParameters]):
 
 
 @dataclass
-class BaseRequestConfiguration(RequestConfiguration):
+class BaseRequestConfiguration(RequestConfiguration[Any]):
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         warn(
             "BaseRequestConfiguration is deprecated. Use RequestConfiguration class instead.",
             DeprecationWarning
