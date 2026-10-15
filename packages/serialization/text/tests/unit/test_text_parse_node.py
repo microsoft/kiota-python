@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime, time, timedelta
+from enum import Enum
 from uuid import UUID
 
 import pytest
@@ -112,6 +113,16 @@ def test_get_enum_value():
     result = parse_node.get_enum_value(OfficeLocation)
     assert isinstance(result, OfficeLocation)
     assert result == OfficeLocation.Dunhill
+
+
+def test_get_enum_value_none_member():
+    class RiskLevel(Enum):
+        Low = "low"
+        None_ = "none"
+
+    parse_node = TextParseNode("none")
+    result = parse_node.get_enum_value(RiskLevel)
+    assert result == RiskLevel.None_
 
 
 def test_get_object_value(sample_structured_data):
