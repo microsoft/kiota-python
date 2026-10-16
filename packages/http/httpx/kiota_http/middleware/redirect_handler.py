@@ -69,7 +69,7 @@ class RedirectHandler(BaseMiddleware):
         _enable_span.end()
 
         max_redirect = current_options.max_redirect
-        history: list[httpx.Request] = []
+        history: list[httpx.Response] = []
 
         while max_redirect >= 0:
             _redirect_span = self._create_observability_span(
@@ -93,7 +93,7 @@ class RedirectHandler(BaseMiddleware):
                     new_request = self._build_redirect_request(
                         request, response, current_options, request_options
                     )
-                    history.append(request)
+                    history.append(response)
                     request = new_request
                     await response.aclose()
                     continue
