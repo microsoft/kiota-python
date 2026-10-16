@@ -4,7 +4,7 @@ from uuid import UUID
 
 import pytest
 from kiota_serialization_json.json_parse_node import JsonParseNode
-from ..helpers import OfficeLocation, User
+from ..helpers import OfficeLocation, Team, User
 
 
 def test_get_str_value():
@@ -363,3 +363,13 @@ def test_get_collection_of_object_values(users_json):
     assert result[0].business_phones == ["+1 205 555 0108"]
     assert result[0].is_active is True
     assert result[0].mobile_phone is None
+
+
+def test_hooks_run_for_nested_objects():
+    seen = []
+    parse_node = JsonParseNode(json.loads('{"lead": {"mobile_phone": "+1 234 567 891"}}'))
+    parse_node.on_before_assign_field_values = lambda value: seen.append(type(value).__name__)
+    parse_node.on_after_assign_field_values = lambda value: seen.append(type(value).__name__)
+    team = parse_node.get_object_value(Team)
+    assert team.lead.mobile_phone == "+1 234 567 891"
+    assert seen == ["Team", "User", "User", "Team"]

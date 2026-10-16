@@ -6,7 +6,7 @@ import pytest
 
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter
 
-from ..helpers import OfficeLocation, User, User2
+from ..helpers import OfficeLocation, Team, User, User2
 
 
 @pytest.fixture
@@ -353,3 +353,25 @@ def test_write_composed_type_with_no_key(user_1):
     # The union type should serialize the inner user object, not an empty object
     assert content_string == '{"id": "8f841f30-e6e3-439a-a812-ebd369559c36", '\
         '"updated_at": "2022-01-27T12:59:45.596117+00:00", "is_active": true}'
+
+
+def clear_is_active(value, writer):
+    if isinstance(value, User):
+        writer.write_null_value("is_active")
+
+
+def test_on_start_writes_into_the_root_object():
+    json_serialization_writer = JsonSerializationWriter()
+    json_serialization_writer.on_start_object_serialization = clear_is_active
+    json_serialization_writer.write_object_value(None, User(mobile_phone="+1 234 567 891"))
+    content = json_serialization_writer.get_serialized_content()
+    assert json.loads(content) == {"is_active": None, "mobile_phone": "+1 234 567 891"}
+
+
+def test_on_start_writes_into_the_nested_object():
+    json_serialization_writer = JsonSerializationWriter()
+    json_serialization_writer.on_start_object_serialization = clear_is_active
+    team = Team(lead=User(mobile_phone="+1 234 567 891"))
+    json_serialization_writer.write_object_value(None, team)
+    content = json_serialization_writer.get_serialized_content()
+    assert json.loads(content) == {"lead": {"is_active": None, "mobile_phone": "+1 234 567 891"}}
