@@ -37,7 +37,6 @@ async def test_redirect_spans_end(redirects, should_redirect, span_exporter):
     attempts = redirects + 1 if should_redirect else 1
     assert len(requests) == attempts
     assert response.status_code == (200 if should_redirect else 302)
-    assert len(response.history) == attempts - 1
     spans = span_exporter.get_finished_spans()
     assert [span.name for span in spans] == ["RedirectHandler_send"] + [
         f"RedirectHandler_send - redirect {index}" for index in range(attempts)

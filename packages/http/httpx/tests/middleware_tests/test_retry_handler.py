@@ -345,3 +345,34 @@ async def test_retried_responses_are_closed():
     assert responses[0].is_closed and responses[1].is_closed
     # the returned response is left open for the caller to read
     assert not responses[2].is_closed
+
+
+@pytest.mark.asyncio
+async def test_retry_spans_end(span_exporter):
+    def request_handler(request: httpx.Request):
+        if RETRY_ATTEMPT in request.headers:
+            return httpx.Response(200)
+        return httpx.Response(SERVICE_UNAVAILABLE)
+
+    async with httpx.MockTransport(request_handler) as transport:
+        await RetryHandler(RetryHandlerOption(delay=0)).send(httpx.Request("GET", BASE_URL), transport)
+    assert [span.name for span in span_exporter.get_finished_spans()] == [
+        "RetryHandler_send", "RetryHandler_send - attempt 0", "RetryHandler_send - attempt 1"
+    ]
+
+
+def test_default_options_are_not_shared():
+    first, second = RetryHandler(), RetryHandler()
+    first.options.max_retry = 7
+    assert second.options.max_retry == RetryHandlerOption.DEFAULT_MAX_RETRIES
+
+
+def test_get_delay_time_without_response():
+    delay = RetryHandler().get_delay_time(1, delay=0)
+    assert 0.5 <= delay <= 1.5
+
+
+def test_get_retry_after_invalid_value():
+    response = httpx.Response(SERVICE_UNAVAILABLE, headers={RETRY_AFTER: "soon"})
+    assert RetryHandler()._get_retry_after(response) is None
+
