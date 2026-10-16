@@ -18,10 +18,10 @@ class ResponseHandlerOption(RequestOption):
         self._response_handler = response_handler
 
     @property
-    def response_handler(self):
+    def response_handler(self) -> Union[ResponseHandler, None]:
         """Property to return the response handler instance"""
         return self._response_handler
 
     @staticmethod
-    def get_key():
+    def get_key() -> str:
         return ResponseHandlerOption.RESPONSE_HANDLER_OPTION_KEY

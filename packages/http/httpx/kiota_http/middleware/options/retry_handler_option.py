@@ -94,5 +94,5 @@ class RetryHandlerOption(RequestOption):
         self._should_retry = value
 
     @staticmethod
-    def get_key():
+    def get_key() -> str:
         return RetryHandlerOption.RETRY_HANDLER_OPTION_KEY

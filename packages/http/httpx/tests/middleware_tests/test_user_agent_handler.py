@@ -21,3 +21,9 @@ def test_custom_config():
 
     options = UserAgentHandlerOption(enabled=False)
     assert not options.is_enabled
+
+
+def test_is_enabled_setter():
+    options = UserAgentHandlerOption()
+    options.is_enabled = False
+    assert not options.is_enabled

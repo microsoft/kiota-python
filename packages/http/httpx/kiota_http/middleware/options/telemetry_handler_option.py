@@ -19,5 +19,5 @@ class TelemetryHandlerOption(RequestOption):
         self._telemetry_configurator = value
 
     @staticmethod
-    def get_key():
+    def get_key() -> str:
         return TelemetryHandlerOption.TELEMETRY_HANDLER_OPTION_KEY

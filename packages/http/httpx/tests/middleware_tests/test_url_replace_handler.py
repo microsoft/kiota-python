@@ -48,3 +48,8 @@ def test_replace_url_segment():
     assert handler.options.replacement_pairs
     assert handler.options.get_key() == "UrlReplaceHandlerOption"
     assert handler.replace_url_segment(ORIGINAL_URL, handler.options) == REPLACED_URL
+
+
+def test_default_replacement_pairs_are_not_shared():
+    UrlReplaceHandlerOption().replacement_pairs["/users/user-id-to-replace"] = "/me"
+    assert UrlReplaceHandlerOption().replacement_pairs == {}

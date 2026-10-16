@@ -75,3 +75,8 @@ async def test_decodes_query_parameter_names_only():
         mock_transport = httpx.MockTransport(request_handler)
         resp = await handler.send(request, mock_transport)
         assert str(resp.request.url).casefold() == decoded.casefold()
+
+
+def test_default_characters_to_decode_are_not_shared():
+    ParametersNameDecodingHandlerOption().characters_to_decode.append("+")
+    assert ParametersNameDecodingHandlerOption().characters_to_decode == [".", "-", "~", "$"]

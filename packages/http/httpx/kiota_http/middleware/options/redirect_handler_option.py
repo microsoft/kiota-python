@@ -69,33 +69,33 @@ class RedirectHandlerOption(RequestOption):
         self._scrub_sensitive_headers = scrub_sensitive_headers or default_scrub_sensitive_headers
 
     @property
-    def max_redirect(self):
+    def max_redirect(self) -> int:
         """The maximum number of redirects with a maximum value of 20.
         This defaults to 5 redirects."""
         return self._max_redirect
 
     @max_redirect.setter
-    def max_redirect(self, value: int):
+    def max_redirect(self, value: int) -> None:
         if value > self.MAX_MAX_REDIRECT:
             raise ValueError("MaxLimitExceeded. Maximum value for max_redirect property exceeded")
         self._max_redirect = value
 
     @property
-    def should_redirect(self):
+    def should_redirect(self) -> bool:
         return self._should_redirect
 
     @should_redirect.setter
-    def should_redirect(self, value: bool):
+    def should_redirect(self, value: bool) -> None:
         self._should_redirect = value
 
     @property
-    def allow_redirect_on_scheme_change(self):
+    def allow_redirect_on_scheme_change(self) -> bool:
         """A boolean value to determine if we redirects are allowed if the scheme changes
         (e.g. https to http). Defaults to false."""
         return self._allow_redirect_on_scheme_change
 
     @allow_redirect_on_scheme_change.setter
-    def allow_redirect_on_scheme_change(self, value: bool):
+    def allow_redirect_on_scheme_change(self, value: bool) -> None:
         self._allow_redirect_on_scheme_change = value
 
     @property
@@ -105,7 +105,7 @@ class RedirectHandlerOption(RequestOption):
         return self._scrub_sensitive_headers
 
     @scrub_sensitive_headers.setter
-    def scrub_sensitive_headers(self, value: ScrubSensitiveHeadersCallback):
+    def scrub_sensitive_headers(self, value: ScrubSensitiveHeadersCallback) -> None:
         self._scrub_sensitive_headers = value
 
     @staticmethod
