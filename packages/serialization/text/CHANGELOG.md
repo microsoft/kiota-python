@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-text-v1.14.4...microsoft-kiota-serialization-text-v1.15.0) (2026-10-16)
+
+
+### Features
+
+* add Python 3.15 support to all packages ([0815ace](https://github.com/microsoft/kiota-python/commit/0815acee3423b7b186d5a144272e81a4e5504881))
+
+
+### Bug Fixes
+
+* **serialization-text:** parse "none" as the None_ enum member ([8e67b12](https://github.com/microsoft/kiota-python/commit/8e67b1212b994fa5f0efa1fd59c586093d175e54))
+* **serialization-text:** parse "none" as the None_ enum member ([224a795](https://github.com/microsoft/kiota-python/commit/224a795b2c47eaf563c0bea5bbfbc2e086ce253b))
+* **serialization-text:** write zero int, float and timedelta values ([0c05596](https://github.com/microsoft/kiota-python/commit/0c0559664503b12cbd69727667c5f48656590606))
+* **serialization-text:** write zero int, float and timedelta values ([db5be5a](https://github.com/microsoft/kiota-python/commit/db5be5a378df32dc4d7a8185894b71cfa4a4b350))
+
 ## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-text-v1.14.3...microsoft-kiota-serialization-text-v1.14.4) (2026-10-14)
 
 

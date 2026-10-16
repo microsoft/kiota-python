@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.14.4...microsoft-kiota-serialization-json-v1.15.0) (2026-10-16)
+
+
+### Features
+
+* add Python 3.15 support to all packages ([0815ace](https://github.com/microsoft/kiota-python/commit/0815acee3423b7b186d5a144272e81a4e5504881))
+
+
+### Bug Fixes
+
+* **json:** give on_start the object's own writer and pass the hooks to nested parse nodes ([a94454e](https://github.com/microsoft/kiota-python/commit/a94454eb5a9deac129c57f15a267198f2ed3e8fa))
+* **json:** give on_start the object's own writer and pass the hooks to nested parse nodes ([7561811](https://github.com/microsoft/kiota-python/commit/75618111fcd836f23d6540a5007c13a5b43c0896))
+
 ## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.14.3...microsoft-kiota-serialization-json-v1.14.4) (2026-10-14)
 
 

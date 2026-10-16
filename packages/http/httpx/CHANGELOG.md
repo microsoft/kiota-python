@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.14.4...microsoft-kiota-http-v1.15.0) (2026-10-16)
+
+
+### Features
+
+* add Python 3.15 support to all packages ([0815ace](https://github.com/microsoft/kiota-python/commit/0815acee3423b7b186d5a144272e81a4e5504881))
+
+
+### Bug Fixes
+
+* **http:** pass mypy --strict in middleware options and fix three option bugs ([2d13770](https://github.com/microsoft/kiota-python/commit/2d13770937ee6149fb041404665e4189a19bda18))
+* **http:** pass mypy --strict in middleware options and fix three option bugs ([9b813a6](https://github.com/microsoft/kiota-python/commit/9b813a65d9e7d33488ac098c39e82161f1ab40c1))
+
 ## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.14.3...microsoft-kiota-http-v1.14.4) (2026-10-14)
 
 
