@@ -3,6 +3,7 @@ import datetime
 import random
 import re
 from email.utils import parsedate_to_datetime
+from typing import Optional
 
 from kiota_abstractions.request_option import RequestOption
 from opentelemetry.semconv.attributes.http_attributes import HTTP_RESPONSE_STATUS_CODE
@@ -42,16 +43,18 @@ class RetryHandler(BaseMiddleware):
         ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'QUERY']
     )
 
-    def __init__(self, options: RetryHandlerOption = RetryHandlerOption()) -> None:
+    def __init__(self, options: Optional[RetryHandlerOption] = None) -> None:
         super().__init__()
         self.allowed_methods: frozenset[str] = self.DEFAULT_ALLOWED_METHODS
         self.backoff_factor: float = self.DEFAULT_BACKOFF_FACTOR
         self.backoff_max: int = self.MAXIMUM_BACKOFF
-        self.options = options
-        self.respect_retry_after_header: bool = self.options.DEFAULT_SHOULD_RETRY  # type:ignore
+        self.options = RetryHandlerOption() if options is None else options
+        self.respect_retry_after_header: bool = self.options.DEFAULT_SHOULD_RETRY
         self.retry_on_status_codes: set[int] = self.DEFAULT_RETRY_STATUS_CODES
 
-    async def send(self, request: httpx.Request, transport: httpx.AsyncBaseTransport):
+    async def send(
+        self, request: httpx.Request, transport: httpx.AsyncBaseTransport
+    ) -> httpx.Response:
         """
         Sends the http request object to the next middleware or retries the request if necessary.
         """
@@ -88,6 +91,7 @@ class RetryHandler(BaseMiddleware):
                 request.headers.update({RETRY_ATTEMPT: f'{retry_count}'})
                 _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
                 _retry_span.set_attribute('http.request.resend_count', retry_count)
+                _retry_span.end()
                 continue
             _retry_span.end()
             break
@@ -107,11 +111,15 @@ class RetryHandler(BaseMiddleware):
         """
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
-            current_options = request_options.get(RetryHandlerOption.get_key(), self.options)
+            current_options: RetryHandlerOption = request_options.get(
+                RetryHandlerOption.get_key(), self.options
+            )
             return current_options
         return self.options
 
-    def should_retry(self, request, options, response):
+    def should_retry(
+        self, request: httpx.Request, options: RetryHandlerOption, response: httpx.Response
+    ) -> bool:
         """
         Determines whether the request should be retried
         Checks if the request method is in allowed methods
@@ -121,10 +129,9 @@ class RetryHandler(BaseMiddleware):
             return False
         if not self._is_request_payload_buffered(request):
             return False
-        val = options.max_retry and (response.status_code in self.retry_on_status_codes)
-        return val
+        return options.max_retry > 0 and response.status_code in self.retry_on_status_codes
 
-    def _is_method_retryable(self, request):
+    def _is_method_retryable(self, request: httpx.Request) -> bool:
         """
         Checks if a given request should be retried upon, depending on
         whether the HTTP method is in the set of allowed methods
@@ -133,7 +140,7 @@ class RetryHandler(BaseMiddleware):
             return False
         return True
 
-    def _is_request_payload_buffered(self, request):
+    def _is_request_payload_buffered(self, request: httpx.Request) -> bool:
         """
         Checks if the request payload is buffered/rewindable.
         Payloads with forward only streams will return false and have the responses
@@ -145,7 +152,7 @@ class RetryHandler(BaseMiddleware):
             return False
         return True
 
-    def check_retry_valid(self, retry_count, options):
+    def check_retry_valid(self, retry_count: int, options: RetryHandlerOption) -> bool:
         """
         Check that the max retries limit has not been hit
         """
@@ -153,7 +160,12 @@ class RetryHandler(BaseMiddleware):
             return True
         return False
 
-    def get_delay_time(self, retry_count, response=None, delay=RetryHandlerOption.DEFAULT_DELAY):
+    def get_delay_time(
+        self,
+        retry_count: int,
+        response: Optional[httpx.Response] = None,
+        delay: float = RetryHandlerOption.DEFAULT_DELAY
+    ) -> float:
         """Get the time in seconds to delay before the next attempt.
 
         A ``Retry-After`` response header that parses to more than zero seconds is
@@ -167,37 +179,41 @@ class RetryHandler(BaseMiddleware):
             return retry_after
         return self._get_delay_time_exp_backoff(retry_count, delay)
 
-    def _get_delay_time_exp_backoff(self, retry_count, delay):
+    def _get_delay_time_exp_backoff(self, retry_count: int, delay: float) -> float:
         """
         Get time in seconds to delay between retry attempts based on an exponential
         backoff value.
         """
-        exp_backoff_value = self.backoff_factor * +(2**(retry_count - 1))
+        exp_backoff_value: float = self.backoff_factor * +(2**(retry_count - 1))
         backoff_value = exp_backoff_value + (random.randint(0, 1000) / 1000) + delay
 
         backoff = min(self.backoff_max, backoff_value)
         return backoff
 
-    def _get_retry_after(self, response):
+    def _get_retry_after(self, response: Optional[httpx.Response]) -> Optional[float]:
         """
         Check if retry-after is specified in the response header and get the value
         """
+        if response is None:
+            return None
         retry_after = response.headers.get("retry-after")
         if retry_after:
             return self._parse_retry_after(retry_after)
         return None
 
-    def _parse_retry_after(self, retry_after):
+    def _parse_retry_after(self, retry_after: str) -> Optional[float]:
         """
-        Helper to parse Retry-After and get value in seconds.
+        Helper to parse Retry-After and get value in seconds. Returns None when the
+        value is neither a number of seconds nor an HTTP date.
         """
+        if re.match(r"\d+,\d+$", retry_after):
+            retry_after = retry_after.split(",")[0]
         try:
-            retry_after = retry_after.split(",")[0] if re.match(
-                r"\d+,\d+$", retry_after
-            ) else retry_after
-            delay = int(retry_after)
+            return max(0, int(retry_after))
         except ValueError:
-            # Not an integer? Try HTTP date
+            pass
+        try:
             retry_date = parsedate_to_datetime(retry_after)
-            delay = (retry_date - datetime.datetime.now(retry_date.tzinfo)).total_seconds()
-        return max(0, delay)
+        except ValueError:
+            return None
+        return max(0.0, (retry_date - datetime.datetime.now(retry_date.tzinfo)).total_seconds())

@@ -37,7 +37,6 @@ async def test_redirect_spans_end(redirects, should_redirect, span_exporter):
     attempts = redirects + 1 if should_redirect else 1
     assert len(requests) == attempts
     assert response.status_code == (200 if should_redirect else 302)
-    assert len(response.history) == attempts - 1
     spans = span_exporter.get_finished_spans()
     assert [span.name for span in spans] == ["RedirectHandler_send"] + [
         f"RedirectHandler_send - redirect {index}" for index in range(attempts)
@@ -122,6 +121,27 @@ def test_increment_redirects():
 
     handler = RedirectHandler()
     assert handler.increment(response, handler.options.max_redirect, history=history)
+
+
+class SingleRedirectHandler(RedirectHandler):
+
+    def increment(self, response, max_redirect, history):
+        return len(history) == 0
+
+
+@pytest.mark.asyncio
+async def test_increment_override_stops_redirects():
+    requests = []
+
+    def request_handler(request):
+        requests.append(request)
+        return httpx.Response(FOUND, headers={LOCATION_HEADER: f"/redirect/{len(requests)}"})
+
+    async with httpx.MockTransport(request_handler) as transport:
+        response = await SingleRedirectHandler().send(httpx.Request("GET", BASE_URL), transport)
+
+    assert response.status_code == FOUND
+    assert [request.url.path for request in requests] == ["/", "/redirect/1"]
 
 
 def test_same_origin(mock_redirect_handler):

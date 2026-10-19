@@ -84,8 +84,7 @@ class RedirectHandler(BaseMiddleware):
                     max_redirect -= 1
                     if not self.increment(response, max_redirect, history[:]):
                         if max_redirect < 0:
-                            response.history = history
-                            exc = RedirectError(f"Too many redirects. {response.history}")
+                            exc = RedirectError(f"Too many redirects. {history}")
                             _redirect_span.record_exception(exc)
                             raise exc
                         break
@@ -100,7 +99,6 @@ class RedirectHandler(BaseMiddleware):
                 break
             finally:
                 _redirect_span.end()
-        response.history = history
 
         return response
 
