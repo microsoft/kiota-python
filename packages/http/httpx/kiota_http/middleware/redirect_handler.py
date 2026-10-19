@@ -69,11 +69,11 @@ class RedirectHandler(BaseMiddleware):
         _enable_span.end()
 
         max_redirect = current_options.max_redirect
-        redirect_count = 0
+        history: list[httpx.Request] = []
 
         while max_redirect >= 0:
             _redirect_span = self._create_observability_span(
-                request, f"RedirectHandler_send - redirect {redirect_count}"
+                request, f"RedirectHandler_send - redirect {len(history)}"
             )
             try:
                 response = await super().send(request, transport)
@@ -82,15 +82,17 @@ class RedirectHandler(BaseMiddleware):
 
                 if redirect_location and current_options.should_redirect:
                     max_redirect -= 1
-                    if max_redirect < 0:
-                        exc = RedirectError(f"Too many redirects. Redirect count: {redirect_count}")
-                        _redirect_span.record_exception(exc)
-                        raise exc
-                    _redirect_span.set_attribute(REDIRECT_COUNT_KEY, redirect_count)
+                    if not self.increment(response, max_redirect, history[:]):
+                        if max_redirect < 0:
+                            exc = RedirectError(f"Too many redirects. {history}")
+                            _redirect_span.record_exception(exc)
+                            raise exc
+                        break
+                    _redirect_span.set_attribute(REDIRECT_COUNT_KEY, len(history))
                     new_request = self._build_redirect_request(
                         request, response, current_options, request_options
                     )
-                    redirect_count += 1
+                    history.append(request)
                     request = new_request
                     await response.aclose()
                     continue

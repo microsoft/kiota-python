@@ -123,6 +123,27 @@ def test_increment_redirects():
     assert handler.increment(response, handler.options.max_redirect, history=history)
 
 
+class SingleRedirectHandler(RedirectHandler):
+
+    def increment(self, response, max_redirect, history):
+        return len(history) == 0
+
+
+@pytest.mark.asyncio
+async def test_increment_override_stops_redirects():
+    requests = []
+
+    def request_handler(request):
+        requests.append(request)
+        return httpx.Response(FOUND, headers={LOCATION_HEADER: f"/redirect/{len(requests)}"})
+
+    async with httpx.MockTransport(request_handler) as transport:
+        response = await SingleRedirectHandler().send(httpx.Request("GET", BASE_URL), transport)
+
+    assert response.status_code == FOUND
+    assert [request.url.path for request in requests] == ["/", "/redirect/1"]
+
+
 def test_same_origin(mock_redirect_handler):
     origin1 = httpx.URL(BASE_URL)
     origin2 = httpx.URL(f"{BASE_URL}:443")
