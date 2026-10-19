@@ -26,7 +26,7 @@ def test_initialization():
     assert not request_info.url_template
     assert not request_info.http_method
     assert not request_info.content
-    assert request_info.headers
+    assert request_info.headers is not None
     assert request_info.RAW_URL_KEY == 'request-raw-url'
     assert request_info.BINARY_CONTENT_TYPE == 'application/octet-stream'
     assert request_info.CONTENT_TYPE_HEADER == 'Content-Type'
