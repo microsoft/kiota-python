@@ -70,7 +70,7 @@ class HeadersInspectionHandler(BaseMiddleware):
         Returns:
             HeadersInspectionHandlerOption: The options to be used.
         """
-        current_options = None
+        current_options: Optional[HeadersInspectionHandlerOption] = None
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
             current_options = request_options.get(HeadersInspectionHandlerOption.get_key(), None)

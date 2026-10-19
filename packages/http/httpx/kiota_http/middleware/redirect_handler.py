@@ -27,12 +27,14 @@ class RedirectHandler(BaseMiddleware):
     STATUS_CODE_SEE_OTHER: int = 303
     LOCATION_HEADER: str = "Location"
 
-    def __init__(self, options: RedirectHandlerOption = RedirectHandlerOption()) -> None:
+    def __init__(self, options: typing.Optional[RedirectHandlerOption] = None) -> None:
         super().__init__()
-        self.options = options
+        self.options = options if options is not None else RedirectHandlerOption()
         self.redirect_on_status_codes: set[int] = self.DEFAULT_REDIRECT_STATUS_CODES
 
-    def increment(self, response, max_redirect, history) -> bool:
+    def increment(
+        self, response: httpx.Response, max_redirect: int, history: list[httpx.Request]
+    ) -> bool:
         """Increment the redirect attempts for this request.
         Args
             response(httpx.Response): A httpx response object.
@@ -53,7 +55,8 @@ class RedirectHandler(BaseMiddleware):
             location. ``False`` if not a redirect status code.
         """
         if response.status_code in self.redirect_on_status_codes:
-            return response.headers.get('location')
+            location: typing.Optional[str] = response.headers.get('location')
+            return location
         return None
 
     async def send(
@@ -114,8 +117,9 @@ class RedirectHandler(BaseMiddleware):
         """
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
-            current_options = request_options.get( # type:ignore
-                RedirectHandlerOption.get_key(), self.options)
+            current_options: RedirectHandlerOption = request_options.get(
+                RedirectHandlerOption.get_key(), self.options
+            )
             return current_options
         return self.options
 
@@ -124,7 +128,7 @@ class RedirectHandler(BaseMiddleware):
         request: httpx.Request,
         response: httpx.Response,
         options: RedirectHandlerOption,
-        request_options: typing.Optional[dict] = None,
+        request_options: typing.Optional[dict[str, object]] = None,
     ) -> httpx.Request:
         """
         Given a request and a redirect response, return a new request that

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from kiota_abstractions.request_option import RequestOption
 
 from httpx import AsyncBaseTransport, Request, Response
@@ -11,8 +13,8 @@ class UserAgentHandler(BaseMiddleware):
     Middleware handler for User Agent.
     """
 
-    def __init__(self, options: UserAgentHandlerOption = UserAgentHandlerOption(), **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, options: Optional[UserAgentHandlerOption] = None) -> None:
+        super().__init__()
         self.options = UserAgentHandlerOption() if options is None else options
 
     async def send(self, request: Request, transport: AsyncBaseTransport) -> Response:
@@ -24,7 +26,7 @@ class UserAgentHandler(BaseMiddleware):
         _span = self._create_observability_span(request, "UserAgentHandler_send")
         if current_options and current_options.is_enabled:
             _span.set_attribute("com.microsoft.kiota.handler.useragent.enable", True)
-            value = f"{self.options.product_name}/{self.options.product_version}"
+            value = f"{current_options.product_name}/{current_options.product_version}"
             self._update_user_agent(request, value)
         _span.end()
         return await super().send(request, transport)
@@ -41,11 +43,13 @@ class UserAgentHandler(BaseMiddleware):
         """
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
-            current_options = request_options.get(UserAgentHandlerOption.get_key(), self.options)
+            current_options: UserAgentHandlerOption = request_options.get(
+                UserAgentHandlerOption.get_key(), self.options
+            )
             return current_options
         return self.options
 
-    def _update_user_agent(self, request: Request, value: str):
+    def _update_user_agent(self, request: Request, value: str) -> None:
         """Updates the values of the User-Agent header."""
         user_agent = request.headers.get("User-Agent", "")
         if not user_agent:

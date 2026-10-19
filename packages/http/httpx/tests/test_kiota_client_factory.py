@@ -141,6 +141,14 @@ def test_get_default_middleware():
     assert isinstance(middleware[6], BodyInspectionHandler)
 
 
+def test_default_middleware_does_not_share_options():
+    first = KiotaClientFactory.get_default_middleware(None)
+    second = KiotaClientFactory.get_default_middleware(None)
+
+    for first_handler, second_handler in zip(first, second):
+        assert first_handler.options is not second_handler.options
+
+
 def test_get_default_middleware_with_options():
     """Test fetching of default middleware with custom options passed"""
     retry_options = RetryHandlerOption(max_retries=7)
