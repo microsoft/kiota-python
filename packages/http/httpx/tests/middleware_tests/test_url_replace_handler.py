@@ -77,8 +77,10 @@ async def test_span_ends_on_transport_failure(span_exporter):
     def request_handler(request):
         raise httpx.ReadError("request interrupted")
 
+    handler = UrlReplaceHandler()
+    request = httpx.Request("GET", ORIGINAL_URL)
     async with httpx.MockTransport(request_handler) as transport:
         with pytest.raises(httpx.ReadError):
-            await UrlReplaceHandler().send(httpx.Request("GET", ORIGINAL_URL), transport)
+            await handler.send(request, transport)
 
     assert [span.name for span in span_exporter.get_finished_spans()] == ["UrlReplaceHandler_send"]

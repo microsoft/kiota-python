@@ -35,16 +35,18 @@ class UrlReplaceHandler(BaseMiddleware):
             Response: The response object.
         """
         _enable_span = self._create_observability_span(request, "UrlReplaceHandler_send")
-        current_options = self._get_current_options(request)
-        if current_options.is_enabled:
-            _enable_span.set_attribute("com.microsoft.kiota.handler.url_replacer.enable", True)
+        try:
+            current_options = self._get_current_options(request)
+            if current_options.is_enabled:
+                _enable_span.set_attribute("com.microsoft.kiota.handler.url_replacer.enable", True)
 
-            url_string: str = str(request.url)
-            url_string = self.replace_url_segment(url_string, current_options)
-            request.url = httpx.URL(url_string)
-            _enable_span.set_attribute(URL_FULL, str(request.url))
-        _enable_span.end()
-        return await super().send(request, transport)
+                url_string: str = str(request.url)
+                url_string = self.replace_url_segment(url_string, current_options)
+                request.url = httpx.URL(url_string)
+                _enable_span.set_attribute(URL_FULL, str(request.url))
+            return await super().send(request, transport)
+        finally:
+            _enable_span.end()
 
     def _get_current_options(self, request: httpx.Request) -> UrlReplaceHandlerOption:
         """Returns the options to use for the request.Overries default options if
