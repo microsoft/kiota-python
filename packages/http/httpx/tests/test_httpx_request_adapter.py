@@ -117,6 +117,15 @@ def test_get_response_content_type(request_adapter, simple_success_response):
     assert content_type == APPLICATION_JSON
 
 
+def test_get_response_content_type_with_whitespace(request_adapter):
+    resp = httpx.Response(
+        status_code=200,
+        headers={"content-type": "application/json ; charset=utf-8"},
+    )
+    content_type = request_adapter.get_response_content_type(resp)
+    assert content_type == APPLICATION_JSON
+
+
 def test_set_base_url_for_request_information(request_adapter, request_info):
     request_adapter.base_url = BASE_URL
     request_adapter.set_base_url_for_request_information(request_info)
