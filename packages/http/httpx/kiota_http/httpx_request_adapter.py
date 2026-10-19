@@ -186,7 +186,6 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             ModelType: the deserialized response model.
         """
         parent_span = self.start_tracing_span(request_info, "send_async")
-        _deserialized_span: trace.Span = trace.INVALID_SPAN
         try:
             if not request_info:
                 parent_span.record_exception(REQUEST_IS_NULL)
@@ -208,12 +207,11 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             root_node = await self.get_root_parse_node(response, parent_span, parent_span)
             if root_node is None:
                 return None
-            _deserialized_span = self._start_local_tracing_span("get_object_value", parent_span)
-            value = root_node.get_object_value(parsable_factory)
-            parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
+            with self._start_local_tracing_span("get_object_value", parent_span):
+                value = root_node.get_object_value(parsable_factory)
+                parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
             return value
         finally:
-            _deserialized_span.end()
             parent_span.end()
 
     async def send_collection_async(
@@ -235,7 +233,6 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             ModelType: the deserialized response model collection.
         """
         parent_span = self.start_tracing_span(request_info, "send_collection_async")
-        _deserialized_span: trace.Span = trace.INVALID_SPAN
         try:
             if not request_info:
                 parent_span.record_exception(REQUEST_IS_NULL)
@@ -253,18 +250,18 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             if self._should_return_none(response):
                 return None
 
-            _deserialized_span = self._start_local_tracing_span(
-                "get_collection_of_object_values", parent_span
-            )
-            root_node = await self.get_root_parse_node(response, parent_span, parent_span)
-            if root_node:
-                result: Optional[list[ModelType]
-                                 ] = root_node.get_collection_of_object_values(parsable_factory)
-                parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, result.__class__.__name__)
-                return result
-            return None
+            with self._start_local_tracing_span("get_collection_of_object_values", parent_span):
+                root_node = await self.get_root_parse_node(response, parent_span, parent_span)
+                if root_node:
+                    result: Optional[
+                        list[ModelType]
+                    ] = root_node.get_collection_of_object_values(parsable_factory)
+                    parent_span.set_attribute(
+                        DESERIALIZED_MODEL_NAME_KEY, result.__class__.__name__
+                    )
+                    return result
+                return None
         finally:
-            _deserialized_span.end()
             parent_span.end()
 
     async def send_collection_of_primitive_async(
@@ -286,7 +283,6 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             Optional[list[PrimitiveType]]: The deserialized primitive type collection.
         """
         parent_span = self.start_tracing_span(request_info, "send_collection_of_primitive_async")
-        _deserialized_span: trace.Span = trace.INVALID_SPAN
         try:
             if not request_info:
                 parent_span.record_exception(REQUEST_IS_NULL)
@@ -305,17 +301,16 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             if self._should_return_none(response):
                 return None
 
-            _deserialized_span = self._start_local_tracing_span(
-                "get_collection_of_primitive_values", parent_span
-            )
-            root_node = await self.get_root_parse_node(response, parent_span, parent_span)
-            if root_node:
-                values = root_node.get_collection_of_primitive_values(response_type)
-                parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, values.__class__.__name__)
-                return values
-            return None
+            with self._start_local_tracing_span("get_collection_of_primitive_values", parent_span):
+                root_node = await self.get_root_parse_node(response, parent_span, parent_span)
+                if root_node:
+                    values = root_node.get_collection_of_primitive_values(response_type)
+                    parent_span.set_attribute(
+                        DESERIALIZED_MODEL_NAME_KEY, values.__class__.__name__
+                    )
+                    return values
+                return None
         finally:
-            _deserialized_span.end()
             parent_span.end()
 
     async def send_primitive_async(
@@ -337,7 +332,6 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             Optional[ResponseType]: the deserialized primitive response model.
         """
         parent_span = self.start_tracing_span(request_info, "send_primitive_async")
-        _deserialized_span: trace.Span = trace.INVALID_SPAN
         try:
             if not request_info:
                 parent_span.record_exception(REQUEST_IS_NULL)
@@ -359,31 +353,30 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
 
             if response_type == "bytes":
                 return response.content  # type: ignore
-            _deserialized_span = self._start_local_tracing_span("get_root_parse_node", parent_span)
-            root_node = await self.get_root_parse_node(response, parent_span, parent_span)
-            if not root_node:
-                return None
-            value: Optional[Union[str, int, float, bool, datetime, bytes]] = None
-            if response_type == "str":
-                value = root_node.get_str_value()
-            if response_type == "int":
-                value = root_node.get_int_value()
-            if response_type == "float":
-                value = root_node.get_float_value()
-            if response_type == "bool":
-                value = root_node.get_bool_value()
-            if response_type == "datetime":
-                value = root_node.get_datetime_value()
-            if value is not None:
-                parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
-                return value  # type: ignore
+            with self._start_local_tracing_span("get_root_parse_node", parent_span):
+                root_node = await self.get_root_parse_node(response, parent_span, parent_span)
+                if not root_node:
+                    return None
+                value: Optional[Union[str, int, float, bool, datetime, bytes]] = None
+                if response_type == "str":
+                    value = root_node.get_str_value()
+                if response_type == "int":
+                    value = root_node.get_int_value()
+                if response_type == "float":
+                    value = root_node.get_float_value()
+                if response_type == "bool":
+                    value = root_node.get_bool_value()
+                if response_type == "datetime":
+                    value = root_node.get_datetime_value()
+                if value is not None:
+                    parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
+                    return value  # type: ignore
 
             exc = TypeError(f"Error handling the response, unexpected type {response_type!r}")
             parent_span.record_exception(exc)
             raise exc
 
         finally:
-            _deserialized_span.end()
             parent_span.end()
 
     async def send_no_response_content_async(
