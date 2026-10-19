@@ -207,9 +207,12 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             root_node = await self.get_root_parse_node(response, parent_span, parent_span)
             if root_node is None:
                 return None
-            with self._start_local_tracing_span("get_object_value", parent_span):
+            _deserialized_span = self._start_local_tracing_span("get_object_value", parent_span)
+            try:
                 value = root_node.get_object_value(parsable_factory)
                 parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
+            finally:
+                _deserialized_span.end()
             return value
         finally:
             parent_span.end()
@@ -250,7 +253,10 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             if self._should_return_none(response):
                 return None
 
-            with self._start_local_tracing_span("get_collection_of_object_values", parent_span):
+            _deserialized_span = self._start_local_tracing_span(
+                "get_collection_of_object_values", parent_span
+            )
+            try:
                 root_node = await self.get_root_parse_node(response, parent_span, parent_span)
                 if root_node:
                     result: Optional[
@@ -261,6 +267,8 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
                     )
                     return result
                 return None
+            finally:
+                _deserialized_span.end()
         finally:
             parent_span.end()
 
@@ -301,7 +309,10 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             if self._should_return_none(response):
                 return None
 
-            with self._start_local_tracing_span("get_collection_of_primitive_values", parent_span):
+            _deserialized_span = self._start_local_tracing_span(
+                "get_collection_of_primitive_values", parent_span
+            )
+            try:
                 root_node = await self.get_root_parse_node(response, parent_span, parent_span)
                 if root_node:
                     values = root_node.get_collection_of_primitive_values(response_type)
@@ -310,10 +321,12 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
                     )
                     return values
                 return None
+            finally:
+                _deserialized_span.end()
         finally:
             parent_span.end()
 
-    async def send_primitive_async(
+    async def send_primitive_async(  # pylint: disable=too-many-branches
         self,
         request_info: RequestInformation,
         response_type: str,
@@ -353,7 +366,8 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
 
             if response_type == "bytes":
                 return response.content  # type: ignore
-            with self._start_local_tracing_span("get_root_parse_node", parent_span):
+            _deserialized_span = self._start_local_tracing_span("get_root_parse_node", parent_span)
+            try:
                 root_node = await self.get_root_parse_node(response, parent_span, parent_span)
                 if not root_node:
                     return None
@@ -371,6 +385,8 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
                 if value is not None:
                     parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
                     return value  # type: ignore
+            finally:
+                _deserialized_span.end()
 
             exc = TypeError(f"Error handling the response, unexpected type {response_type!r}")
             parent_span.record_exception(exc)
