@@ -186,6 +186,7 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             ModelType: the deserialized response model.
         """
         parent_span = self.start_tracing_span(request_info, "send_async")
+        _deserialized_span: trace.Span = trace.INVALID_SPAN
         try:
             if not request_info:
                 parent_span.record_exception(REQUEST_IS_NULL)
@@ -196,7 +197,10 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             response_handler = self.get_response_handler(request_info)
             if response_handler:
                 parent_span.add_event(RESPONSE_HANDLER_EVENT_INVOKED_KEY)
-                return await response_handler.handle_response_async(response, error_map)
+                handled: Optional[ModelType] = await response_handler.handle_response_async(
+                    response, error_map
+                )
+                return handled
 
             await self.throw_failed_responses(response, error_map, parent_span, parent_span)
             if self._should_return_none(response):
@@ -207,9 +211,9 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             _deserialized_span = self._start_local_tracing_span("get_object_value", parent_span)
             value = root_node.get_object_value(parsable_factory)
             parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
-            _deserialized_span.end()
-            return value  #type: ignore
+            return value
         finally:
+            _deserialized_span.end()
             parent_span.end()
 
     async def send_collection_async(
@@ -231,6 +235,7 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             ModelType: the deserialized response model collection.
         """
         parent_span = self.start_tracing_span(request_info, "send_collection_async")
+        _deserialized_span: trace.Span = trace.INVALID_SPAN
         try:
             if not request_info:
                 parent_span.record_exception(REQUEST_IS_NULL)
@@ -239,7 +244,10 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             response_handler = self.get_response_handler(request_info)
             if response_handler:
                 parent_span.add_event(RESPONSE_HANDLER_EVENT_INVOKED_KEY)
-                return await response_handler.handle_response_async(response, error_map)
+                handled: Optional[
+                    list[ModelType]
+                ] = await response_handler.handle_response_async(response, error_map)
+                return handled
 
             await self.throw_failed_responses(response, error_map, parent_span, parent_span)
             if self._should_return_none(response):
@@ -253,10 +261,10 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
                 result: Optional[list[ModelType]
                                  ] = root_node.get_collection_of_object_values(parsable_factory)
                 parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, result.__class__.__name__)
-                _deserialized_span.end()
                 return result
             return None
         finally:
+            _deserialized_span.end()
             parent_span.end()
 
     async def send_collection_of_primitive_async(
@@ -278,6 +286,7 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             Optional[list[PrimitiveType]]: The deserialized primitive type collection.
         """
         parent_span = self.start_tracing_span(request_info, "send_collection_of_primitive_async")
+        _deserialized_span: trace.Span = trace.INVALID_SPAN
         try:
             if not request_info:
                 parent_span.record_exception(REQUEST_IS_NULL)
@@ -287,7 +296,10 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             response_handler = self.get_response_handler(request_info)
             if response_handler:
                 parent_span.add_event(RESPONSE_HANDLER_EVENT_INVOKED_KEY)
-                return await response_handler.handle_response_async(response, error_map)
+                handled: Optional[
+                    list[PrimitiveType]
+                ] = await response_handler.handle_response_async(response, error_map)
+                return handled
 
             await self.throw_failed_responses(response, error_map, parent_span, parent_span)
             if self._should_return_none(response):
@@ -300,10 +312,10 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             if root_node:
                 values = root_node.get_collection_of_primitive_values(response_type)
                 parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, values.__class__.__name__)
-                _deserialized_span.end()
-                return values  # type: ignore
+                return values
             return None
         finally:
+            _deserialized_span.end()
             parent_span.end()
 
     async def send_primitive_async(
@@ -325,6 +337,7 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             Optional[ResponseType]: the deserialized primitive response model.
         """
         parent_span = self.start_tracing_span(request_info, "send_primitive_async")
+        _deserialized_span: trace.Span = trace.INVALID_SPAN
         try:
             if not request_info:
                 parent_span.record_exception(REQUEST_IS_NULL)
@@ -335,7 +348,10 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             response_handler = self.get_response_handler(request_info)
             if response_handler:
                 parent_span.add_event(RESPONSE_HANDLER_EVENT_INVOKED_KEY)
-                return await response_handler.handle_response_async(response, error_map)
+                handled: Optional[ResponseType] = await response_handler.handle_response_async(
+                    response, error_map
+                )
+                return handled
 
             await self.throw_failed_responses(response, error_map, parent_span, parent_span)
             if self._should_return_none(response):
@@ -360,15 +376,14 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
                 value = root_node.get_datetime_value()
             if value is not None:
                 parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
-                _deserialized_span.end()
                 return value  # type: ignore
 
             exc = TypeError(f"Error handling the response, unexpected type {response_type!r}")
             parent_span.record_exception(exc)
-            _deserialized_span.end()
             raise exc
 
         finally:
+            _deserialized_span.end()
             parent_span.end()
 
     async def send_no_response_content_async(
@@ -392,7 +407,9 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
             response_handler = self.get_response_handler(request_info)
             if response_handler:
                 parent_span.add_event(RESPONSE_HANDLER_EVENT_INVOKED_KEY)
-                return await response_handler.handle_response_async(response, error_map)
+                # NativeResponseHandler hands the native response back through this return
+                handled: None = await response_handler.handle_response_async(response, error_map)
+                return handled
 
             await self.throw_failed_responses(response, error_map, parent_span, parent_span)
         finally:
@@ -601,33 +618,34 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
         _get_http_resp_span = self._start_local_tracing_span(
             "get_http_response_message", parent_span
         )
+        try:
+            self.set_base_url_for_request_information(request_info)
 
-        self.set_base_url_for_request_information(request_info)
+            additional_authentication_context = {}
+            if claims:
+                additional_authentication_context[self.CLAIMS_KEY] = claims
 
-        additional_authentication_context = {}
-        if claims:
-            additional_authentication_context[self.CLAIMS_KEY] = claims
+            await self._authentication_provider.authenticate_request(
+                request_info, additional_authentication_context
+            )
 
-        await self._authentication_provider.authenticate_request(
-            request_info, additional_authentication_context
-        )
+            request = self.get_request_from_request_information(
+                request_info, _get_http_resp_span, parent_span
+            )
+            resp = await self._http_client.send(request)
+            if not resp:
+                raise ResponseError("Unable to get response from request")
+            parent_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, resp.status_code)
+            if http_version := resp.http_version:
+                parent_span.set_attribute(NETWORK_PROTOCOL_NAME, http_version)
 
-        request = self.get_request_from_request_information(
-            request_info, _get_http_resp_span, parent_span
-        )
-        resp = await self._http_client.send(request)
-        if not resp:
-            raise ResponseError("Unable to get response from request")
-        parent_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, resp.status_code)
-        if http_version := resp.http_version:
-            parent_span.set_attribute(NETWORK_PROTOCOL_NAME, http_version)
+            if content_length := resp.headers.get("Content-Length", None):
+                parent_span.set_attribute("http.response.body.size", content_length)
 
-        if content_length := resp.headers.get("Content-Length", None):
-            parent_span.set_attribute("http.response.body.size", content_length)
-
-        if content_type := resp.headers.get("Content-Type", None):
-            parent_span.set_attribute("http.response.header.content-type", content_type)
-        _get_http_resp_span.end()
+            if content_type := resp.headers.get("Content-Type", None):
+                parent_span.set_attribute("http.response.header.content-type", content_type)
+        finally:
+            _get_http_resp_span.end()
         return await self.retry_cae_response_if_required(resp, request_info, claims)
 
     async def retry_cae_response_if_required(
@@ -676,49 +694,50 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
         _get_request_span = self._start_local_tracing_span(
             "get_request_from_request_information", parent_span
         )
-        url = parse.urlparse(request_info.url)
-        method = request_info.http_method
-        if not method:
-            raise RequestError("HTTP method must be provided")
+        try:
+            url = parse.urlparse(request_info.url)
+            method = request_info.http_method
+            if not method:
+                raise RequestError("HTTP method must be provided")
 
-        otel_attributes = {
-            HTTP_REQUEST_METHOD: method.value,
-            SERVER_ADDRESS: url.hostname,
-            URL_SCHEME: url.scheme,
-        }
+            otel_attributes = {
+                HTTP_REQUEST_METHOD: method.value,
+                SERVER_ADDRESS: url.hostname,
+                URL_SCHEME: url.scheme,
+            }
 
-        # A request whose URL was set directly (PageIterator, LargeFileUploadTask) has no template
-        if request_info.url_template is not None:
-            otel_attributes["url.uri_template"] = request_info.url_template
-        if url.port is not None:
-            otel_attributes["http.port"] = str(url.port)
+            # A URL set directly (PageIterator, LargeFileUploadTask) has no template
+            if request_info.url_template is not None:
+                otel_attributes["url.uri_template"] = request_info.url_template
+            if url.port is not None:
+                otel_attributes["http.port"] = str(url.port)
 
-        if self.observability_options.include_euii_attributes:
-            otel_attributes.update({URL_FULL: url.geturl()})
+            if self.observability_options.include_euii_attributes:
+                otel_attributes.update({URL_FULL: url.geturl()})
 
-        request_options = {
-            self.observability_options.get_key(): self.observability_options,
-            "parent_span": parent_span,
-            **request_info.request_options,
-        }
-        request = self._http_client.build_request(
-            method=method.value,
-            url=request_info.url,
-            headers=request_info.request_headers,
-            content=request_info.content,
-            extensions={REQUEST_OPTIONS_KEY: request_options},
-        )
+            request_options = {
+                self.observability_options.get_key(): self.observability_options,
+                "parent_span": parent_span,
+                **request_info.request_options,
+            }
+            request = self._http_client.build_request(
+                method=method.value,
+                url=request_info.url,
+                headers=request_info.request_headers,
+                content=request_info.content,
+                extensions={REQUEST_OPTIONS_KEY: request_options},
+            )
 
-        if content_length := request.headers.get("Content-Length", None):
-            otel_attributes.update({"http.request.body.size": content_length})
+            if content_length := request.headers.get("Content-Length", None):
+                otel_attributes.update({"http.request.body.size": content_length})
 
-        if content_type := request.headers.get("Content-Type", None):
-            otel_attributes.update({"http.request.header.content-type": content_type})
-        attribute_span.set_attributes(otel_attributes)  # type: ignore
-        _get_request_span.set_attributes(otel_attributes)  # type: ignore
-        _get_request_span.end()
-
-        return request
+            if content_type := request.headers.get("Content-Type", None):
+                otel_attributes.update({"http.request.header.content-type": content_type})
+            attribute_span.set_attributes(otel_attributes)
+            _get_request_span.set_attributes(otel_attributes)
+            return request
+        finally:
+            _get_request_span.end()
 
     async def convert_to_native_async(self, request_info: RequestInformation) -> httpx.Request:
         parent_span = self.start_tracing_span(request_info, "convert_to_native_async")

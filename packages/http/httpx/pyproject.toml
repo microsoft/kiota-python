@@ -38,6 +38,7 @@ name = "kiota_http"
 
 [tool.mypy]
 warn_unused_configs = true
+strict = true
 files = "kiota_http"
 
 [tool.yapf]

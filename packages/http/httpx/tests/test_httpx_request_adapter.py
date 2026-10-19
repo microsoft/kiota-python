@@ -18,6 +18,7 @@ from opentelemetry import trace
 from opentelemetry.sdk.trace import SpanProcessor, TracerProvider
 
 import kiota_http.httpx_request_adapter
+from kiota_http._exceptions import RequestError
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 from kiota_http.middleware import REQUEST_OPTIONS_KEY
 from kiota_http.middleware.options import ResponseHandlerOption
@@ -80,6 +81,80 @@ async def test_cae_span_ends_after_retry(
     assert spans[0].attributes["http.retry_count"] == 1
     assert spans[0].events[0].name == "com.microsoft.kiota.authenticate_challenge_received"
 
+
+
+@pytest.mark.asyncio
+async def test_http_response_message_span_ends_on_transport_failure(
+    auth_provider, request_info, span_exporter
+):
+
+    def request_handler(request):
+        raise httpx.ReadError("connection reset")
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(request_handler))
+    request_adapter = HttpxRequestAdapter(auth_provider, http_client=client)
+    request_info.http_method = Method.GET
+    request_info.url = BASE_URL
+    with pytest.raises(httpx.ReadError):
+        await request_adapter.send_no_response_content_async(request_info, None)
+    assert [span.name for span in span_exporter.get_finished_spans()] == [
+        "get_request_from_request_information", "get_http_response_message",
+        "send_no_response_content_async - UNKNOWN"
+    ]
+
+
+def test_request_span_ends_without_http_method(
+    request_adapter, request_info, mock_otel_span, span_exporter
+):
+    request_info.url = BASE_URL
+    with pytest.raises(RequestError):
+        request_adapter.get_request_from_request_information(
+            request_info, mock_otel_span, mock_otel_span
+        )
+    assert [span.name for span in span_exporter.get_finished_spans()
+            ] == ["get_request_from_request_information"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("send, response_type, span_names", [
+    (
+        HttpxRequestAdapter.send_collection_async, MockResponseObject,
+        ["get_root_parse_node", "get_collection_of_object_values", "send_collection_async - UNKNOWN"]
+    ),
+    (
+        HttpxRequestAdapter.send_collection_of_primitive_async, int, [
+            "get_root_parse_node", "get_collection_of_primitive_values",
+            "send_collection_of_primitive_async - UNKNOWN"
+        ]
+    ),
+    (
+        HttpxRequestAdapter.send_primitive_async, "int",
+        ["get_root_parse_node", "get_root_parse_node", "send_primitive_async - UNKNOWN"]
+    ),
+])
+async def test_deserialization_span_ends_without_content_type(
+    send, response_type, span_names, request_adapter, request_info,
+    mock_primitive_response_with_no_content_type_header, span_exporter
+):
+    request_adapter.get_http_response_message = AsyncMock(
+        return_value=mock_primitive_response_with_no_content_type_header
+    )
+    assert await send(request_adapter, request_info, response_type, None) is None
+    assert [span.name for span in span_exporter.get_finished_spans()] == span_names
+
+
+@pytest.mark.asyncio
+async def test_deserialization_span_ends_when_deserialization_fails(
+    request_adapter, request_info, mock_user_response, span_exporter
+):
+    root_node = Mock()
+    root_node.get_object_value.side_effect = ValueError("unreadable payload")
+    request_adapter.get_http_response_message = AsyncMock(return_value=mock_user_response)
+    request_adapter.get_root_parse_node = AsyncMock(return_value=root_node)
+    with pytest.raises(ValueError):
+        await request_adapter.send_async(request_info, MockResponseObject, None)
+    assert [span.name for span in span_exporter.get_finished_spans()
+            ] == ["get_object_value", "send_async - UNKNOWN"]
 
 def test_create_request_adapter(auth_provider):
     request_adapter = HttpxRequestAdapter(auth_provider)
