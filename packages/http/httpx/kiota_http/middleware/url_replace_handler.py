@@ -1,3 +1,5 @@
+from typing import Optional
+
 from kiota_abstractions.request_option import RequestOption
 from opentelemetry.semconv.attributes.url_attributes import URL_FULL
 
@@ -9,16 +11,16 @@ from .options import UrlReplaceHandlerOption
 
 class UrlReplaceHandler(BaseMiddleware):
 
-    def __init__(self, options: UrlReplaceHandlerOption = UrlReplaceHandlerOption()):
+    def __init__(self, options: Optional[UrlReplaceHandlerOption] = None) -> None:
         """Create an instance of UrlReplaceHandler
 
         Args:
             options (UrlReplaceHandlerOption, optional): The url replacement
-            options to pass to the handler.
-            Defaults to UrlReplaceHandlerOption
+            options to pass to the handler. A new UrlReplaceHandlerOption
+            per handler when not provided.
         """
         super().__init__()
-        self.options = options
+        self.options = options if options is not None else UrlReplaceHandlerOption()
 
     async def send(
         self, request: httpx.Request, transport: httpx.AsyncBaseTransport
@@ -32,19 +34,19 @@ class UrlReplaceHandler(BaseMiddleware):
         Returns:
             Response: The response object.
         """
-        response = None
         _enable_span = self._create_observability_span(request, "UrlReplaceHandler_send")
-        if self.options and self.options.is_enabled:
-            _enable_span.set_attribute("com.microsoft.kiota.handler.url_replacer.enable", True)
+        try:
             current_options = self._get_current_options(request)
+            if current_options.is_enabled:
+                _enable_span.set_attribute("com.microsoft.kiota.handler.url_replacer.enable", True)
 
-            url_string: str = str(request.url)
-            url_string = self.replace_url_segment(url_string, current_options)
-            request.url = httpx.URL(url_string)
-            _enable_span.set_attribute(URL_FULL, str(request.url))
-        response = await super().send(request, transport)
-        _enable_span.end()
-        return response
+                url_string: str = str(request.url)
+                url_string = self.replace_url_segment(url_string, current_options)
+                request.url = httpx.URL(url_string)
+                _enable_span.set_attribute(URL_FULL, str(request.url))
+            return await super().send(request, transport)
+        finally:
+            _enable_span.end()
 
     def _get_current_options(self, request: httpx.Request) -> UrlReplaceHandlerOption:
         """Returns the options to use for the request.Overries default options if
@@ -58,7 +60,9 @@ class UrlReplaceHandler(BaseMiddleware):
         """
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
-            current_options = request_options.get(UrlReplaceHandlerOption.get_key(), self.options)
+            current_options: UrlReplaceHandlerOption = request_options.get(
+                UrlReplaceHandlerOption.get_key(), self.options
+            )
             return current_options
         return self.options
 

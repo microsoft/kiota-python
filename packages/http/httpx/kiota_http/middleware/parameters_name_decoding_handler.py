@@ -1,3 +1,5 @@
+from typing import Optional
+
 from kiota_abstractions.request_option import RequestOption
 
 import httpx
@@ -10,19 +12,16 @@ PARAMETERS_NAME_DECODING_KEY = "com.microsoft.kiota.handler.parameters_name_deco
 
 class ParametersNameDecodingHandler(BaseMiddleware):
 
-    def __init__(
-        self,
-        options: ParametersNameDecodingHandlerOption = ParametersNameDecodingHandlerOption(),
-    ):
+    def __init__(self, options: Optional[ParametersNameDecodingHandlerOption] = None) -> None:
         """Create an instance of ParametersNameDecodingHandler
 
         Args:
             options (ParametersNameDecodingHandlerOption, optional): The parameters name
-            decoding handler options value.
-            Defaults to ParametersNameDecodingHandlerOption
+            decoding handler options value. A new ParametersNameDecodingHandlerOption
+            per handler when not provided.
         """
         super().__init__()
-        self.options = options
+        self.options = options if options is not None else ParametersNameDecodingHandlerOption()
 
     async def send(
         self, request: httpx.Request, transport: httpx.AsyncBaseTransport
@@ -72,7 +71,7 @@ class ParametersNameDecodingHandler(BaseMiddleware):
         """
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
-            current_options = request_options.get(
+            current_options: ParametersNameDecodingHandlerOption = request_options.get(
                 ParametersNameDecodingHandlerOption.get_key(), self.options
             )
             return current_options
