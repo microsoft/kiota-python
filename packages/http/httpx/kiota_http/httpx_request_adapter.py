@@ -138,7 +138,7 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
         segments = header.lower().split(";")
         if not segments:
             return None
-        return segments[0]
+        return segments[0].strip() or None
 
     def start_tracing_span(self, request_info: RequestInformation, method: str) -> trace.Span:
         """Creates an Opentelemetry tracer and starts the parent span.
