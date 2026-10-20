@@ -112,13 +112,13 @@ jobs:
       - name: Install dependencies
         working-directory: "./tests/consumer"
         run: |
-          pip install -r requirements-dev.txt
+          pip install --only-binary :all: -r requirements-dev.txt
       - name: Build and install the wheels
         run: |
           for package in abstractions authentication/azure http/httpx serialization/form serialization/json serialization/text serialization/multipart bundle; do
             python -m build --wheel --outdir dist "packages/$package"
           done
-          pip install dist/*.whl
+          pip install --only-binary :all: dist/*.whl
       - name: Static type checking with Mypy against the installed wheels
         working-directory: "./tests/consumer"
         run: |
