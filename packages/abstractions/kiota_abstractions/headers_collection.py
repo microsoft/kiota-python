@@ -98,19 +98,15 @@ class HeadersCollection():
         if not header_values:  # empty list
             return
         header_name = header_name.lower()
-        if isinstance(header_values, list):
-            if header_name in self.SINGLE_VALUE_HEADERS:
-                self._headers[header_name] = {header_values[0]}
-            elif values := self.try_get(header_name):
-                for header_value in header_values:
-                    values.add(header_value)  #type: ignore
-            else:
-                self._headers[header_name] = set(header_values)
+        if not isinstance(header_values, list):
+            header_values = [header_values]
+        if header_name in self.SINGLE_VALUE_HEADERS:
+            self._headers[header_name] = {header_values[0]}
+        elif values := self.try_get(header_name):
+            for header_value in header_values:
+                values.add(header_value)  #type: ignore
         else:
-            if values := self.try_get(header_name):
-                values.add(header_values)  #type: ignore
-            else:
-                self._headers[header_name] = {header_values}
+            self._headers[header_name] = set(header_values)
 
     def keys(self) -> list[str]:
         """Gets the header names present in the collection.
