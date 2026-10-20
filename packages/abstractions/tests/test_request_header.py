@@ -98,8 +98,8 @@ def test_add_single_value_header_to_existing_header():
     headers = HeadersCollection()
     headers.add("content-type", "value1")
     headers.add("content-type", "value2")
-    assert {"value2"} <= headers.try_get("content-type")
-    assert {"value2"} <= headers.get("content-type")
+    assert headers.try_get("content-type") == {"value2"}
+    assert headers.get("content-type") == {"value2"}
     assert headers.contains("content-type")
     assert headers.count() == 1
     
@@ -181,3 +181,12 @@ def test_adds_headers_from_instance():
     assert headers.contains("header4")
     assert headers.count() == 4
     assert headers.keys() == ["header1", "header2", "header3", "header4"]
+def test_add_all_replaces_single_value_header():
+    """Tests that add_all keeps a single value header to one value
+    """
+    headers = HeadersCollection()
+    headers.add("Content-Type", "application/json")
+    other = HeadersCollection()
+    other.add("Content-Type", "text/plain")
+    headers.add_all(other)
+    assert headers.get("content-type") == {"text/plain"}
