@@ -247,4 +247,4 @@ class RedirectHandler(BaseMiddleware):
         """
         Return 'True' if the given URLs share the same origin.
         """
-        return (url.scheme == other.scheme and url.host == other.host)
+        return (url.scheme == other.scheme and url.host == other.host and url.port == other.port)

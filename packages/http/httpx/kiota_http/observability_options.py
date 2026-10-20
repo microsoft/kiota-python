@@ -23,7 +23,7 @@ class ObservabilityOptions(RequestOption):
         return self._enabled
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         """sets whether to enable ObservabilityOptions in the middleware chain."""
         self._enabled = value
 
