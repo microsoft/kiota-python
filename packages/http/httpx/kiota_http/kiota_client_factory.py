@@ -173,11 +173,9 @@ class KiotaClientFactory:
             current_transport, middleware
         )
         if client._mounts:
-            mounts: dict = {}
+            mounts = dict(client._mounts)
             for pattern, transport in client._mounts.items():
-                if transport is None:
-                    mounts[pattern] = None
-                else:
+                if transport is not None:
                     mounts[pattern
                            ] = KiotaClientFactory._replace_transport_with_custom_kiota_transport(
                                transport, middleware
