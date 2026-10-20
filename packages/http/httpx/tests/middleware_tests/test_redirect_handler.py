@@ -156,6 +156,41 @@ def test_not_same_origin(mock_redirect_handler):
     assert not mock_redirect_handler._same_origin(origin1, origin2)
 
 
+def test_not_same_origin_different_port(mock_redirect_handler):
+    origin1 = httpx.URL(BASE_URL)
+    origin2 = httpx.URL(f"{BASE_URL}:8443")
+    assert not mock_redirect_handler._same_origin(origin1, origin2)
+
+
+@pytest.mark.asyncio
+async def test_redirect_to_different_port_updates_host_header():
+    """Test that if a request is redirected to a different port on the same host,
+    the Host header is updated with the new port."""
+
+    redirect_target = "https://example.com:8443/foo"
+
+    def request_handler(request: httpx.Request):
+        if str(request.url) == redirect_target:
+            return httpx.Response(200)
+        return httpx.Response(
+            FOUND,
+            headers={LOCATION_HEADER: redirect_target},
+        )
+
+    handler = RedirectHandler()
+    request = httpx.Request(
+        "GET",
+        BASE_URL,
+        headers={"Host": "example.com"},
+    )
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert resp.status_code == 200
+    assert resp.request != request
+    assert resp.request.url == redirect_target
+    assert resp.request.headers["Host"] == "example.com:8443" 
+
+
 
 
 @pytest.mark.asyncio
