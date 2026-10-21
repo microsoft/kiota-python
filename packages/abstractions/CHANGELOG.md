@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.14.4...microsoft-kiota-abstractions-v1.15.0) (2026-10-21)
+
+
+### Features
+
+* add Python 3.15 support to all packages ([0815ace](https://github.com/microsoft/kiota-python/commit/0815acee3423b7b186d5a144272e81a4e5504881))
+
+
+### Bug Fixes
+
+* **abstractions:** keep single value headers to one value when added as a string ([bfa3c9b](https://github.com/microsoft/kiota-python/commit/bfa3c9b7e5efe320874320d87a3631f1cc71ba70))
+* **abstractions:** keep single value headers to one value when added as a string ([2b04343](https://github.com/microsoft/kiota-python/commit/2b043437ffb559f3572bb61d63f0ce1743dd653f)), closes [#818](https://github.com/microsoft/kiota-python/issues/818)
+* **abstractions:** loop over the store keys in the initialization setter ([0fa3b1f](https://github.com/microsoft/kiota-python/commit/0fa3b1f7b75d729f0bdc43421a5f25675c1d2907))
+* **abstractions:** pass mypy --strict in request_information and the small modules ([7a50266](https://github.com/microsoft/kiota-python/commit/7a50266881c78e59a0444b72c1a5e535e2a46dfa))
+* **abstractions:** pass mypy --strict in request_information and the small modules ([3141cf8](https://github.com/microsoft/kiota-python/commit/3141cf8f490f8c6b385f1bec35a255d16b09c000))
+* **abstractions:** pass mypy --strict in store and fix the backing store bugs it shows ([213fe0a](https://github.com/microsoft/kiota-python/commit/213fe0a1f14812a539a491cbb9a9ecc45bf8b38f))
+* **abstractions:** pass mypy --strict in store and fix the backing store bugs it shows ([650235a](https://github.com/microsoft/kiota-python/commit/650235a1723f7c272fd445d411c5a11f5208b919))
+* **abstractions:** pass mypy --strict in the proxy factories and turn on strict for kiota_abstractions ([511be47](https://github.com/microsoft/kiota-python/commit/511be4712410a6eedbb47c254ca20ec418bc36cd))
+* **abstractions:** pass mypy --strict in the proxy factories and turn on strict for kiota_abstractions ([3926998](https://github.com/microsoft/kiota-python/commit/3926998d79418a2948f3d5898b7ea8ffe4af7756))
+* **abstractions:** subscribe list items once and keep list sizes fresh in the backing store ([76720dc](https://github.com/microsoft/kiota-python/commit/76720dc0d950c70b8dc37dbf1a9c9b7be722c944))
+* **abstractions:** subscribe list items once and keep list sizes fresh in the backing store ([723f291](https://github.com/microsoft/kiota-python/commit/723f291cf341f3f5d71ea651ec30de6397984e9b))
+
 ## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.14.3...microsoft-kiota-abstractions-v1.14.4) (2026-10-14)
 
 

@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.14.4...microsoft-kiota-serialization-form-v1.15.0) (2026-10-21)
+
+
+### Features
+
+* add Python 3.15 support to all packages ([0815ace](https://github.com/microsoft/kiota-python/commit/0815acee3423b7b186d5a144272e81a4e5504881))
+
+
+### Bug Fixes
+
+* **serialization-form:** serialize enum members consistently ([88ff81a](https://github.com/microsoft/kiota-python/commit/88ff81a0a7399109e2b2d4ced059de7852e59ad7))
+* **serialization-form:** serialize enum members consistently ([da8bdb7](https://github.com/microsoft/kiota-python/commit/da8bdb7e5874d1bf563eadefa4ec66e5cddf2aee))
+
 ## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.14.3...microsoft-kiota-serialization-form-v1.14.4) (2026-10-14)
 
 
