@@ -35,29 +35,34 @@ class ParametersNameDecodingHandler(BaseMiddleware):
         Returns:
             Response: The response object.
         """
-        current_options = self._get_current_options(request)
-        span = self._create_observability_span(request, "ParametersNameDecodingHandler_send")
-        if current_options.enabled:
-            span.set_attribute(PARAMETERS_NAME_DECODING_KEY, current_options.enabled)
-        span.end()
+        if request is None:
+            raise TypeError("request cannot be null")
 
-        query_params = request.url.query.decode('utf-8')
-        if all(
-            [
-                current_options,
-                current_options.enabled,
-                "%" in query_params,
-                current_options.characters_to_decode,
-            ]
-        ):
-            original_url: str = str(request.url)
-            decoded_query_parameters_string = self.decode_uri_encoded_string(
-                query_params, current_options.characters_to_decode
-            )
-            new_url = original_url.replace(query_params, decoded_query_parameters_string)
-            request.url = httpx.URL(new_url)
-        response = await super().send(request, transport)
-        return response
+        span = self._create_observability_span(request, "ParametersNameDecodingHandler_send")
+        try:
+            current_options = self._get_current_options(request)
+            if current_options.enabled:
+                span.set_attribute(PARAMETERS_NAME_DECODING_KEY, current_options.enabled)
+
+            query_params = request.url.query.decode("utf-8")
+            if all(
+                [
+                    current_options,
+                    current_options.enabled,
+                    "%" in query_params,
+                    current_options.characters_to_decode,
+                ]
+            ):
+                decoded_query_parameters_string = self.decode_uri_encoded_string(
+                    query_params, current_options.characters_to_decode
+                )
+                request.url = request.url.copy_with(
+                    query=decoded_query_parameters_string.encode("utf-8")
+                )
+            response = await super().send(request, transport)
+            return response
+        finally:
+            span.end()
 
     def _get_current_options(self, request: httpx.Request) -> ParametersNameDecodingHandlerOption:
         """Returns the options to use for the request.Overrides default options if
@@ -78,21 +83,34 @@ class ParametersNameDecodingHandler(BaseMiddleware):
         return self.options
 
     def decode_uri_encoded_string(self, original: str, characters_to_decode: list[str]) -> str:
-        """Decodes a uri encoded url string"""
+        """Decodes a uri encoded query string, decoding characters only in parameter names."""
         if not original or not characters_to_decode:
             return original
-        symbols_to_replace = [
-            (f"%{ord(x):X}", x) for x in characters_to_decode if f"%{ord(x):X}" in original
-        ]
 
-        encoded_parameter_values = [
-            part.split('=')[0] for part in original.split('&') if '%' in part
-        ]
+        symbols_to_replace: list[tuple[str, str]] = []
+        for x in characters_to_decode:
+            code_upper = f"%{ord(x):02X}"
+            code_lower = f"%{ord(x):02x}"
+            symbols_to_replace.append((code_upper, x))
+            if code_upper != code_lower:
+                symbols_to_replace.append((code_lower, x))
 
-        for parameter in encoded_parameter_values:
-            for symbol_to_replace in symbols_to_replace:
-                if symbol_to_replace[0] in parameter:
-                    new_parameter = parameter.replace(symbol_to_replace[0], symbol_to_replace[1])
-                    original = original.replace(parameter, new_parameter)
+        decoded_parts: list[str] = []
+        for part in original.split("&"):
+            if not part:
+                decoded_parts.append(part)
+                continue
+            if "=" in part:
+                param_name, param_value = part.split("=", 1)
+                for code, symbol in symbols_to_replace:
+                    if code in param_name:
+                        param_name = param_name.replace(code, symbol)
+                decoded_parts.append(f"{param_name}={param_value}")
+            else:
+                param_name = part
+                for code, symbol in symbols_to_replace:
+                    if code in param_name:
+                        param_name = param_name.replace(code, symbol)
+                decoded_parts.append(param_name)
 
-        return original
+        return "&".join(decoded_parts)
