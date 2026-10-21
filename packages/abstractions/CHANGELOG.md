@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.15.0...microsoft-kiota-abstractions-v1.16.0) (2026-10-21)
+
+
+### Features
+
+* **abstractions:** enhance HeadersCollection usability and dict interoperability ([745dfee](https://github.com/microsoft/kiota-python/commit/745dfee8b19e7edf92aa4917c2df3c4970abd6f2))
+* **abstractions:** enhance HeadersCollection usability and dict interoperability ([f4c60bd](https://github.com/microsoft/kiota-python/commit/f4c60bdb39717ae0d59f34fad221f2acd788bb9e)), closes [#208](https://github.com/microsoft/kiota-python/issues/208)
+
 ## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.14.4...microsoft-kiota-abstractions-v1.15.0) (2026-10-21)
 
 
