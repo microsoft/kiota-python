@@ -142,10 +142,12 @@ async def test_decoding_preserves_url_path():
         return httpx.Response(200, json={"text": "Hello, world!"})
 
     handler = ParametersNameDecodingHandler()
-    request = httpx.Request('GET', "https://example.com/api%24/items?%24select=name")
+    request = httpx.Request('GET', "https://example.com/api/%24select=name/items?%24select=name")
     mock_transport = httpx.MockTransport(request_handler)
     resp = await handler.send(request, mock_transport)
-    assert str(resp.request.url) == "https://example.com/api%24/items?$select=name"
+    assert str(resp.request.url) == "https://example.com/api/%24select=name/items?$select=name"
+    assert b"/api/%24select=name/items" in resp.request.url.raw_path
+    assert resp.request.url.query == b"$select=name"
 
 
 @pytest.mark.asyncio
