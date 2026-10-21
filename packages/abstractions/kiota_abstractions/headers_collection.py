@@ -1,14 +1,20 @@
 from __future__ import annotations
 
-from typing import Union
+from collections.abc import Iterable, Iterator, Mapping
+from typing import Optional, Union
 
 
 class HeadersCollection():
     "Represents a collection of request/response headers"
     SINGLE_VALUE_HEADERS: set[str] = {"content-type", "content-encoding", "content-length"}
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        headers: Optional[Union[HeadersCollection, Mapping[str, Union[str, Iterable[str]]]]] = None,
+    ) -> None:
         self._headers: dict[str, set[str]] = {}
+        if headers is not None:
+            self.add_all(headers)
 
     def try_get(self, key: str) -> Union[bool, set[str]]:
         """Gets the header values corresponding to a specific header name.
@@ -72,17 +78,30 @@ class HeadersCollection():
             return True
         return False
 
-    def add_all(self, headers: HeadersCollection) -> None:
+    def add_all(
+        self,
+        headers: Union[HeadersCollection, Mapping[str, Union[str, Iterable[str]]]],
+    ) -> None:
         """Adds the specified headers to the collection.
 
         Args:
-            headers (dict[str, str]): The headers to add.
+            headers: The headers to add.
         """
-        if not headers:
+        if headers is None:
             raise ValueError("Headers cannot be null")
-        for key, values in headers.get_all().items():
-            for value in values:
-                self.add(key, value)
+        if isinstance(headers, HeadersCollection):
+            for key, coll_values in headers.get_all().items():
+                self.add(key, list(coll_values))
+        elif isinstance(headers, Mapping):
+            for key, map_val in headers.items():
+                if isinstance(map_val, str):
+                    self.add(key, map_val)
+                elif isinstance(map_val, Iterable):
+                    self.add(key, [str(item) for item in map_val])
+                else:
+                    self.add(key, str(map_val))
+        else:
+            raise TypeError("Headers must be a HeadersCollection or Mapping")
 
     def add(self, header_name: str, header_values: Union[str, list[str]]) -> None:
         """Adds values to the header with the specified name.
@@ -177,3 +196,46 @@ class HeadersCollection():
             raise ValueError("Header name cannot be null")
         key = key.lower()
         return key in self._headers
+
+    def __contains__(self, key: object) -> bool:
+        if not isinstance(key, str) or not key:
+            return False
+        return self.contains(key)
+
+    def __getitem__(self, key: str) -> set[str]:
+        if not self.contains(key):
+            raise KeyError(key)
+        return self.get(key)
+
+    def __setitem__(self, key: str, value: Union[str, Iterable[str]]) -> None:
+        if not key:
+            raise ValueError("Header name cannot be null")
+        if value is None:
+            raise ValueError("Header values cannot be null")
+        header_name = key.lower()
+        if isinstance(value, str):
+            header_values = [value]
+        elif isinstance(value, Iterable):
+            header_values = list(value)
+        else:
+            header_values = [str(value)]
+
+        if not header_values:
+            self._headers.pop(header_name, None)
+            return
+
+        if header_name in self.SINGLE_VALUE_HEADERS:
+            self._headers[header_name] = {header_values[0]}
+        else:
+            self._headers[header_name] = set(header_values)
+
+    def __delitem__(self, key: str) -> None:
+        if not self.contains(key):
+            raise KeyError(key)
+        self.remove(key)
+
+    def __len__(self) -> int:
+        return self.count()
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._headers)

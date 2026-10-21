@@ -181,6 +181,8 @@ def test_adds_headers_from_instance():
     assert headers.contains("header4")
     assert headers.count() == 4
     assert headers.keys() == ["header1", "header2", "header3", "header4"]
+
+
 def test_add_all_replaces_single_value_header():
     """Tests that add_all keeps a single value header to one value
     """
@@ -190,3 +192,114 @@ def test_add_all_replaces_single_value_header():
     other.add("Content-Type", "text/plain")
     headers.add_all(other)
     assert headers.get("content-type") == {"text/plain"}
+
+
+def test_init_with_dict():
+    """Tests initialization of HeadersCollection with a dict"""
+    headers = HeadersCollection({"header1": "value1", "header2": ["value2", "value3"]})
+    assert headers.count() == 2
+    assert "header1" in headers
+    assert "header2" in headers
+    assert headers["header1"] == {"value1"}
+    assert headers["header2"] == {"value2", "value3"}
+
+
+def test_init_with_headers_collection():
+    """Tests initialization of HeadersCollection with another HeadersCollection"""
+    source = HeadersCollection({"header1": "value1"})
+    copy_headers = HeadersCollection(source)
+    assert copy_headers.count() == 1
+    assert "header1" in copy_headers
+    assert copy_headers["header1"] == {"value1"}
+
+
+def test_init_with_empty_inputs():
+    """Tests that initializing with empty mapping or empty HeadersCollection does not fail"""
+    headers_dict = HeadersCollection({})
+    assert headers_dict.count() == 0
+    assert len(headers_dict) == 0
+
+    empty_source = HeadersCollection()
+    headers_copy = HeadersCollection(empty_source)
+    assert headers_copy.count() == 0
+    assert len(headers_copy) == 0
+
+
+def test_init_iterable_single_value_header():
+    """Tests that initializing with an iterable for single-value headers retains only the first value"""
+    headers = HeadersCollection({"Content-Length": ["10", "20"]})
+    assert headers.get("content-length") == {"10"}
+    assert headers["content-length"] == {"10"}
+
+
+def test_add_all_with_dict():
+    """Tests adding headers from a dictionary"""
+    headers = HeadersCollection()
+    headers.add_all({"header1": "value1", "header2": ["value2", "value3"]})
+    assert headers.count() == 2
+    assert headers.get("header1") == {"value1"}
+    assert headers.get("header2") == {"value2", "value3"}
+
+
+def test_add_all_empty_inputs():
+    """Tests that add_all with empty collection or empty mapping is a no-op and does not raise"""
+    headers = HeadersCollection({"header1": "value1"})
+    headers.add_all({})
+    assert headers.count() == 1
+    headers.add_all(HeadersCollection())
+    assert headers.count() == 1
+
+
+def test_container_methods():
+    """Tests container magic methods (__contains__, __getitem__, __setitem__, __len__, __iter__)"""
+    headers = HeadersCollection()
+    headers["header1"] = "value1"
+    headers["header2"] = ["val2", "val3"]
+    assert len(headers) == 2
+    assert "header1" in headers
+    assert "header2" in headers
+    assert "nonexistent" not in headers
+    assert headers["header1"] == {"value1"}
+    assert headers["header2"] == {"val2", "val3"}
+    assert list(headers) == ["header1", "header2"]
+    with pytest.raises(KeyError):
+        _ = headers["nonexistent"]
+
+
+def test_subscript_assignment_replaces_values():
+    """Tests that subscript assignment replaces existing values rather than appending, across casing"""
+    headers = HeadersCollection()
+    headers["Authorization"] = "old"
+    assert headers["authorization"] == {"old"}
+    headers["authorization"] = "new"
+    assert headers["authorization"] == {"new"}
+    assert headers.get("authorization") == {"new"}
+    assert len(headers) == 1
+
+    headers["AUTHORIZATION"] = ["token1", "token2"]
+    assert headers["authorization"] == {"token1", "token2"}
+    assert len(headers) == 1
+
+
+def test_subscript_assignment_validation():
+    """Tests that invalid key or value raises ValueError before modifying stored headers"""
+    headers = HeadersCollection()
+    headers["Authorization"] = "valid"
+
+    with pytest.raises(ValueError):
+        headers[None] = "value"
+    with pytest.raises(ValueError):
+        headers[""] = "value"
+    with pytest.raises(ValueError):
+        headers["Authorization"] = None
+
+    # Stored value remains intact
+    assert headers["authorization"] == {"valid"}
+
+
+def test_subscript_assignment_single_value_header():
+    """Tests that subscript assignment respects SINGLE_VALUE_HEADERS"""
+    headers = HeadersCollection()
+    headers["Content-Type"] = ["application/json", "text/plain"]
+    assert headers["content-type"] == {"application/json"}
+
