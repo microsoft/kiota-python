@@ -80,3 +80,46 @@ async def test_decodes_query_parameter_names_only():
 def test_default_characters_to_decode_are_not_shared():
     ParametersNameDecodingHandlerOption().characters_to_decode.append("+")
     assert ParametersNameDecodingHandlerOption().characters_to_decode == [".", "-", "~", "$"]
+
+
+@pytest.mark.asyncio
+async def test_send_request_none_raises_type_error():
+    handler = ParametersNameDecodingHandler()
+    with pytest.raises(TypeError, match="request cannot be null"):
+        await handler.send(None, None)
+
+
+@pytest.mark.asyncio
+async def test_decoding_preserves_values_matching_parameter_name():
+    def request_handler(request: httpx.Request):
+        return httpx.Response(200, json={"text": "Hello, world!"})
+
+    handler = ParametersNameDecodingHandler()
+    request = httpx.Request('GET', "https://example.com/api?query=%24select&%24select=name")
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert str(resp.request.url) == "https://example.com/api?query=%24select&$select=name"
+
+
+@pytest.mark.asyncio
+async def test_decodes_lowercase_percent_encoding():
+    def request_handler(request: httpx.Request):
+        return httpx.Response(200, json={"text": "Hello, world!"})
+
+    handler = ParametersNameDecodingHandler()
+    request = httpx.Request('GET', "https://example.com/api?api%2dversion=1&param%2evalue=2&flag%7etest=3")
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert str(resp.request.url) == "https://example.com/api?api-version=1&param.value=2&flag~test=3"
+
+
+@pytest.mark.asyncio
+async def test_decoding_preserves_url_path():
+    def request_handler(request: httpx.Request):
+        return httpx.Response(200, json={"text": "Hello, world!"})
+
+    handler = ParametersNameDecodingHandler()
+    request = httpx.Request('GET', "https://example.com/api%24/items?%24select=name")
+    mock_transport = httpx.MockTransport(request_handler)
+    resp = await handler.send(request, mock_transport)
+    assert str(resp.request.url) == "https://example.com/api%24/items?$select=name"
