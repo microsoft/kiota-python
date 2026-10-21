@@ -46,19 +46,24 @@ class HeadersInspectionHandler(BaseMiddleware):
         Returns:
             Response: The response object.
         """
+        if request is None:
+            raise TypeError("request cannot be null")
+
         current_options = self._get_current_options(request)
         span = self._create_observability_span(request, "HeadersInspectionHandler_send")
-        span.set_attribute(HEADERS_INSPECTION_KEY, True)
-        span.end()
+        try:
+            span.set_attribute(HEADERS_INSPECTION_KEY, True)
 
-        if current_options and current_options.inspect_request_headers:
-            for header in request.headers:
-                current_options.request_headers.add(header, request.headers[header])
-        response = await super().send(request, transport)
-        if current_options and current_options.inspect_response_headers:
-            for header in response.headers:
-                current_options.response_headers.add(header, response.headers[header])
-        return response
+            if current_options and current_options.inspect_request_headers:
+                for header in request.headers:
+                    current_options.request_headers.add(header, request.headers.get_list(header))
+            response = await super().send(request, transport)
+            if current_options and current_options.inspect_response_headers:
+                for header in response.headers:
+                    current_options.response_headers.add(header, response.headers.get_list(header))
+            return response
+        finally:
+            span.end()
 
     def _get_current_options(self, request: httpx.Request) -> HeadersInspectionHandlerOption:
         """Returns the options to use for the request.Overrides default options if
@@ -74,10 +79,10 @@ class HeadersInspectionHandler(BaseMiddleware):
         request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         if request_options:
             current_options = request_options.get(HeadersInspectionHandlerOption.get_key(), None)
-        if current_options:
-            return current_options
+        if not current_options:
+            current_options = self.options
 
         # Clear headers per request
-        self.options.request_headers.clear()
-        self.options.response_headers.clear()
-        return self.options
+        current_options.request_headers.clear()
+        current_options.response_headers.clear()
+        return current_options
