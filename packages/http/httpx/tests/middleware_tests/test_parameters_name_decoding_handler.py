@@ -1,10 +1,26 @@
-import httpx
 import pytest
 
-from kiota_http.middleware import ParametersNameDecodingHandler
+import httpx
 from kiota_http.middleware.options import ParametersNameDecodingHandlerOption
+from kiota_http.middleware.parameters_name_decoding_handler import (
+    PARAMETERS_NAME_DECODING_KEY,
+    ParametersNameDecodingHandler,
+)
 
 OPTION_KEY = "ParametersNameDecodingHandlerOption"
+
+
+class MockSpan:
+
+    def __init__(self):
+        self.end_called = 0
+        self.attributes = {}
+
+    def set_attribute(self, key, value):
+        self.attributes[key] = value
+
+    def end(self):
+        self.end_called += 1
 
 
 def test_no_config():
@@ -91,6 +107,7 @@ async def test_send_request_none_raises_type_error():
 
 @pytest.mark.asyncio
 async def test_decoding_preserves_values_matching_parameter_name():
+
     def request_handler(request: httpx.Request):
         return httpx.Response(200, json={"text": "Hello, world!"})
 
@@ -103,18 +120,24 @@ async def test_decoding_preserves_values_matching_parameter_name():
 
 @pytest.mark.asyncio
 async def test_decodes_lowercase_percent_encoding():
+
     def request_handler(request: httpx.Request):
         return httpx.Response(200, json={"text": "Hello, world!"})
 
     handler = ParametersNameDecodingHandler()
-    request = httpx.Request('GET', "https://example.com/api?api%2dversion=1&param%2evalue=2&flag%7etest=3")
+    request = httpx.Request(
+        'GET', "https://example.com/api?api%2dversion=1&param%2evalue=2&flag%7etest=3"
+    )
     mock_transport = httpx.MockTransport(request_handler)
     resp = await handler.send(request, mock_transport)
-    assert str(resp.request.url) == "https://example.com/api?api-version=1&param.value=2&flag~test=3"
+    assert str(
+        resp.request.url
+    ) == "https://example.com/api?api-version=1&param.value=2&flag~test=3"
 
 
 @pytest.mark.asyncio
 async def test_decoding_preserves_url_path():
+
     def request_handler(request: httpx.Request):
         return httpx.Response(200, json={"text": "Hello, world!"})
 
@@ -123,3 +146,49 @@ async def test_decoding_preserves_url_path():
     mock_transport = httpx.MockTransport(request_handler)
     resp = await handler.send(request, mock_transport)
     assert str(resp.request.url) == "https://example.com/api%24/items?$select=name"
+
+
+@pytest.mark.asyncio
+async def test_span_lifecycle_active_during_send_and_ends_on_success(monkeypatch):
+    mock_span = MockSpan()
+    handler = ParametersNameDecodingHandler()
+    monkeypatch.setattr(handler, "_create_observability_span", lambda *_: mock_span)
+
+    transport_called = False
+
+    def request_handler(request: httpx.Request):
+        nonlocal transport_called
+        transport_called = True
+        assert mock_span.end_called == 0
+        return httpx.Response(200, json={"text": "Hello, world!"})
+
+    request = httpx.Request("GET", "https://example.com/api?%24select=name")
+    resp = await handler.send(request, httpx.MockTransport(request_handler))
+
+    assert transport_called is True
+    assert mock_span.end_called == 1
+    assert mock_span.attributes.get(PARAMETERS_NAME_DECODING_KEY) is True
+    assert str(resp.request.url) == "https://example.com/api?$select=name"
+
+
+@pytest.mark.asyncio
+async def test_span_lifecycle_ends_and_exception_propagates_on_transport_failure(monkeypatch):
+    mock_span = MockSpan()
+    handler = ParametersNameDecodingHandler()
+    monkeypatch.setattr(handler, "_create_observability_span", lambda *_: mock_span)
+
+    transport_called = False
+
+    def request_handler(request: httpx.Request):
+        nonlocal transport_called
+        transport_called = True
+        assert mock_span.end_called == 0
+        raise httpx.ReadError("transport connection interrupted")
+
+    request = httpx.Request("GET", "https://example.com/api?%24select=name")
+    transport = httpx.MockTransport(request_handler)
+    with pytest.raises(httpx.ReadError, match="transport connection interrupted"):
+        await handler.send(request, transport)
+
+    assert transport_called is True
+    assert mock_span.end_called == 1

@@ -38,12 +38,12 @@ class ParametersNameDecodingHandler(BaseMiddleware):
         if request is None:
             raise TypeError("request cannot be null")
 
-        current_options = self._get_current_options(request)
         span = self._create_observability_span(request, "ParametersNameDecodingHandler_send")
-        if current_options.enabled:
-            span.set_attribute(PARAMETERS_NAME_DECODING_KEY, current_options.enabled)
-
         try:
+            current_options = self._get_current_options(request)
+            if current_options.enabled:
+                span.set_attribute(PARAMETERS_NAME_DECODING_KEY, current_options.enabled)
+
             query_params = request.url.query.decode("utf-8")
             if all(
                 [
@@ -87,7 +87,7 @@ class ParametersNameDecodingHandler(BaseMiddleware):
         if not original or not characters_to_decode:
             return original
 
-        symbols_to_replace = []
+        symbols_to_replace: list[tuple[str, str]] = []
         for x in characters_to_decode:
             code_upper = f"%{ord(x):02X}"
             code_lower = f"%{ord(x):02x}"
@@ -95,7 +95,7 @@ class ParametersNameDecodingHandler(BaseMiddleware):
             if code_upper != code_lower:
                 symbols_to_replace.append((code_lower, x))
 
-        decoded_parts = []
+        decoded_parts: list[str] = []
         for part in original.split("&"):
             if not part:
                 decoded_parts.append(part)
