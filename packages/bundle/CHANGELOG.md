@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.14.4...microsoft-kiota-bundle-v1.15.0) (2026-10-21)
+
+
+### Features
+
+* add Python 3.15 support to all packages ([0815ace](https://github.com/microsoft/kiota-python/commit/0815acee3423b7b186d5a144272e81a4e5504881))
+
 ## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-bundle-v1.14.3...microsoft-kiota-bundle-v1.14.4) (2026-10-14)
 
 

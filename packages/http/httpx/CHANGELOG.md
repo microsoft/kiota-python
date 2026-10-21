@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.14.4...microsoft-kiota-http-v1.15.0) (2026-10-21)
+
+
+### Features
+
+* add Python 3.15 support to all packages ([0815ace](https://github.com/microsoft/kiota-python/commit/0815acee3423b7b186d5a144272e81a4e5504881))
+
+
+### Bug Fixes
+
+* **http:** call RedirectHandler.increment again ([8cdbee3](https://github.com/microsoft/kiota-python/commit/8cdbee3f05cb3da690ac992c1845525ebc501b5f))
+* **http:** consider port in redirect handler same origin check ([a0a1b72](https://github.com/microsoft/kiota-python/commit/a0a1b72ad36ac16bfc3607b374cc95618086ffcc))
+* **http:** consider port in redirect handler same origin check ([69925c0](https://github.com/microsoft/kiota-python/commit/69925c0f14bf1aa2c405b2532da6333a2957d234))
+* **http:** count redirects instead of building a history in RedirectHandler ([4127807](https://github.com/microsoft/kiota-python/commit/4127807f9eabe4183e35321d8bb69232bae88bd5))
+* **http:** end the deserialization spans in a finally instead of a with block ([f813ad8](https://github.com/microsoft/kiota-python/commit/f813ad883618bd2892b8b12575001ac5e6452829))
+* **http:** keep the UrlReplaceHandler span open over the downstream call ([6b43a82](https://github.com/microsoft/kiota-python/commit/6b43a8221748e930c4008e5f130c44c4fbbb119a))
+* **http:** pass mypy --strict in middleware options and fix three option bugs ([2d13770](https://github.com/microsoft/kiota-python/commit/2d13770937ee6149fb041404665e4189a19bda18))
+* **http:** pass mypy --strict in middleware options and fix three option bugs ([9b813a6](https://github.com/microsoft/kiota-python/commit/9b813a65d9e7d33488ac098c39e82161f1ab40c1))
+* **http:** pass mypy --strict in the other middleware handlers and fix four handler bugs ([9ff5c10](https://github.com/microsoft/kiota-python/commit/9ff5c10ceeb09790458e976bf6d67cb8042360d5))
+* **http:** pass mypy --strict in the other middleware handlers and fix four handler bugs ([af83c26](https://github.com/microsoft/kiota-python/commit/af83c26dc9ce7588d34c21d8f10e441be2681fb2))
+* **http:** pass mypy --strict in the request adapter and end its spans on every path ([9bb22a1](https://github.com/microsoft/kiota-python/commit/9bb22a1774bdaf4d044778326f1dced3e7899e27))
+* **http:** pass mypy --strict in the request adapter and end its spans on every path ([6f507de](https://github.com/microsoft/kiota-python/commit/6f507de06ac1ee38d5d83d1335dab96b86d9b4b3))
+* **http:** pass mypy --strict in the retry handler and pipeline and fix the bugs it shows ([6ddcf12](https://github.com/microsoft/kiota-python/commit/6ddcf12feff0f8d6ef92d119ef59f8fb4eee9f62))
+* **http:** pass mypy --strict in the retry handler and pipeline and fix the bugs it shows ([fb16c11](https://github.com/microsoft/kiota-python/commit/fb16c1180cf387446044a843707ecf68e0c75dd6))
+* **http:** scope the adapter's deserialization spans with a with block ([c654d2d](https://github.com/microsoft/kiota-python/commit/c654d2d186b9cd10ec543b552ed035b9caf66c85))
+* **http:** trim response media types before parser lookup ([11f2883](https://github.com/microsoft/kiota-python/commit/11f28836773d452cc0dcf829a257e89235613b2b))
+* **http:** trim response media types before parser lookup ([03291e1](https://github.com/microsoft/kiota-python/commit/03291e185ea96a2782bf04498388401486e4a21b))
+
 ## [1.14.4](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.14.3...microsoft-kiota-http-v1.14.4) (2026-10-14)
 
 
