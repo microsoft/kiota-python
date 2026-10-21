@@ -164,6 +164,8 @@ async def test_headers_inspection_handler_multi_valued_headers():
                 ("Set-Cookie", "theme=dark; Path=/"),
                 ("X-Custom-List", "item1"),
                 ("X-Custom-List", "item2"),
+                ("Content-Encoding", "gzip"),
+                ("Content-Encoding", "br"),
             ],
         )
 
@@ -174,23 +176,28 @@ async def test_headers_inspection_handler_multi_valued_headers():
         headers=[
             ("Accept", "application/json"),
             ("Accept", "text/plain"),
+            ("Content-Encoding", "gzip"),
+            ("Content-Encoding", "br"),
         ],
     )
     mock_transport = httpx.MockTransport(request_handler)
     resp = await handler.send(request, mock_transport)
     assert resp.status_code == 200
     assert handler.options.request_headers.try_get("accept") == {"application/json", "text/plain"}
+    assert handler.options.request_headers.try_get("content-encoding") == {"gzip, br"}
     assert handler.options.response_headers.try_get("set-cookie") == {
         "session=abc; Path=/",
         "theme=dark; Path=/",
     }
     assert handler.options.response_headers.try_get("x-custom-list") == {"item1", "item2"}
+    assert handler.options.response_headers.try_get("content-encoding") == {"gzip, br"}
 
 
 @pytest.mark.asyncio
 async def test_span_ends_on_transport_failure(span_exporter):
 
     def request_handler(request):
+        assert len(span_exporter.get_finished_spans()) == 0
         raise httpx.ReadError("request interrupted")
 
     handler = HeadersInspectionHandler()
@@ -199,5 +206,22 @@ async def test_span_ends_on_transport_failure(span_exporter):
         with pytest.raises(httpx.ReadError):
             await handler.send(request, transport)
 
+    assert [span.name
+            for span in span_exporter.get_finished_spans()] == ["HeadersInspectionHandler_send"]
+
+
+@pytest.mark.asyncio
+async def test_span_remains_open_during_successful_transport(span_exporter):
+
+    def request_handler(request):
+        assert len(span_exporter.get_finished_spans()) == 0
+        return httpx.Response(200)
+
+    handler = HeadersInspectionHandler()
+    request = httpx.Request("GET", "https://localhost")
+    async with httpx.MockTransport(request_handler) as transport:
+        resp = await handler.send(request, transport)
+
+    assert resp.status_code == 200
     assert [span.name
             for span in span_exporter.get_finished_spans()] == ["HeadersInspectionHandler_send"]
