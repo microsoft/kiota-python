@@ -13,3 +13,10 @@ def test_httpx_request_adapter_is_a_request_adapter_of_httpx_request(tmp_path):
     )
     stdout, _, exit_status = api.run(["--follow-imports=silent", str(snippet)])
     assert exit_status == 0, stdout
+
+
+def test_package_exports():
+    import kiota_http
+    assert hasattr(kiota_http, "HttpxRequestAdapter")
+    assert hasattr(kiota_http, "KiotaClientFactory")
+    assert hasattr(kiota_http, "__version__")
