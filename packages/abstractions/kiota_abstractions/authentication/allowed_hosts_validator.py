@@ -13,14 +13,8 @@ class AllowedHostsValidator:
             allowed_hosts (list[str]): A list of valid hosts.  If the list is empty, all hosts
             are valid.
         """
-        if not isinstance(allowed_hosts, list):
-            raise TypeError("Allowed hosts must be a list of strings")
-
-        for host in allowed_hosts:
-            if host.startswith("https://") or host.startswith("http://"):
-                raise ValueError("Allowed host value cannot contain 'https://' or 'http://' prefix")
-
-        self.allowed_hosts: set[str] = {x.lower() for x in allowed_hosts}
+        self.allowed_hosts: set[str] = set()
+        self.set_allowed_hosts(allowed_hosts)
 
     def get_allowed_hosts(self) -> list[str]:
         """Gets the list of valid hosts.  If the list is empty, all hosts are valid.
@@ -40,11 +34,18 @@ class AllowedHostsValidator:
         if not isinstance(allowed_hosts, list):
             raise TypeError("Allowed hosts must be a list of strings")
 
+        normalized_hosts: set[str] = set()
         for host in allowed_hosts:
-            if host.startswith("https://") or host.startswith("http://"):
+            if not isinstance(host, str):
+                raise TypeError("Allowed host value must be a string")
+            cleaned_host = host.strip()
+            lower_host = cleaned_host.lower()
+            if lower_host.startswith("https://") or lower_host.startswith("http://"):
                 raise ValueError("Allowed host value cannot contain 'https://' or 'http://' prefix")
+            if cleaned_host:
+                normalized_hosts.add(lower_host)
 
-        self.allowed_hosts = {x.lower() for x in allowed_hosts}
+        self.allowed_hosts = normalized_hosts
 
     def is_url_host_valid(self, url: str) -> bool:
         """Checks whether the provided host is valid.
@@ -53,25 +54,25 @@ class AllowedHostsValidator:
             url (str): The url to check.
 
         Returns:
-            bool: [description]
+            bool: True if the host is valid, False otherwise.
         """
-        if not url:
+        if not url or not isinstance(url, str):
             return False
-        if not self.get_allowed_hosts():
-            return True
+        cleaned_url = url.strip()
+        if not cleaned_url:
+            return False
+
         # Format: urlparse("scheme://netloc/path;parameters?query#fragment")
         # Returns: ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
         #    query='query', fragment='fragment')
-        o = urlparse(url)
-        if not all([o.scheme, o.netloc]):
+        o = urlparse(cleaned_url)
+        if not (o.scheme and o.netloc and o.hostname) or o.username or o.password:
             return False
-        if not o.hostname:
-            return False
-        hostname = o.hostname.lower()
-        # Existing exact match
-        if hostname in self.allowed_hosts:
+
+        if not self.allowed_hosts:
             return True
-        # Suffix match for entries starting with "."
-        return any(
+
+        hostname = o.hostname.lower()
+        return hostname in self.allowed_hosts or any(
             suffix.startswith(".") and hostname.endswith(suffix) for suffix in self.allowed_hosts
         )
