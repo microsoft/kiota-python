@@ -24,6 +24,20 @@ class TestAllowedHostsValidatorInit:
         with pytest.raises(TypeError):
             AllowedHostsValidator(["example.com", 123])  # type: ignore
 
+    def test_raises_on_empty_string_entry(self):
+        with pytest.raises(ValueError):
+            AllowedHostsValidator([""])
+
+    def test_raises_on_whitespace_only_entry(self):
+        with pytest.raises(ValueError):
+            AllowedHostsValidator(["   "])
+
+    def test_raises_on_mixed_valid_and_blank_entry(self):
+        with pytest.raises(ValueError):
+            AllowedHostsValidator(["example.com", ""])
+        with pytest.raises(ValueError):
+            AllowedHostsValidator(["example.com", "   "])
+
     def test_raises_on_http_prefix(self):
         with pytest.raises(ValueError):
             AllowedHostsValidator(["http://example.com"])
@@ -65,14 +79,28 @@ class TestIsUrlHostValid:
         assert validator.is_url_host_valid("not-a-valid-url") is False
         assert validator.is_url_host_valid("https://") is False
 
+    def test_returns_false_for_unmatched_ipv6_bracket(self):
+        validator = AllowedHostsValidator(["example.com"])
+        assert validator.is_url_host_valid("https://[example.com/path") is False
+
+        empty_validator = AllowedHostsValidator([])
+        assert empty_validator.is_url_host_valid("https://[example.com/path") is False
+
     def test_returns_false_for_userinfo_even_when_allowed_hosts_empty(self):
         validator = AllowedHostsValidator([])
         assert validator.is_url_host_valid("https://user:password@example.com/path") is False
+        assert validator.is_url_host_valid("https://@example.com/path") is False
+        assert validator.is_url_host_valid("https://:@example.com/path") is False
 
     def test_returns_false_for_userinfo_url(self):
         validator = AllowedHostsValidator(["example.com"])
         assert validator.is_url_host_valid("https://user:password@example.com/path") is False
         assert validator.is_url_host_valid("https://user@example.com/path") is False
+
+    def test_returns_false_for_explicitly_empty_userinfo(self):
+        validator = AllowedHostsValidator(["example.com"])
+        assert validator.is_url_host_valid("https://@example.com/path") is False
+        assert validator.is_url_host_valid("https://:@example.com/path") is False
 
     def test_returns_true_for_allowed_host(self):
         validator = AllowedHostsValidator(["example.com"])
@@ -145,6 +173,16 @@ class TestSetAllowedHosts:
         validator = AllowedHostsValidator(["example.com"])
         with pytest.raises(TypeError):
             validator.set_allowed_hosts("example.com")  # type: ignore
+
+    def test_raises_on_empty_string_entry(self):
+        validator = AllowedHostsValidator(["example.com"])
+        with pytest.raises(ValueError):
+            validator.set_allowed_hosts([""])
+
+    def test_raises_on_whitespace_only_entry(self):
+        validator = AllowedHostsValidator(["example.com"])
+        with pytest.raises(ValueError):
+            validator.set_allowed_hosts(["   "])
 
     def test_raises_on_http_prefix(self):
         validator = AllowedHostsValidator(["example.com"])
