@@ -13,7 +13,6 @@ class AllowedHostsValidator:
             allowed_hosts (list[str]): A list of valid hosts.  If the list is empty, all hosts
             are valid.
         """
-        self.allowed_hosts: set[str] = set()
         self.set_allowed_hosts(allowed_hosts)
 
     def get_allowed_hosts(self) -> list[str]:
@@ -39,13 +38,14 @@ class AllowedHostsValidator:
             if not isinstance(host, str):
                 raise TypeError("Allowed host value must be a string")
             cleaned_host = host.strip()
+            if not cleaned_host:
+                raise ValueError("Allowed host value cannot be empty or whitespace only")
             lower_host = cleaned_host.lower()
             if lower_host.startswith("https://") or lower_host.startswith("http://"):
                 raise ValueError("Allowed host value cannot contain 'https://' or 'http://' prefix")
-            if cleaned_host:
-                normalized_hosts.add(lower_host)
+            normalized_hosts.add(lower_host)
 
-        self.allowed_hosts = normalized_hosts
+        self.allowed_hosts: set[str] = normalized_hosts
 
     def is_url_host_valid(self, url: str) -> bool:
         """Checks whether the provided host is valid.
@@ -56,17 +56,20 @@ class AllowedHostsValidator:
         Returns:
             bool: True if the host is valid, False otherwise.
         """
-        if not url or not isinstance(url, str):
+        if not url or not isinstance(url, str) or not url.strip():
             return False
         cleaned_url = url.strip()
-        if not cleaned_url:
-            return False
 
         # Format: urlparse("scheme://netloc/path;parameters?query#fragment")
         # Returns: ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
         #    query='query', fragment='fragment')
-        o = urlparse(cleaned_url)
-        if not (o.scheme and o.netloc and o.hostname) or o.username or o.password:
+        try:
+            o = urlparse(cleaned_url)
+        except ValueError:
+            return False
+
+        if not (o.scheme and o.netloc
+                and o.hostname) or (o.username is not None or o.password is not None):
             return False
 
         if not self.allowed_hosts:
