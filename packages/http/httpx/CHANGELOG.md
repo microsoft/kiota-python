@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.15.0...microsoft-kiota-http-v1.16.0) (2026-10-21)
+
+
+### Bug Fixes
+
+* **http:** handle null request, keep span open over call, and isolate options in HeadersInspectionHandler ([5dc3d01](https://github.com/microsoft/kiota-python/commit/5dc3d01eb1d86bb89ba10bd0e56f1292b9732ab7))
+* **http:** handle null request, keep span open over call, and isolate options in HeadersInspectionHandler ([1a7350a](https://github.com/microsoft/kiota-python/commit/1a7350a6a9a9efdaa5ee93f4dcf83d1edd15cd4e))
+* **http:** improve parameters name decoding precision and span lifecycle ([806a09d](https://github.com/microsoft/kiota-python/commit/806a09d5f0ab65247676b3cdc317785a5766728f))
+* **http:** improve parameters name decoding precision and span lifecycle ([f654760](https://github.com/microsoft/kiota-python/commit/f654760efcbae310be6ca23c2868fe7b7f85776f))
+* **http:** preserve repeated single value headers and assert span open during transport ([7f2763c](https://github.com/microsoft/kiota-python/commit/7f2763c5ed98b9285a9a9300e4aae098edd8f715))
+
 ## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.14.4...microsoft-kiota-http-v1.15.0) (2026-10-21)
 
 
