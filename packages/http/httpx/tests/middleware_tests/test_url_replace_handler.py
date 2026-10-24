@@ -84,3 +84,27 @@ async def test_span_ends_on_transport_failure(span_exporter):
             await handler.send(request, transport)
 
     assert [span.name for span in span_exporter.get_finished_spans()] == ["UrlReplaceHandler_send"]
+
+@pytest.mark.asyncio
+async def test_url_replace_handler_null_request_raises():
+    handler = UrlReplaceHandler()
+    with pytest.raises(TypeError, match="request cannot be null"):
+        await handler.send(None, httpx.MockTransport(lambda req: httpx.Response(200)))
+
+
+@pytest.mark.asyncio
+async def test_url_replace_handler_span_records_exception_on_failure(span_exporter):
+    def request_handler(request):
+        raise httpx.ReadError("connection reset")
+
+    handler = UrlReplaceHandler()
+    request = httpx.Request("GET", ORIGINAL_URL)
+    async with httpx.MockTransport(request_handler) as transport:
+        with pytest.raises(httpx.ReadError):
+            await handler.send(request, transport)
+
+    spans = span_exporter.get_finished_spans()
+    assert len(spans) == 1
+    assert spans[0].name == "UrlReplaceHandler_send"
+    assert len(spans[0].events) > 0
+    assert spans[0].events[0].name == "exception"

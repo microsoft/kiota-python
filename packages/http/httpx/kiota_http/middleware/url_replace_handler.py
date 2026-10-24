@@ -34,6 +34,8 @@ class UrlReplaceHandler(BaseMiddleware):
         Returns:
             Response: The response object.
         """
+        if request is None:
+            raise TypeError("request cannot be null")
         _enable_span = self._create_observability_span(request, "UrlReplaceHandler_send")
         try:
             current_options = self._get_current_options(request)
@@ -45,6 +47,9 @@ class UrlReplaceHandler(BaseMiddleware):
                 request.url = httpx.URL(url_string)
                 _enable_span.set_attribute(URL_FULL, str(request.url))
             return await super().send(request, transport)
+        except Exception as exc:
+            _enable_span.record_exception(exc)
+            raise
         finally:
             _enable_span.end()
 
