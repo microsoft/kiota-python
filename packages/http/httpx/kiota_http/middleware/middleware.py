@@ -69,8 +69,9 @@ class BaseMiddleware():
         options = None
         if hasattr(request, "extensions") and isinstance(request.extensions, dict):
             options = request.extensions.get(REQUEST_OPTIONS_KEY)
-        if options and (parent_span := options.get("parent_span", None)):
-            self.parent_span = parent_span
-        if self.parent_span is None:
+        parent_span = self.parent_span
+        if options and (req_parent_span := options.get("parent_span", None)):
+            parent_span = req_parent_span
+        if parent_span is None:
             return tracer.start_span(span_name)
-        return tracer.start_span(span_name, trace.set_span_in_context(self.parent_span))
+        return tracer.start_span(span_name, trace.set_span_in_context(parent_span))
