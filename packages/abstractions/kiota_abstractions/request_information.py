@@ -189,7 +189,7 @@ class RequestInformation:
         self,
         request_adapter: Optional["RequestAdapter"],
         content_type: Optional[str],
-        values: Union[T, list[T]],
+        values: Union[T, list[T], Enum],
     ) -> None:
         """Sets the request body from a scalar value with the specified content type.
 
@@ -197,7 +197,7 @@ class RequestInformation:
             request_adapter (Optional[RequestAdapter]): The adapter service to get the serialization
             writer from.
             content_type (Optional[str]): the content type to set.
-            values (Union[T, list[T]]): the scalar values to serialize
+            values (Union[T, list[T], Enum]): the scalar values to serialize
         """
         with tracer.start_as_current_span(
             self._create_parent_span_name("set_content_from_scalar")
