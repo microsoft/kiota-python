@@ -277,3 +277,90 @@ def test_setting_a_raw_url_does_not_clear_another_requests_path_parameters():
     raw.url = "https://graph.microsoft.com/v1.0/me/messages?$skiptoken=abc"
 
     assert templated.url == "https://graph.microsoft.com/v1.0/users/bob/messages"
+
+
+def test_sets_empty_list_in_query_parameters():
+    """Tests that setting an empty list does not emit a dangling key in the expanded URL."""
+    request_info = RequestInformation(Method.GET, "https://example.com/me{?dataset*}")
+    request_info.query_parameters["dataset"] = []
+    assert request_info.url == "https://example.com/me"
+
+
+def test_sets_uuid_collection_in_query_parameters():
+    """Tests setting collection of UUIDs in query parameters expands without error."""
+    id1 = uuid.UUID("123e4567-e89b-12d3-a456-426614174000")
+    id2 = uuid.UUID("789e0123-e89b-12d3-a456-426614174001")
+    request_info = RequestInformation(Method.GET, "https://example.com/values{?ids*}")
+    request_info.query_parameters["ids"] = [id1, id2]
+    assert request_info.url == (
+        "https://example.com/values?ids=123e4567-e89b-12d3-a456-426614174000"
+        "&ids=789e0123-e89b-12d3-a456-426614174001"
+    )
+
+
+def test_sets_tuple_and_set_in_query_parameters():
+    """Tests setting tuple and set in query parameters expands properly."""
+    request_info = RequestInformation(Method.GET, "https://example.com/values{?ids*}")
+    request_info.query_parameters["ids"] = (1, 2)
+    assert request_info.url == "https://example.com/values?ids=1&ids=2"
+
+
+def test_set_content_from_scalar_bytes(
+    mock_request_information, mock_request_adapter, mock_serialization_writer_factory
+):
+    """Tests set_content_from_scalar with bytes value."""
+    writer = Mock(spec_set=SerializationWriter)
+    writer.get_serialized_content.return_value = b"raw-bytes"
+    mock_serialization_writer_factory.get_serialization_writer = Mock(return_value=writer)
+    mock_request_adapter.get_serialization_writer_factory = Mock(
+        return_value=mock_serialization_writer_factory
+    )
+
+    mock_request_information.set_content_from_scalar(
+        mock_request_adapter, "application/octet-stream", b"raw-bytes"
+    )
+    writer.write_bytes_value.assert_called_once_with(None, b"raw-bytes")
+    assert mock_request_information.content == b"raw-bytes"
+
+
+def test_set_content_from_scalar_enum(
+    mock_request_information, mock_request_adapter, mock_serialization_writer_factory
+):
+    """Tests set_content_from_scalar with Enum value."""
+    writer = Mock(spec_set=SerializationWriter)
+    writer.get_serialized_content.return_value = b"value1"
+    mock_serialization_writer_factory.get_serialization_writer = Mock(return_value=writer)
+    mock_request_adapter.get_serialization_writer_factory = Mock(
+        return_value=mock_serialization_writer_factory
+    )
+
+    mock_request_information.set_content_from_scalar(
+        mock_request_adapter, "text/plain", TestEnum.VALUE1
+    )
+    writer.write_enum_value.assert_called_once_with(None, TestEnum.VALUE1)
+    assert mock_request_information.content == b"value1"
+
+
+def test_remove_request_options_safe():
+    """Tests remove_request_options handles missing keys and empty/None gracefully."""
+    request_info = RequestInformation()
+    opt = Mock()
+    opt.get_key.return_value = "NonExistentKey"
+
+    request_info.remove_request_options([opt])
+    request_info.remove_request_options([])
+    request_info.remove_request_options(None)
+
+
+def test_create_parent_span_name():
+    """Tests _create_parent_span_name with unencoded and encoded URI templates."""
+    request_info = RequestInformation(Method.GET, "https://example.com/users")
+    assert request_info._create_parent_span_name("GET") == "GET - https://example.com/users"
+
+    request_info_encoded = RequestInformation(Method.GET, "https://example.com/users%20list")
+    assert request_info_encoded._create_parent_span_name(
+        "GET"
+    ) == "GET - https://example.com/users list"
+
+    request_info_none = RequestInformation(Method.GET)
+    assert request_info_none._create_parent_span_name("GET") == "GET"
