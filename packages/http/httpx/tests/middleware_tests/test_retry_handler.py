@@ -4,7 +4,14 @@ from time import time
 import httpx
 import pytest
 
-from kiota_http.middleware import RetryHandler
+from kiota_http.middleware import middleware as middleware_module
+from kiota_http.middleware import (
+    PARENT_SPAN_KEY,
+    REQUEST_OPTIONS_KEY,
+    MiddlewarePipeline,
+    RetryHandler,
+    UserAgentHandler,
+)
 from kiota_http.middleware.options import RetryHandlerOption
 
 BASE_URL = 'https://httpbin.org'
@@ -349,13 +356,15 @@ async def test_retried_responses_are_closed():
 
 @pytest.mark.asyncio
 async def test_retry_spans_end(span_exporter):
+
     def request_handler(request: httpx.Request):
         if RETRY_ATTEMPT in request.headers:
             return httpx.Response(200)
         return httpx.Response(SERVICE_UNAVAILABLE)
 
     async with httpx.MockTransport(request_handler) as transport:
-        await RetryHandler(RetryHandlerOption(delay=0)).send(httpx.Request("GET", BASE_URL), transport)
+        await RetryHandler(RetryHandlerOption(delay=0)
+                           ).send(httpx.Request("GET", BASE_URL), transport)
     assert [span.name for span in span_exporter.get_finished_spans()] == [
         "RetryHandler_send", "RetryHandler_send - attempt 0", "RetryHandler_send - attempt 1"
     ]
@@ -376,3 +385,62 @@ def test_get_retry_after_invalid_value():
     response = httpx.Response(SERVICE_UNAVAILABLE, headers={RETRY_AFTER: "soon"})
     assert RetryHandler()._get_retry_after(response) is None
 
+
+@pytest.mark.asyncio
+async def test_retry_503_to_200_preserves_parent_span_across_attempts_and_downstream_spans(
+    span_exporter
+):
+    """
+    Ensure RetryHandler preserves the request-local parent span across 503->200
+    retries for both attempt spans and rerun downstream middleware spans without
+    mutating shared middleware instances.
+    """
+    attempts = 0
+
+    def request_handler(request: httpx.Request):
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            return httpx.Response(SERVICE_UNAVAILABLE)
+        return httpx.Response(200)
+
+    retry_handler = RetryHandler(RetryHandlerOption(delay=0.0, max_retries=2))
+    retry_handler.backoff_factor = 0.0
+    retry_handler.backoff_max = 0
+
+    user_agent_handler = UserAgentHandler()
+
+    pipeline = MiddlewarePipeline(httpx.MockTransport(request_handler))
+    pipeline.add_middleware(retry_handler)
+    pipeline.add_middleware(user_agent_handler)
+
+    with middleware_module.tracer.start_as_current_span("explicit-parent-span") as parent_span:
+        pass
+
+    request = httpx.Request(
+        "GET",
+        BASE_URL,
+        extensions={REQUEST_OPTIONS_KEY: {
+            "parent_span": parent_span
+        }},
+    )
+
+    response = await pipeline.send(request)
+
+    assert response.status_code == 200
+    assert attempts == 2
+    assert retry_handler.parent_span is None
+    assert user_agent_handler.parent_span is None
+
+    spans = span_exporter.get_finished_spans()
+    expected_parent_id = parent_span.get_span_context().span_id
+
+    attempt_0 = next(s for s in spans if s.name == "RetryHandler_send - attempt 0")
+    attempt_1 = next(s for s in spans if s.name == "RetryHandler_send - attempt 1")
+    assert attempt_0.parent.span_id == expected_parent_id
+    assert attempt_1.parent.span_id == expected_parent_id
+
+    ua_spans = [s for s in spans if s.name == "UserAgentHandler_send"]
+    assert len(ua_spans) == 2
+    for ua_span in ua_spans:
+        assert ua_span.parent.span_id == expected_parent_id
