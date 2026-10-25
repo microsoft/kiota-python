@@ -127,29 +127,6 @@ async def test_get_authorization_token_marks_valid_url_span_attribute_true(monke
     assert span.attributes[AzureIdentityAccessTokenProvider.IS_VALID_URL] is True
 
 
-@pytest.mark.asyncio
-async def test_get_authorization_token_invalid_url():
-
-    token_provider = AzureIdentityAccessTokenProvider(DummyAsyncAzureTokenCredential(), None)
-    token = await token_provider.get_authorization_token('')
-    assert token == ""
-    token = await token_provider.get_authorization_token('https://')
-    assert token == ""
-
-
-@pytest.mark.asyncio
-async def test_get_authorization_token_invalid_scheme():
-    with pytest.raises(Exception):
-        token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
-        token = await token_provider.get_authorization_token('http://graph.microsoft.com')
-        
-@pytest.mark.asyncio
-async def test_get_authorization_token_localhost():
-    token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
-    token = await token_provider.get_authorization_token('HTTP://LOCALHOST:8080')
-    assert token
-
-
 class RecordingSyncAzureTokenCredential(DummySyncAzureTokenCredential):
     """Sync credential that records the scopes passed to get_token."""
 
@@ -159,6 +136,32 @@ class RecordingSyncAzureTokenCredential(DummySyncAzureTokenCredential):
     def get_token(self, *scopes, **kwargs):
         self.received_scopes.append(scopes)
         return super().get_token(*scopes, **kwargs)
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_invalid_url():
+    credential = RecordingSyncAzureTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+    token = await token_provider.get_authorization_token('')
+    assert token == ""
+    assert credential.received_scopes == []
+    token = await token_provider.get_authorization_token('https://')
+    assert token == ""
+    assert credential.received_scopes == []
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_invalid_scheme():
+    with pytest.raises(Exception):
+        token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
+        token = await token_provider.get_authorization_token('http://graph.microsoft.com')
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_localhost():
+    token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
+    token = await token_provider.get_authorization_token('HTTP://LOCALHOST:8080')
+    assert token
 
 
 @pytest.mark.asyncio
