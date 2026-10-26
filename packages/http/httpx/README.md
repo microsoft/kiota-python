@@ -5,7 +5,7 @@
 
 The Microsoft Kiota HTTP Library is a python HTTP implementation with HTTPX library.
 
-A [Kiota](https://github.com/microsoft/kiota) generated project will need a reference to a http package to to make HTTP requests to an API endpoint.
+A [Kiota](https://github.com/microsoft/kiota) generated project will need a reference to a http package to make HTTP requests to an API endpoint.
 
 Read more about Kiota [here](https://github.com/microsoft/kiota/blob/main/README.md).
 
