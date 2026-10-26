@@ -127,29 +127,6 @@ async def test_get_authorization_token_marks_valid_url_span_attribute_true(monke
     assert span.attributes[AzureIdentityAccessTokenProvider.IS_VALID_URL] is True
 
 
-@pytest.mark.asyncio
-async def test_get_authorization_token_invalid_url():
-
-    token_provider = AzureIdentityAccessTokenProvider(DummyAsyncAzureTokenCredential(), None)
-    token = await token_provider.get_authorization_token('')
-    assert token == ""
-    with pytest.raises(Exception):
-        token = await token_provider.get_authorization_token('https://')
-
-
-@pytest.mark.asyncio
-async def test_get_authorization_token_invalid_scheme():
-    with pytest.raises(Exception):
-        token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
-        token = await token_provider.get_authorization_token('http://graph.microsoft.com')
-        
-@pytest.mark.asyncio
-async def test_get_authorization_token_localhost():
-    token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
-    token = await token_provider.get_authorization_token('HTTP://LOCALHOST:8080')
-    assert token
-
-
 class RecordingSyncAzureTokenCredential(DummySyncAzureTokenCredential):
     """Sync credential that records the scopes passed to get_token."""
 
@@ -162,19 +139,62 @@ class RecordingSyncAzureTokenCredential(DummySyncAzureTokenCredential):
 
 
 @pytest.mark.asyncio
-async def test_derived_scope_strips_userinfo_and_port():
+async def test_get_authorization_token_invalid_url():
+    credential = RecordingSyncAzureTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+    token = await token_provider.get_authorization_token('')
+    assert token == ""
+    assert credential.received_scopes == []
+    token = await token_provider.get_authorization_token('https://')
+    assert token == ""
+    assert credential.received_scopes == []
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_invalid_scheme():
+    with pytest.raises(Exception):
+        token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
+        token = await token_provider.get_authorization_token('http://graph.microsoft.com')
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_localhost():
+    token_provider = AzureIdentityAccessTokenProvider(DummySyncAzureTokenCredential(), None)
+    token = await token_provider.get_authorization_token('HTTP://LOCALHOST:8080')
+    assert token
+
+
+@pytest.mark.asyncio
+async def test_derived_scope_strips_port():
     """The default `.default` scope passed to `get_token` must be derived
-    from the hostname only — never include userinfo or
-    a `:port` (which Entra ID rejects for `.default` scopes).
+    from the hostname only — never include a `:port` (which Entra ID rejects
+    for `.default` scopes).
     """
     credential = RecordingSyncAzureTokenCredential()
     token_provider = AzureIdentityAccessTokenProvider(credential, None)
 
-    await token_provider.get_authorization_token(
+    token = await token_provider.get_authorization_token(
+        'https://graph.microsoft.com:8443/v1.0/me'
+    )
+
+    assert token == "This is a dummy token"
+    assert credential.received_scopes == [('https://graph.microsoft.com/.default',)]
+
+
+@pytest.mark.asyncio
+async def test_userinfo_url_is_rejected_without_requesting_token():
+    """URLs containing userinfo must be rejected by the validator before
+    credential acquisition and return an empty token without invoking get_token.
+    """
+    credential = RecordingSyncAzureTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+
+    token = await token_provider.get_authorization_token(
         'https://alice:secret@graph.microsoft.com:8443/v1.0/me'
     )
 
-    assert credential.received_scopes == [('https://graph.microsoft.com/.default',)]
+    assert token == ""
+    assert credential.received_scopes == []
 
 
 @pytest.mark.asyncio
@@ -217,14 +237,14 @@ async def test_explicit_scopes_are_respected():
 
 @pytest.mark.asyncio
 async def test_derived_scope_rejects_url_without_hostname():
-    """A URI whose netloc has no hostname (e.g. `https://@/path`) must not
-    silently derive a scope like `https://None/.default`; it must raise.
+    """A URI whose netloc has no hostname (e.g. `https://@/path`) must be rejected
+    by the validator, returning an empty token without invoking get_token.
     """
     credential = RecordingSyncAzureTokenCredential()
     token_provider = AzureIdentityAccessTokenProvider(credential, None)
 
-    with pytest.raises(Exception):
-        await token_provider.get_authorization_token('https://@/path')
+    token = await token_provider.get_authorization_token('https://@/path')
+    assert token == ""
     assert credential.received_scopes == []
 
 
