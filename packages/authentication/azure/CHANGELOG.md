@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.15.0...microsoft-kiota-authentication-azure-v1.16.0) (2026-10-26)
+
+
+### Bug Fixes
+
+* **abstractions:** normalize allowed hosts, reject userinfo, and validate URL structure ([babb5fd](https://github.com/microsoft/kiota-python/commit/babb5fd0f2dbc742f4ab3f72b456fbf0bd043448))
+* **abstractions:** reject blank hosts and malformed userinfo, update azure provider tests ([e4f3228](https://github.com/microsoft/kiota-python/commit/e4f3228bdbaf5a3ab40d8e0f99f785a47e26f580))
+
 ## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.14.4...microsoft-kiota-authentication-azure-v1.15.0) (2026-10-21)
 
 
