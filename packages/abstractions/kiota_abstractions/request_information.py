@@ -149,11 +149,11 @@ class RequestInformation:
         for option in options:
             self.__request_options[option.get_key()] = option
 
-    def remove_request_options(self, options: list[RequestOption]) -> None:
+    def remove_request_options(self, options: Optional[list[RequestOption]]) -> None:
         if not options:
             return
         for option in options:
-            del self.__request_options[option.get_key()]
+            self.__request_options.pop(option.get_key(), None)
 
     def set_content_from_parsable(
         self,
@@ -189,7 +189,7 @@ class RequestInformation:
         self,
         request_adapter: Optional["RequestAdapter"],
         content_type: Optional[str],
-        values: Union[T, list[T]],
+        values: Union[T, list[T], Enum],
     ) -> None:
         """Sets the request body from a scalar value with the specified content type.
 
@@ -197,7 +197,7 @@ class RequestInformation:
             request_adapter (Optional[RequestAdapter]): The adapter service to get the serialization
             writer from.
             content_type (Optional[str]): the content type to set.
-            values (Union[T, list[T]]): the scalar values to serialize
+            values (Union[T, list[T], Enum]): the scalar values to serialize
         """
         with tracer.start_as_current_span(
             self._create_parent_span_name("set_content_from_scalar")
@@ -218,17 +218,22 @@ class RequestInformation:
                     date: writer.write_date_value,
                     timedelta: writer.write_timedelta_value,
                     time: writer.write_time_value,
+                    bytes: writer.write_bytes_value,
                 }
                 value_type = type(values)
                 span.set_attribute(self.REQUEST_TYPE_KEY, value_type.__name__)
                 writer_func = function_values.get(value_type, None)
                 if writer_func is None:
-                    exc = ValueError(
-                        f"Encountered an unknown type during serialization {value_type}"
-                    )
-                    span.record_exception(exc)
-                    raise exc
-                writer_func(None, values)
+                    if isinstance(values, Enum):
+                        writer.write_enum_value(None, values)
+                    else:
+                        exc = ValueError(
+                            f"Encountered an unknown type during serialization {value_type}"
+                        )
+                        span.record_exception(exc)
+                        raise exc
+                else:
+                    writer_func(None, values)
             self._set_content_and_content_type_header(writer, content_type)
 
     def set_stream_content(self, value: bytes, content_type: Optional[str] = None) -> None:
@@ -290,40 +295,44 @@ class RequestInformation:
         self.content = writer.get_serialized_content()
 
     def _get_sanitized_value(self, value: Any) -> Any:
-        """Replaces enum values with their string representation.
+        """Sanitizes parameter values for URI template expansion.
 
         Args:
             value (Any): The value to replace.
         """
-        sanitized_value = value
         if isinstance(value, Enum):
-            sanitized_value = value.value
-        elif isinstance(value, list) and all(isinstance(x, Enum) for x in value):
-            sanitized_value = ','.join([x.value for x in value])
-        elif isinstance(value, datetime):
-            timezone_info = value.tzinfo
-            if timezone_info is None:
-                timezone_info = timezone.utc
+            return value.value
+        if isinstance(value, (list, tuple, set)):
+            if not value:
+                return []
+            if all(isinstance(x, Enum) for x in value):
+                return ','.join([str(x.value) for x in value])
+            return [self._get_sanitized_value(x) for x in value]
+
+        sanitized_value = value
+        if isinstance(value, datetime):
+            timezone_info = value.tzinfo if value.tzinfo is not None else timezone.utc
             temp_date_with_tz_info = datetime(
                 value.year, value.month, value.day, value.hour, value.minute, value.second,
                 value.microsecond, timezone_info
             )
             sanitized_value = temp_date_with_tz_info.isoformat("T")
-        elif any([isinstance(value, UUID), isinstance(value, date), isinstance(value, time)]):
+        elif isinstance(value, (UUID, date, time)):
             sanitized_value = str(value)
         return sanitized_value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
         """Decodes a URI encoded string."""
-        if uri and "%" in uri:
-            return unquote(uri)
+        if uri:
+            return unquote(uri) if "%" in uri else uri
         return ""
 
     def _create_parent_span_name(self, method: str) -> str:
         """Creates a parent span name for the given method."""
         uri_template = self._decode_uri_string(self.url_template)
-        parent_span_name = f"{method} - {uri_template}"
-        return parent_span_name
+        if uri_template:
+            return f"{method} - {uri_template}"
+        return method
 
     def _start_local_tracing_span(self, name: str, parent_span: trace.Span) -> trace.Span:
         """Helper method to start a span locally with the parent context."""
