@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.15.0...microsoft-kiota-abstractions-v1.16.0) (2026-10-26)
+
+
+### Features
+
+* **abstractions:** enhance HeadersCollection usability and dict interoperability ([745dfee](https://github.com/microsoft/kiota-python/commit/745dfee8b19e7edf92aa4917c2df3c4970abd6f2))
+* **abstractions:** enhance HeadersCollection usability and dict interoperability ([f4c60bd](https://github.com/microsoft/kiota-python/commit/f4c60bdb39717ae0d59f34fad221f2acd788bb9e)), closes [#208](https://github.com/microsoft/kiota-python/issues/208)
+
+
+### Bug Fixes
+
+* **abstractions:** enhance request information sanitization, span naming, and option removal ([b06fe42](https://github.com/microsoft/kiota-python/commit/b06fe4270f78c084c7e438973233241aff4053a0))
+* **abstractions:** enhance request information sanitization, span naming, and option removal ([1456681](https://github.com/microsoft/kiota-python/commit/1456681749456fa1c3103493957cc9b8a7fdbcd5))
+* **abstractions:** include Enum in set_content_from_scalar values type annotation ([051931a](https://github.com/microsoft/kiota-python/commit/051931a451b72d18f783124b0b94fa96264e4361))
+* **abstractions:** normalize allowed hosts, reject userinfo, and validate URL structure ([babb5fd](https://github.com/microsoft/kiota-python/commit/babb5fd0f2dbc742f4ab3f72b456fbf0bd043448))
+* **abstractions:** normalize allowed hosts, reject userinfo, and validate URL structure ([0fa72db](https://github.com/microsoft/kiota-python/commit/0fa72dbe2addcb6d31c3f6bdba26023387bf28e9))
+* **abstractions:** reject blank hosts and malformed userinfo, update azure provider tests ([e4f3228](https://github.com/microsoft/kiota-python/commit/e4f3228bdbaf5a3ab40d8e0f99f785a47e26f580))
+
 ## [1.15.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.14.4...microsoft-kiota-abstractions-v1.15.0) (2026-10-21)
 
 
