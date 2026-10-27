@@ -34,9 +34,11 @@ class MultipartSerializationWriter(SerializationWriter):
 
     def write_str_value(self, key: Optional[str], value: Optional[str]) -> None:
         """Writes the specified string value to the stream with an optional given key.
+        If value is None, no output is written to avoid emitting bare header names.
+
         Args:
             key (Optional[str]): The key to be used for the written value. May be null.
-            value (Optional[str]): The string value to be written.
+            value (Optional[str]): The string value to be written. If None, the value is omitted.
         """
         if value is None:
             return
@@ -337,13 +339,13 @@ class MultipartSerializationWriter(SerializationWriter):
         """
         self._on_start_object_serialization = value
 
-    def _serialize_value(self, temp_writer: MultipartSerializationWriter, value: U) -> None:
+    def _serialize_value(self, writer: MultipartSerializationWriter, value: U) -> None:
         if on_before := self.on_before_object_serialization:
             on_before(value)
         if on_start := self.on_start_object_serialization:
             on_start(value, self)
 
-        value.serialize(temp_writer)
+        value.serialize(writer)
 
     def _create_new_writer(self) -> SerializationWriter:
         writer = MultipartSerializationWriter()
