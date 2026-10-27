@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import warnings
 from collections import defaultdict
 from collections.abc import Callable
@@ -380,7 +381,7 @@ class FormParseNode(ParseNode):
     def _get_bytes_value(value: str) -> Optional[bytes]:
         if value and value != "null":
             try:
-                return str(value).encode("utf-8")
+                return base64.b64decode(value)
             except:
                 return None
         return None

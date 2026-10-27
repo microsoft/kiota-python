@@ -1,4 +1,3 @@
-import base64
 from datetime import date, datetime, time, timedelta, timezone
 from enum import Enum
 from uuid import UUID
@@ -134,7 +133,27 @@ def test_get_bytes_value():
     parse_node = FormParseNode('SGVsbG8gd29ybGQ%3D')
     result = parse_node.get_bytes_value()
     assert isinstance(result, bytes)
-    assert base64.b64decode(result) == b'Hello world'
+    assert result == b'Hello world'
+
+
+def test_get_bytes_value_round_trip():
+    writer = FormSerializationWriter()
+    writer.write_bytes_value('data', b'Hello world')
+    content = writer.get_serialized_content().decode('utf-8')
+    parse_node = FormParseNode(content)
+    result = parse_node.get_child_node('data').get_bytes_value()
+    assert result == b'Hello world'
+
+
+def test_get_bytes_value_invalid_base64():
+    parse_node = FormParseNode('abc')
+    assert parse_node.get_bytes_value() is None
+
+
+def test_get_collection_of_bytes_values():
+    parse_node = FormParseNode('data=SGVsbG8%3D&data=d29ybGQ%3D')
+    result = parse_node.get_child_node('data').get_collection_of_primitive_values(bytes)
+    assert result == [b'Hello', b'world']
     
 def test_get_collection_of_numerical_primitive_values():
     TEST_FORM_DATA = "numbers=1&numbers=2&numbers=3&"
