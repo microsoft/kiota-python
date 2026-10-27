@@ -167,3 +167,74 @@ def test_write_object_value_handles_none_gracefully():
     serialization_writer.write_object_value("", None)
     content = serialization_writer.get_serialized_content()
     assert content == b""
+
+
+def test_write_object_value_with_additional_values_to_merge(
+    user_1, mock_request_adapter, mock_serialization_writer_factory
+):
+    import email
+    from email.policy import default
+
+    from kiota_abstractions.multipart_body import MultipartBody
+
+    mock_request_adapter.get_serialization_writer_factory = Mock(
+        return_value=mock_serialization_writer_factory
+    )
+
+    body1 = MultipartBody()
+    body1.boundary = "body1-boundary"
+    body1.request_adapter = mock_request_adapter
+    body1.add_or_replace_part("part1", "text/plain", "First part")
+
+    body2 = MultipartBody()
+    body2.boundary = "body2-boundary"
+    body2.request_adapter = mock_request_adapter
+    body2.add_or_replace_part("part2", "text/plain", "Second part")
+
+    before_calls = []
+    after_calls = []
+
+    serialization_writer = MultipartSerializationWriter()
+    serialization_writer.on_before_object_serialization = lambda obj: before_calls.append(obj)
+    serialization_writer.on_after_object_serialization = lambda obj: after_calls.append(obj)
+
+    serialization_writer.write_object_value("", body1, body2)
+    raw_content = serialization_writer.get_serialized_content()
+    content = raw_content.decode("utf-8")
+
+    # Assert callbacks were preserved for each object
+    assert before_calls == [body1, body2]
+    assert after_calls == [body1, body2]
+
+    # Verify serialized under single boundary with a single closing delimiter
+    boundary = body1.boundary
+    assert f"--{boundary}\r\n" in content
+    assert f"--{body2.boundary}" not in content
+    assert content.endswith(f"--{boundary}--\r\n")
+    assert content.count(f"--{boundary}--") == 1
+
+    # Verify both parts can be parsed by MIME parser under one boundary
+    mime_message = email.message_from_bytes(
+        f"Content-Type: multipart/form-data; boundary={boundary}\r\n\r\n".encode("utf-8") +
+        raw_content,
+        policy=default,
+    )
+    assert mime_message.is_multipart()
+    parts = mime_message.get_payload()
+    assert len(parts) == 2
+    assert parts[0].get_param("name", header="content-disposition") == "part1"
+    assert parts[0].get_content_type() == "text/plain"
+    assert parts[0].get_content().strip() == "First part"
+    assert parts[1].get_param("name", header="content-disposition") == "part2"
+    assert parts[1].get_content_type() == "text/plain"
+    assert parts[1].get_content().strip() == "Second part"
+
+
+def test_write_object_value_with_invalid_additional_value_raises():
+    from kiota_abstractions.multipart_body import MultipartBody
+
+    body = MultipartBody()
+    serialization_writer = MultipartSerializationWriter()
+    with pytest.raises(ValueError) as excinfo:
+        serialization_writer.write_object_value("", body, TestEntity())
+    assert "Expected a MultipartBody instance but got" in str(excinfo.value)

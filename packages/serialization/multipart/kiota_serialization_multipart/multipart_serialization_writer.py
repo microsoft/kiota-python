@@ -4,7 +4,7 @@ import io
 from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional, TypeVar, cast
 from uuid import UUID
 
 from kiota_abstractions.multipart_body import MultipartBody
@@ -175,12 +175,85 @@ class MultipartSerializationWriter(SerializationWriter):
         if value is None and not any(additional_values_to_merge):
             return
 
-        if value is not None:
-            if not isinstance(value, MultipartBody):
-                raise ValueError(f"Expected a MultipartBody instance but got {type(value)}")
-            self._serialize_value(self, value)
+        if value is not None and not isinstance(value, MultipartBody):
+            raise ValueError(f"Expected a MultipartBody instance but got {type(value)}")
+
+        if additional_values_to_merge:
+            for additional_value in additional_values_to_merge:
+                if additional_value is not None and not isinstance(additional_value, MultipartBody):
+                    raise ValueError(
+                        f"Expected a MultipartBody instance but got {type(additional_value)}"
+                    )
+
+        all_values: list[MultipartBody[Any]] = [
+            cast(MultipartBody[Any], v) for v in (value, *additional_values_to_merge)
+            if v is not None
+        ]
+
+        if not all_values:
+            return
+
+        if len(all_values) == 1:
+            self._serialize_value(self, all_values[0])
             if self._on_after_object_serialization:
-                self._on_after_object_serialization(value)
+                self._on_after_object_serialization(all_values[0])
+            return
+
+        boundary = all_values[0].boundary
+        first_part = True
+        for current_body in all_values:
+            if (
+                not current_body.request_adapter
+                or not current_body.request_adapter.get_serialization_writer_factory()
+            ):
+                raise ValueError("Request adapter or serialization writer factory cannot be null")
+            if not current_body.parts:
+                raise ValueError("No parts to serialize")
+
+            if on_before := self.on_before_object_serialization:
+                on_before(current_body)
+            if on_start := self.on_start_object_serialization:
+                on_start(current_body, self)
+
+            first_part = self._write_body_parts(current_body, boundary, first_part)
+
+            if on_after := self.on_after_object_serialization:
+                on_after(current_body)
+
+        self.write_str_value("", "")
+        self.write_str_value("", f"--{boundary}--")
+
+    def _write_body_parts(self, body: MultipartBody[Any], boundary: str, first_part: bool) -> bool:
+        for part_name, part_value in body.parts.items():
+            if first_part:
+                first_part = False
+            else:
+                self.write_str_value("", "")
+
+            self.write_str_value("", f"--{boundary}")
+            self.write_str_value("Content-Type", f"{part_value[0]}")
+
+            disposition_fn = getattr(
+                body, "_get_content_disposition", getattr(body, "_get_comtent_disposition", None)
+            )
+            disposition = (
+                disposition_fn(part_name, part_value)
+                if disposition_fn else f'form-data; name="{part_name}"'
+            )
+            self.write_str_value("Content-Disposition", disposition)
+            self.write_str_value("", "")
+
+            if isinstance(part_value[1], Parsable):
+                body._write_parsable(self, part_value)
+            elif isinstance(part_value[1], str):
+                self.write_bytes_value("", part_value[1].encode('utf-8'))
+            elif isinstance(part_value[1], bytes):
+                self.write_bytes_value("", part_value[1])
+            elif isinstance(part_value[1], io.IOBase):
+                self.write_bytes_value("", part_value[1].read())
+            else:
+                raise ValueError(f"Unsupported type {type(part_value[1])} for part {part_name}")
+        return first_part
 
     def write_null_value(self, key: Optional[str]) -> None:
         """Writes a null value for the specified key.
