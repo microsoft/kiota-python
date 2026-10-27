@@ -38,6 +38,8 @@ class MultipartSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[str]): The string value to be written.
         """
+        if value is None:
+            return
         if key:
             self.writer.write(key)
         if value:
@@ -170,13 +172,15 @@ class MultipartSerializationWriter(SerializationWriter):
             additional_values_to_merge (tuple[Parsable]): The additional values to merge to the
             main value when serializing an intersection wrapper.
         """
-        temp_writer = self._create_new_writer()
+        if value is None and not any(additional_values_to_merge):
+            return
 
-        if not isinstance(value, MultipartBody):
-            raise ValueError(f"Expected a MultipartBody instance but got {type(value)}")
-        self._serialize_value(self, value)
-        if self._on_after_object_serialization:
-            self._on_after_object_serialization(value)
+        if value is not None:
+            if not isinstance(value, MultipartBody):
+                raise ValueError(f"Expected a MultipartBody instance but got {type(value)}")
+            self._serialize_value(self, value)
+            if self._on_after_object_serialization:
+                self._on_after_object_serialization(value)
 
     def write_null_value(self, key: Optional[str]) -> None:
         """Writes a null value for the specified key.
