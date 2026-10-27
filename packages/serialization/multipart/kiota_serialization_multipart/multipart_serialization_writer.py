@@ -204,6 +204,11 @@ class MultipartSerializationWriter(SerializationWriter):
         boundary = all_values[0].boundary
         first_part = True
         for current_body in all_values:
+            if on_before := self.on_before_object_serialization:
+                on_before(current_body)
+            if on_start := self.on_start_object_serialization:
+                on_start(current_body, self)
+
             if (
                 not current_body.request_adapter
                 or not current_body.request_adapter.get_serialization_writer_factory()
@@ -211,11 +216,6 @@ class MultipartSerializationWriter(SerializationWriter):
                 raise ValueError("Request adapter or serialization writer factory cannot be null")
             if not current_body.parts:
                 raise ValueError("No parts to serialize")
-
-            if on_before := self.on_before_object_serialization:
-                on_before(current_body)
-            if on_start := self.on_start_object_serialization:
-                on_start(current_body, self)
 
             first_part = self._write_body_parts(current_body, boundary, first_part)
 

@@ -238,3 +238,32 @@ def test_write_object_value_with_invalid_additional_value_raises():
     with pytest.raises(ValueError) as excinfo:
         serialization_writer.write_object_value("", body, TestEntity())
     assert "Expected a MultipartBody instance but got" in str(excinfo.value)
+
+
+def test_write_object_value_with_additional_values_callback_initialization(
+    mock_request_adapter, mock_serialization_writer_factory
+):
+    from kiota_abstractions.multipart_body import MultipartBody
+
+    mock_request_adapter.get_serialization_writer_factory = Mock(
+        return_value=mock_serialization_writer_factory
+    )
+
+    body1 = MultipartBody()
+    body1.boundary = "body1-boundary"
+    body2 = MultipartBody()
+    body2.boundary = "body2-boundary"
+
+    def populate_body(body):
+        body.request_adapter = mock_request_adapter
+        body.add_or_replace_part(f"part_{body.boundary}", "text/plain", "content")
+
+    serialization_writer = MultipartSerializationWriter()
+    serialization_writer.on_before_object_serialization = populate_body
+
+    serialization_writer.write_object_value("", body1, body2)
+    raw_content = serialization_writer.get_serialized_content()
+    content = raw_content.decode("utf-8")
+    assert f"--{body1.boundary}" in content
+    assert "part_body1-boundary" in content
+    assert "part_body2-boundary" in content
