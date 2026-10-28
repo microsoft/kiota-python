@@ -267,3 +267,52 @@ def test_write_object_value_with_additional_values_callback_initialization(
     assert f"--{body1.boundary}" in content
     assert "part_body1-boundary" in content
     assert "part_body2-boundary" in content
+
+
+@pytest.mark.parametrize("invalid_value", ["", 0, False, [], {}, TestEntity()])
+def test_write_object_value_none_primary_with_invalid_additional_value_raises(invalid_value):
+    serialization_writer = MultipartSerializationWriter()
+    with pytest.raises(ValueError) as excinfo:
+        serialization_writer.write_object_value("", None, invalid_value)
+    assert "Expected a MultipartBody instance but got" in str(excinfo.value)
+
+
+def test_write_object_value_none_primary_with_none_additional_values_noop():
+    serialization_writer = MultipartSerializationWriter()
+    serialization_writer.write_object_value("", None, None, None)
+    assert len(serialization_writer.get_serialized_content()) == 0
+
+
+def test_write_object_value_captures_boundary_after_callbacks(
+    mock_request_adapter, mock_serialization_writer_factory
+):
+    from kiota_abstractions.multipart_body import MultipartBody
+
+    mock_request_adapter.get_serialization_writer_factory = Mock(
+        return_value=mock_serialization_writer_factory
+    )
+
+    body1 = MultipartBody()
+    body1.boundary = "initial-boundary"
+    body1.request_adapter = mock_request_adapter
+    body1.add_or_replace_part("part1", "text/plain", "First part")
+
+    body2 = MultipartBody()
+    body2.boundary = "body2-boundary"
+    body2.request_adapter = mock_request_adapter
+    body2.add_or_replace_part("part2", "text/plain", "Second part")
+
+    def update_boundary_in_callback(body):
+        if body is body1:
+            body.boundary = "callback-updated-boundary"
+
+    serialization_writer = MultipartSerializationWriter()
+    serialization_writer.on_before_object_serialization = update_boundary_in_callback
+
+    serialization_writer.write_object_value("", body1, body2)
+    raw_content = serialization_writer.get_serialized_content()
+    content = raw_content.decode("utf-8")
+
+    assert "--callback-updated-boundary" in content
+    assert "--callback-updated-boundary--" in content
+    assert "--initial-boundary" not in content

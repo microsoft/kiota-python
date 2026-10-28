@@ -174,7 +174,7 @@ class MultipartSerializationWriter(SerializationWriter):
             additional_values_to_merge (tuple[Parsable]): The additional values to merge to the
             main value when serializing an intersection wrapper.
         """
-        if value is None and not any(additional_values_to_merge):
+        if value is None and not any(v is not None for v in additional_values_to_merge):
             return
 
         if value is not None and not isinstance(value, MultipartBody):
@@ -201,13 +201,16 @@ class MultipartSerializationWriter(SerializationWriter):
                 self._on_after_object_serialization(all_values[0])
             return
 
-        boundary = all_values[0].boundary
+        boundary: Optional[str] = None
         first_part = True
-        for current_body in all_values:
+        for i, current_body in enumerate(all_values):
             if on_before := self.on_before_object_serialization:
                 on_before(current_body)
             if on_start := self.on_start_object_serialization:
                 on_start(current_body, self)
+
+            if i == 0:
+                boundary = current_body.boundary
 
             if (
                 not current_body.request_adapter
@@ -217,6 +220,7 @@ class MultipartSerializationWriter(SerializationWriter):
             if not current_body.parts:
                 raise ValueError("No parts to serialize")
 
+            assert boundary is not None
             first_part = self._write_body_parts(current_body, boundary, first_part)
 
             if on_after := self.on_after_object_serialization:
