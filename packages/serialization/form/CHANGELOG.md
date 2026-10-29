@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.16.0...microsoft-kiota-serialization-form-v1.17.0) (2026-10-29)
+
+
+### Bug Fixes
+
+* **form:** base64-decode bytes values on deserialization ([69a040a](https://github.com/microsoft/kiota-python/commit/69a040a3e083f927fcaa1af6873f4980c130c639))
+* **form:** base64-decode bytes values on deserialization ([acbf899](https://github.com/microsoft/kiota-python/commit/acbf899bb2f72db5855fe9c2848d0504481d07f7))
+
 ## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.15.0...microsoft-kiota-serialization-form-v1.16.0) (2026-10-26)
 
 

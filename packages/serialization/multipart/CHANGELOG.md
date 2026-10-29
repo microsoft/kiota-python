@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.16.0...microsoft-kiota-serialization-multipart-v1.17.0) (2026-10-29)
+
+
+### Features
+
+* **multipart:** support additional_values_to_merge and add intersection wrapper tests ([946e424](https://github.com/microsoft/kiota-python/commit/946e4248a83fca822c1aab3e02c94ed654a9b4c0))
+
+
+### Bug Fixes
+
+* **multipart:** invoke serialization callbacks before merge body validation ([5d5bd14](https://github.com/microsoft/kiota-python/commit/5d5bd14c46a5ef8bb7de901666884433e9738e7b))
+* **multipart:** omit nil header string values and handle null objects in write_object_value ([ba512ab](https://github.com/microsoft/kiota-python/commit/ba512ab340103d126d43408cffc2f9d72367fead))
+* **multipart:** omit nil string header values and handle null objects in write_object_value ([79ca109](https://github.com/microsoft/kiota-python/commit/79ca1098c8b91288b4ba14c0be715f0de44b4a93))
+* **multipart:** revert additional values merging and scope to nil header omission ([ce098a2](https://github.com/microsoft/kiota-python/commit/ce098a21318f7aafc271b8744de7ddb80ee93075))
+* **multipart:** validate falsy additional values when primary is none and capture boundary after callbacks ([bf0a82b](https://github.com/microsoft/kiota-python/commit/bf0a82bc914ce0e95e3d697f968070de7f45605e))
+
 ## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.15.0...microsoft-kiota-serialization-multipart-v1.16.0) (2026-10-26)
 
 
