@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.16.0...microsoft-kiota-abstractions-v1.17.0) (2026-10-29)
+
+
+### Bug Fixes
+
+* **abstractions:** safely handle missing header values and normalize return in remove_value ([99e64dd](https://github.com/microsoft/kiota-python/commit/99e64ddfa0705f638f82b2b9bd2121bf31d453cb))
+* **abstractions:** safely handle missing values and normalize return in HeadersCollection.remove_value ([ec30d23](https://github.com/microsoft/kiota-python/commit/ec30d232052648fbe21df80d6bd0edd2a59f50ba))
+
 ## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.15.0...microsoft-kiota-abstractions-v1.16.0) (2026-10-26)
 
 
