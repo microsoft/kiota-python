@@ -118,14 +118,15 @@ def test_removes_value_from_existing_header():
     """Tests removing a value from an existing header
     """
     headers = HeadersCollection()
-    headers.remove_value("header1", "value1")
+    assert headers.remove_value("header1", "value1") is False
     headers.add("header1", "value1")
     headers.add("header1", "value2")
     assert headers.contains("header1")
     assert headers.count() == 1
-    headers.remove_value("header1", "value1")
+    remaining = headers.remove_value("header1", "value1")
+    assert remaining == {"value2"}
     assert {"value2"} <= headers.try_get("header1")
-    headers.remove_value("header1", "value2")
+    assert headers.remove_value("header1", "value2") is True
     assert not headers.contains("header1")
     assert headers.count() == 0
     
@@ -303,3 +304,32 @@ def test_subscript_assignment_single_value_header():
     headers["Content-Type"] = ["application/json", "text/plain"]
     assert headers["content-type"] == {"application/json"}
 
+
+def test_remove_value_nonexistent_value_returns_false():
+    """Tests removing a nonexistent value from an existing header returns False without raising KeyError"""
+    headers = HeadersCollection()
+    headers.add("header1", ["value1", "value2"])
+    assert headers.count() == 1
+    assert headers.remove_value("header1", "nonexistent") is False
+    assert headers.get("header1") == {"value1", "value2"}
+    assert headers.count() == 1
+
+
+def test_remove_value_case_insensitive_header_name():
+    """Tests remove_value normalizes header name casing"""
+    headers = HeadersCollection()
+    headers.add("Content-Type", "application/json")
+    assert headers.remove_value("content-type", "application/json") is True
+    assert not headers.contains("content-type")
+    assert headers.count() == 0
+
+
+def test_remove_header_return_semantics():
+    """Tests that remove returns the popped set when present, and False when not found"""
+    headers = HeadersCollection()
+    assert headers.remove("nonexistent") is False
+    headers.add("header1", ["value1", "value2"])
+    removed = headers.remove("header1")
+    assert removed == {"value1", "value2"}
+    assert not headers.contains("header1")
+    assert headers.remove("header1") is False
