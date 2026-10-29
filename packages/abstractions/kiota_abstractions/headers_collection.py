@@ -146,7 +146,9 @@ class HeadersCollection():
             header_value (str): The value to remove from the header.
 
         Returns:
-            bool: _description_
+            Union[bool, set[str]]: Remaining values set if header still has other values,
+            True if the value was removed and no values remain, or False if header or value
+            was not found.
         """
         if not header_name:
             raise ValueError("Header name cannot be null")
@@ -154,11 +156,14 @@ class HeadersCollection():
             raise ValueError("Header value cannot be null")
         header_name = header_name.lower()
         values = self.try_get(header_name)
-        if values:
-            values.remove(header_value)  #type: ignore
+        if isinstance(values, set):
+            if header_value not in values:
+                return False
+            values.remove(header_value)
             if bool(values):
                 return values
-            return self.remove(header_name)
+            self.remove(header_name)
+            return True
 
         return False
 
@@ -169,7 +174,7 @@ class HeadersCollection():
             header_name (str): The name of the header to remove.
 
         Returns:
-            bool: True if the header has been removed, False otherwise.
+            Union[bool, set[str]]: The removed set of values if present, False otherwise.
         """
         if not header_name:
             raise ValueError("Header name cannot be null")
