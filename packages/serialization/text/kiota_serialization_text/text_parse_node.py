@@ -8,7 +8,9 @@ from typing import Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.date_utils import (
-    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+    datetime_from_iso_format_compat,
+    parse_timedelta_string,
+    time_from_iso_format_compat,
 )
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
@@ -40,7 +42,7 @@ class TextParseNode(ParseNode):
         Returns:
             str: The string value of the node
         """
-        if self._text:
+        if self._text is not None:
             return str(self._text)
         return None
 
@@ -68,7 +70,10 @@ class TextParseNode(ParseNode):
             int: The integer value of the node
         """
         if self._text:
-            return int(self._text)
+            try:
+                return int(self._text)
+            except ValueError:
+                return None
         return None
 
     def get_float_value(self) -> Optional[float]:
@@ -77,7 +82,10 @@ class TextParseNode(ParseNode):
             float: The floating point value of the node
         """
         if self._text:
-            return float(self._text)
+            try:
+                return float(self._text)
+            except ValueError:
+                return None
         return None
 
     def get_uuid_value(self) -> Optional[UUID]:
@@ -86,7 +94,10 @@ class TextParseNode(ParseNode):
             UUID: The UUID value of the node
         """
         if self._text:
-            return UUID(self._text)
+            try:
+                return UUID(self._text)
+            except ValueError:
+                return None
         return None
 
     def get_datetime_value(self) -> Optional[datetime]:
@@ -96,7 +107,10 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            return datetime_from_iso_format_compat(datetime_str)
+            try:
+                return datetime_from_iso_format_compat(datetime_str)
+            except (ValueError, TypeError):
+                return None
         return None
 
     def get_timedelta_value(self) -> Optional[timedelta]:
@@ -106,7 +120,10 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            return parse_timedelta_string(datetime_str)
+            try:
+                return parse_timedelta_string(datetime_str)
+            except (ValueError, TypeError):
+                return None
         return None
 
     def get_date_value(self) -> Optional[date]:
@@ -116,7 +133,10 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            return date.fromisoformat(datetime_str)
+            try:
+                return date.fromisoformat(datetime_str)
+            except (ValueError, TypeError):
+                return None
         return None
 
     def get_time_value(self) -> Optional[time]:
@@ -126,7 +146,10 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            return time_from_iso_format_compat(datetime_str)
+            try:
+                return time_from_iso_format_compat(datetime_str)
+            except (ValueError, TypeError):
+                return None
         return None
 
     def get_collection_of_primitive_values(self, primitive_type: type[T]) -> list[T]:
@@ -169,7 +192,7 @@ class TextParseNode(ParseNode):
             try:
                 return enum_class[camel_case_key]  # type: ignore
             except KeyError:
-                raise Exception(f'Invalid key: {camel_case_key} for enum {enum_class}.')
+                return None
         return None
 
     def get_object_value(self, factory: ParsableFactory[U]) -> U:
@@ -187,8 +210,11 @@ class TextParseNode(ParseNode):
         base64_string = self.get_str_value()
         if not base64_string:
             return None
-        base64_bytes = base64_string.encode("utf-8")
-        return base64.b64decode(base64_bytes)
+        try:
+            base64_bytes = base64_string.encode("utf-8")
+            return base64.b64decode(base64_bytes)
+        except Exception:
+            return None
 
     def get_on_before_assign_field_values(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called before the node is deserialized.
