@@ -135,3 +135,53 @@ def test_get_collection_of_object_values(sample_structured_data):
     with pytest.raises(Exception) as e_info:
         parse_node = TextParseNode(sample_structured_data)
         result = parse_node.get_collection_of_object_values(User)
+
+
+def test_get_empty_str_value():
+    parse_node = TextParseNode("")
+    assert parse_node.get_str_value() == ""
+
+
+def test_get_bytes_value_invalid_base64_returns_none():
+    parse_node = TextParseNode("not-base64!!!")
+    assert parse_node.get_bytes_value() is None
+
+
+def test_get_int_value_invalid_returns_none():
+    parse_node = TextParseNode("not-an-int")
+    assert parse_node.get_int_value() is None
+
+
+def test_get_float_value_invalid_returns_none():
+    parse_node = TextParseNode("not-a-float")
+    assert parse_node.get_float_value() is None
+
+
+def test_get_uuid_value_invalid_returns_none():
+    parse_node = TextParseNode("not-a-uuid")
+    assert parse_node.get_uuid_value() is None
+
+
+def test_get_datetime_value_invalid_returns_none():
+    parse_node = TextParseNode("not-a-datetime")
+    assert parse_node.get_datetime_value() is None
+
+
+def test_get_timedelta_value_invalid_returns_none():
+    parse_node = TextParseNode("not-a-timedelta")
+    assert parse_node.get_timedelta_value() is None
+
+
+def test_get_date_value_invalid_returns_none():
+    parse_node = TextParseNode("not-a-date")
+    assert parse_node.get_date_value() is None
+
+
+def test_get_time_value_invalid_returns_none():
+    parse_node = TextParseNode("not-a-time")
+    assert parse_node.get_time_value() is None
+
+
+def test_get_enum_value_unknown_returns_none():
+    parse_node = TextParseNode("unknown_location")
+    assert parse_node.get_enum_value(OfficeLocation) is None
