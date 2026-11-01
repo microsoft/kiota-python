@@ -100,10 +100,14 @@ class MultipartBody(Parsable, Generic[T]):
         """
         if not writer:
             raise ValueError("Serialization writer cannot be null")
-        if not self.request_adapter or not self.request_adapter.get_serialization_writer_factory():
-            raise ValueError("Request adapter or serialization writer factory cannot be null")
         if not self.parts:
             raise ValueError("No parts to serialize")
+        if any(isinstance(part[1], Parsable) for part in self.parts.values()):
+            if (
+                not self.request_adapter
+                or not self.request_adapter.get_serialization_writer_factory()
+            ):
+                raise ValueError("Request adapter or serialization writer factory cannot be null")
 
         first = True
         for part_name, part_value in self.parts.items():
@@ -115,7 +119,7 @@ class MultipartBody(Parsable, Generic[T]):
             writer.write_str_value("", f"--{self.boundary}")
             writer.write_str_value("Content-Type", f"{part_value[0]}")
             writer.write_str_value(
-                "Content-Disposition", self._get_comtent_disposition(part_name, part_value)
+                "Content-Disposition", self._get_content_disposition(part_name, part_value)
             )
             self._add_new_line(writer)
 
@@ -139,12 +143,14 @@ class MultipartBody(Parsable, Generic[T]):
     def _add_new_line(self, writer: SerializationWriter) -> None:
         writer.write_str_value("", "")
 
-    def _get_comtent_disposition(
+    def _get_content_disposition(
         self, part_name: str, part_value: tuple[str, Any, Optional[str]]
     ) -> str:
         if len(part_value) >= 3 and part_value[2] is not None:
             return f'form-data; name="{part_name}"; filename="{part_value[2]}"'
         return f'form-data; name="{part_name}"'
+
+    _get_comtent_disposition = _get_content_disposition
 
     def _write_parsable(
         self, writer: SerializationWriter, part_value: tuple[str, Any, Optional[str]]

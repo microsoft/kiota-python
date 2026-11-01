@@ -1,7 +1,12 @@
+import io
+from unittest.mock import Mock
+
 import pytest
 
 from kiota_abstractions.multipart_body import MultipartBody
 from kiota_abstractions.serialization import SerializationWriter
+
+from .conftest import MockEntity
 
 
 def test_defensive():
@@ -63,3 +68,41 @@ def test_add_or_replace_part_empty_values():
 
     multipart.add_or_replace_part("empty_str", "text/plain", "")
     assert multipart.get_part_value("empty_str") == ""
+
+
+def test_content_disposition():
+    multipart = MultipartBody()
+    disp_with_file = multipart._get_content_disposition(
+        "doc", ("application/pdf", b"data", "doc.pdf")
+    )
+    assert disp_with_file == 'form-data; name="doc"; filename="doc.pdf"'
+
+    disp_without_file = multipart._get_content_disposition("text", ("text/plain", "hello", None))
+    assert disp_without_file == 'form-data; name="text"'
+
+    # Verify backward-compatible alias
+    assert multipart._get_comtent_disposition(
+        "doc", ("application/pdf", b"data", "doc.pdf")
+    ) == disp_with_file
+
+
+def test_serialize_without_request_adapter():
+    multipart = MultipartBody()
+    multipart.add_or_replace_part("text", "text/plain", "Hello")
+    multipart.add_or_replace_part("binary", "application/octet-stream", b"123")
+    multipart.add_or_replace_part("stream", "application/octet-stream", io.BytesIO(b"456"))
+
+    mock_writer = Mock(spec=SerializationWriter)
+    multipart.serialize(mock_writer)
+    assert mock_writer.write_str_value.called
+    assert mock_writer.write_bytes_value.called
+
+
+def test_serialize_parsable_requires_request_adapter():
+    multipart = MultipartBody()
+    multipart.add_or_replace_part("entity", "application/json", MockEntity())
+
+    mock_writer = Mock(spec=SerializationWriter)
+    with pytest.raises(ValueError) as excinfo:
+        multipart.serialize(mock_writer)
+    assert "Request adapter or serialization writer factory cannot be null" in str(excinfo.value)
