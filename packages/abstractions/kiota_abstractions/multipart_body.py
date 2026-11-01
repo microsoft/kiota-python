@@ -58,7 +58,7 @@ class MultipartBody(Parsable, Generic[T]):
             raise ValueError("Part name cannot be null")
         if not content_type:
             raise ValueError("Content type cannot be null")
-        if not part_value:
+        if part_value is None:
             raise ValueError("Part value cannot be null")
         value: tuple[str, Any, Optional[str]] = (content_type, part_value, filename)
         self.parts[self._normalize_part_name(part_name)] = value
