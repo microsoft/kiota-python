@@ -142,6 +142,16 @@ def test_get_empty_str_value():
     assert parse_node.get_str_value() == ""
 
 
+def test_get_empty_bytes_value():
+    parse_node = TextParseNode("")
+    assert parse_node.get_bytes_value() == b""
+
+
+def test_get_bytes_value_none():
+    parse_node = TextParseNode(None)
+    assert parse_node.get_bytes_value() is None
+
+
 def test_get_bytes_value_invalid_base64_returns_none():
     parse_node = TextParseNode("not-base64!!!")
     assert parse_node.get_bytes_value() is None
