@@ -1,5 +1,5 @@
 import io
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 
 import pytest
 
@@ -68,6 +68,17 @@ def test_add_or_replace_part_empty_values():
 
     multipart.add_or_replace_part("empty_str", "text/plain", "")
     assert multipart.get_part_value("empty_str") == ""
+
+    multipart.add_or_replace_part("empty_stream", "application/octet-stream", io.BytesIO(b""))
+    stream_val = multipart.get_part_value("empty_stream")
+    assert isinstance(stream_val, io.IOBase)
+
+    mock_writer = Mock(spec=SerializationWriter)
+    multipart.serialize(mock_writer)
+
+    # Verify that empty payloads reach the serialization writer
+    assert mock_writer.write_bytes_value.call_count == 3
+    mock_writer.write_bytes_value.assert_has_calls([call("", b""), call("", b""), call("", b"")])
 
 
 def test_content_disposition():
