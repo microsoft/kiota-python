@@ -150,8 +150,6 @@ class MultipartBody(Parsable, Generic[T]):
             return f'form-data; name="{part_name}"; filename="{part_value[2]}"'
         return f'form-data; name="{part_name}"'
 
-    _get_comtent_disposition = _get_content_disposition
-
     def _write_parsable(
         self, writer: SerializationWriter, part_value: tuple[str, Any, Optional[str]]
     ) -> None:

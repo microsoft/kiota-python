@@ -91,11 +91,6 @@ def test_content_disposition():
     disp_without_file = multipart._get_content_disposition("text", ("text/plain", "hello", None))
     assert disp_without_file == 'form-data; name="text"'
 
-    # Verify backward-compatible alias
-    assert multipart._get_comtent_disposition(
-        "doc", ("application/pdf", b"data", "doc.pdf")
-    ) == disp_with_file
-
 
 def test_serialize_without_request_adapter():
     multipart = MultipartBody()
