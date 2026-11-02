@@ -70,10 +70,7 @@ class TextParseNode(ParseNode):
             int: The integer value of the node
         """
         if self._text:
-            try:
-                return int(self._text)
-            except ValueError:
-                return None
+            return int(self._text)
         return None
 
     def get_float_value(self) -> Optional[float]:
@@ -82,10 +79,7 @@ class TextParseNode(ParseNode):
             float: The floating point value of the node
         """
         if self._text:
-            try:
-                return float(self._text)
-            except ValueError:
-                return None
+            return float(self._text)
         return None
 
     def get_uuid_value(self) -> Optional[UUID]:
@@ -94,10 +88,7 @@ class TextParseNode(ParseNode):
             UUID: The UUID value of the node
         """
         if self._text:
-            try:
-                return UUID(self._text)
-            except ValueError:
-                return None
+            return UUID(self._text)
         return None
 
     def get_datetime_value(self) -> Optional[datetime]:
@@ -107,10 +98,7 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            try:
-                return datetime_from_iso_format_compat(datetime_str)
-            except (ValueError, TypeError):
-                return None
+            return datetime_from_iso_format_compat(datetime_str)
         return None
 
     def get_timedelta_value(self) -> Optional[timedelta]:
@@ -120,10 +108,7 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            try:
-                return parse_timedelta_string(datetime_str)
-            except (ValueError, TypeError):
-                return None
+            return parse_timedelta_string(datetime_str)
         return None
 
     def get_date_value(self) -> Optional[date]:
@@ -133,10 +118,7 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            try:
-                return date.fromisoformat(datetime_str)
-            except (ValueError, TypeError):
-                return None
+            return date.fromisoformat(datetime_str)
         return None
 
     def get_time_value(self) -> Optional[time]:
@@ -146,10 +128,7 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            try:
-                return time_from_iso_format_compat(datetime_str)
-            except (ValueError, TypeError):
-                return None
+            return time_from_iso_format_compat(datetime_str)
         return None
 
     def get_collection_of_primitive_values(self, primitive_type: type[T]) -> list[T]:
@@ -192,7 +171,7 @@ class TextParseNode(ParseNode):
             try:
                 return enum_class[camel_case_key]  # type: ignore
             except KeyError:
-                return None
+                raise Exception(f'Invalid key: {camel_case_key} for enum {enum_class}.')
         return None
 
     def get_object_value(self, factory: ParsableFactory[U]) -> U:
@@ -210,11 +189,8 @@ class TextParseNode(ParseNode):
         base64_string = self.get_str_value()
         if base64_string is None:
             return None
-        try:
-            base64_bytes = base64_string.encode("utf-8")
-            return base64.b64decode(base64_bytes, validate=True)
-        except Exception:
-            return None
+        base64_bytes = base64_string.encode("utf-8")
+        return base64.b64decode(base64_bytes)
 
     def get_on_before_assign_field_values(self) -> Optional[Callable[[Parsable], None]]:
         """Gets the callback called before the node is deserialized.

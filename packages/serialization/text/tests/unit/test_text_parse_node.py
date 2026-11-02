@@ -152,47 +152,81 @@ def test_get_bytes_value_none():
     assert parse_node.get_bytes_value() is None
 
 
-@pytest.mark.parametrize("invalid_b64", ["not-base64!!!", "!!!!", "T!Q=="])
-def test_get_bytes_value_invalid_base64_returns_none(invalid_b64):
-    parse_node = TextParseNode(invalid_b64)
-    assert parse_node.get_bytes_value() is None
+def test_get_bytes_value_invalid_base64_raises():
+    parse_node = TextParseNode("not-base64!!!")
+    with pytest.raises(Exception):
+        parse_node.get_bytes_value()
 
 
-def test_get_int_value_invalid_returns_none():
+def test_get_int_value_invalid_raises():
     parse_node = TextParseNode("not-an-int")
-    assert parse_node.get_int_value() is None
+    with pytest.raises(ValueError):
+        parse_node.get_int_value()
 
 
-def test_get_float_value_invalid_returns_none():
+def test_get_float_value_invalid_raises():
     parse_node = TextParseNode("not-a-float")
-    assert parse_node.get_float_value() is None
+    with pytest.raises(ValueError):
+        parse_node.get_float_value()
 
 
-def test_get_uuid_value_invalid_returns_none():
+def test_get_uuid_value_invalid_raises():
     parse_node = TextParseNode("not-a-uuid")
-    assert parse_node.get_uuid_value() is None
+    with pytest.raises(ValueError):
+        parse_node.get_uuid_value()
 
 
-def test_get_datetime_value_invalid_returns_none():
+def test_get_datetime_value_invalid_raises():
     parse_node = TextParseNode("not-a-datetime")
-    assert parse_node.get_datetime_value() is None
+    with pytest.raises(ValueError):
+        parse_node.get_datetime_value()
 
 
-def test_get_timedelta_value_invalid_returns_none():
+def test_get_timedelta_value_invalid_raises():
     parse_node = TextParseNode("not-a-timedelta")
-    assert parse_node.get_timedelta_value() is None
+    with pytest.raises(Exception):
+        parse_node.get_timedelta_value()
 
 
-def test_get_date_value_invalid_returns_none():
+def test_get_date_value_invalid_raises():
     parse_node = TextParseNode("not-a-date")
-    assert parse_node.get_date_value() is None
+    with pytest.raises(ValueError):
+        parse_node.get_date_value()
 
 
-def test_get_time_value_invalid_returns_none():
+def test_get_time_value_invalid_raises():
     parse_node = TextParseNode("not-a-time")
-    assert parse_node.get_time_value() is None
+    with pytest.raises(ValueError):
+        parse_node.get_time_value()
 
 
-def test_get_enum_value_unknown_returns_none():
+def test_get_enum_value_unknown_raises():
     parse_node = TextParseNode("unknown_location")
+    with pytest.raises(Exception):
+        parse_node.get_enum_value(OfficeLocation)
+
+
+def test_get_scalars_empty_text_returns_none():
+    parse_node = TextParseNode("")
+    assert parse_node.get_int_value() is None
+    assert parse_node.get_float_value() is None
+    assert parse_node.get_uuid_value() is None
+    assert parse_node.get_datetime_value() is None
+    assert parse_node.get_timedelta_value() is None
+    assert parse_node.get_date_value() is None
+    assert parse_node.get_time_value() is None
+    assert parse_node.get_enum_value(OfficeLocation) is None
+
+
+def test_get_scalars_none_text_returns_none():
+    parse_node = TextParseNode(None)
+    assert parse_node.get_str_value() is None
+    assert parse_node.get_bytes_value() is None
+    assert parse_node.get_int_value() is None
+    assert parse_node.get_float_value() is None
+    assert parse_node.get_uuid_value() is None
+    assert parse_node.get_datetime_value() is None
+    assert parse_node.get_timedelta_value() is None
+    assert parse_node.get_date_value() is None
+    assert parse_node.get_time_value() is None
     assert parse_node.get_enum_value(OfficeLocation) is None
