@@ -11,13 +11,13 @@ import pytest
 from kiota_abstractions.serialization import ParseNode, ParseNodeFactory, ParseNodeFactoryRegistry
 
 
-def test_registry_dispatches_empty_content():
+def test_registry_dispatches_empty_content(monkeypatch):
     registry = ParseNodeFactoryRegistry()
     mock_node = Mock(spec=ParseNode)
     mock_factory = Mock(spec=ParseNodeFactory)
     mock_factory.get_root_parse_node.return_value = mock_node
 
-    registry.CONTENT_TYPE_ASSOCIATED_FACTORIES["text/plain"] = mock_factory
+    monkeypatch.setitem(registry.CONTENT_TYPE_ASSOCIATED_FACTORIES, "text/plain", mock_factory)
 
     result = registry.get_root_parse_node("text/plain", b"")
     assert result is mock_node

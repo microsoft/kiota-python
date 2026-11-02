@@ -212,7 +212,7 @@ class TextParseNode(ParseNode):
             return None
         try:
             base64_bytes = base64_string.encode("utf-8")
-            return base64.b64decode(base64_bytes)
+            return base64.b64decode(base64_bytes, validate=True)
         except Exception:
             return None
 

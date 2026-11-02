@@ -4,7 +4,6 @@ from enum import Enum
 from uuid import UUID
 
 import pytest
-
 from kiota_serialization_text.text_parse_node import TextParseNode
 
 from ..helpers import OfficeLocation, User
@@ -116,6 +115,7 @@ def test_get_enum_value():
 
 
 def test_get_enum_value_none_member():
+
     class RiskLevel(Enum):
         Low = "low"
         None_ = "none"
@@ -152,8 +152,9 @@ def test_get_bytes_value_none():
     assert parse_node.get_bytes_value() is None
 
 
-def test_get_bytes_value_invalid_base64_returns_none():
-    parse_node = TextParseNode("not-base64!!!")
+@pytest.mark.parametrize("invalid_b64", ["not-base64!!!", "!!!!", "T!Q=="])
+def test_get_bytes_value_invalid_base64_returns_none(invalid_b64):
+    parse_node = TextParseNode(invalid_b64)
     assert parse_node.get_bytes_value() is None
 
 
