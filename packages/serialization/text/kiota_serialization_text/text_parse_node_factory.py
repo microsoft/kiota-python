@@ -28,7 +28,7 @@ class TextParseNodeFactory(ParseNodeFactory):
         if valid_content_type.casefold() != content_type.casefold():
             raise TypeError(f"Expected {valid_content_type} as content type")
 
-        if not content:
+        if content is None:
             raise TypeError("Content cannot be null")
 
         content_as_str = content.decode('utf-8')

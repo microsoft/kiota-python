@@ -208,7 +208,7 @@ class TextParseNode(ParseNode):
             bytes: The bytes value from the node
         """
         base64_string = self.get_str_value()
-        if not base64_string:
+        if base64_string is None:
             return None
         try:
             base64_bytes = base64_string.encode("utf-8")
