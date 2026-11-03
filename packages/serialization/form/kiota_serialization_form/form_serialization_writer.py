@@ -91,7 +91,7 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[timedelta]): The timedelta value to be written.
         """
-        if key and value:
+        if key and value is not None:
             self.write_str_value(key, str(value))
 
     def write_date_value(self, key: Optional[str], value: Optional[date]) -> None:
