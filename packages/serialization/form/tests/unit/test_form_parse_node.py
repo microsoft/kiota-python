@@ -287,3 +287,8 @@ def returns_default_if_child_node_does_not_exist():
     parse_node = FormParseNode(TEST_USER_FORM)
     result = parse_node.get_child_node("nonExistent")
     assert result == None
+
+def test_try_get_anything_out_of_range_timedelta_overflow_fallback():
+    parse_node = FormParseNode("extra=50001140846%3A00021")
+    entity = parse_node.get_object_value(TestEntity)
+    assert entity.additional_data.get("extra") == "50001140846:00021"
