@@ -70,7 +70,7 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[UUId]): The uuid value to be written.
         """
-        if key and value:
+        if key and value is not None:
             self.write_str_value(key, str(value))
 
     def write_datetime_value(self, key: Optional[str], value: Optional[datetime]) -> None:
@@ -79,7 +79,7 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[datetime]): The datetime offset value to be written.
         """
-        if key and value:
+        if key and value is not None:
             if isinstance(value, datetime):
                 self.write_str_value(key, str(value.isoformat()))
             else:
@@ -100,7 +100,7 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[date]): The date value to be written.
         """
-        if key and value:
+        if key and value is not None:
             self.write_str_value(key, str(value))
 
     def write_time_value(self, key: Optional[str], value: Optional[time]) -> None:
@@ -109,7 +109,7 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[time]): The time value to be written.
         """
-        if key and value:
+        if key and value is not None:
             self.write_str_value(key, str(value))
 
     def write_bytes_value(self, key: Optional[str], value: Optional[bytes]) -> None:
@@ -202,7 +202,7 @@ class FormSerializationWriter(SerializationWriter):
                 if on_after := self.on_after_object_serialization:
                     on_after(additional_value)  # type: ignore
 
-        if value and self._on_after_object_serialization:
+        if value is not None and self._on_after_object_serialization:
             self._on_after_object_serialization(value)
 
         if key or temp_writer.writer:
