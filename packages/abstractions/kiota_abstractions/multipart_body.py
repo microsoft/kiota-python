@@ -58,7 +58,7 @@ class MultipartBody(Parsable, Generic[T]):
             raise ValueError("Part name cannot be null")
         if not content_type:
             raise ValueError("Content type cannot be null")
-        if not part_value:
+        if part_value is None:
             raise ValueError("Part value cannot be null")
         value: tuple[str, Any, Optional[str]] = (content_type, part_value, filename)
         self.parts[self._normalize_part_name(part_name)] = value
@@ -100,10 +100,14 @@ class MultipartBody(Parsable, Generic[T]):
         """
         if not writer:
             raise ValueError("Serialization writer cannot be null")
-        if not self.request_adapter or not self.request_adapter.get_serialization_writer_factory():
-            raise ValueError("Request adapter or serialization writer factory cannot be null")
         if not self.parts:
             raise ValueError("No parts to serialize")
+        if any(isinstance(part[1], Parsable) for part in self.parts.values()):
+            if (
+                not self.request_adapter
+                or not self.request_adapter.get_serialization_writer_factory()
+            ):
+                raise ValueError("Request adapter or serialization writer factory cannot be null")
 
         first = True
         for part_name, part_value in self.parts.items():
@@ -115,7 +119,7 @@ class MultipartBody(Parsable, Generic[T]):
             writer.write_str_value("", f"--{self.boundary}")
             writer.write_str_value("Content-Type", f"{part_value[0]}")
             writer.write_str_value(
-                "Content-Disposition", self._get_comtent_disposition(part_name, part_value)
+                "Content-Disposition", self._get_content_disposition(part_name, part_value)
             )
             self._add_new_line(writer)
 
@@ -139,7 +143,7 @@ class MultipartBody(Parsable, Generic[T]):
     def _add_new_line(self, writer: SerializationWriter) -> None:
         writer.write_str_value("", "")
 
-    def _get_comtent_disposition(
+    def _get_content_disposition(
         self, part_name: str, part_value: tuple[str, Any, Optional[str]]
     ) -> str:
         if len(part_value) >= 3 and part_value[2] is not None:
