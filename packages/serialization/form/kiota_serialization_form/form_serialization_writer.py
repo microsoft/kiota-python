@@ -133,7 +133,7 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             values (Optional[list[T]]): The collection of primitive values to be written.
         """
-        primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time, Enum]
+        primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time, bytes, Enum]
         if key and values:
             for val in values:
                 if type(val) in primitive_types:
@@ -320,7 +320,7 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value Any): The value to be written.
         """
-        primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time]
+        primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time, bytes]
         if key and value is not None:
             value_type = type(value)
             if isinstance(value, Enum):
