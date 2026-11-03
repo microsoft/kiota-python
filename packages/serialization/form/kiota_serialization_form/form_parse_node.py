@@ -278,7 +278,7 @@ class FormParseNode(ParseNode):
                 pass
             try:
                 return parse_timedelta_string(value)
-            except ValueError:
+            except (ValueError, OverflowError):
                 pass
             try:
                 return date.fromisoformat(value)
