@@ -13,6 +13,8 @@ from kiota_abstractions.serialization import Parsable, SerializationWriter
 T = TypeVar("T")
 U = TypeVar("U", bound=Parsable)
 K = TypeVar("K", bound=Enum)
+PRIMITIVE_TYPES = [bool, str, int, float, UUID, datetime, timedelta, date, time, bytes]
+PRIMITIVE_TYPES_WITH_ENUM = PRIMITIVE_TYPES + [Enum]
 
 
 class FormSerializationWriter(SerializationWriter):
@@ -133,10 +135,9 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             values (Optional[list[T]]): The collection of primitive values to be written.
         """
-        primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time, bytes, Enum]
         if key and values:
             for val in values:
-                if type(val) in primitive_types:
+                if type(val) in PRIMITIVE_TYPES_WITH_ENUM:
                     method = getattr(self, f'write_{type(val).__name__.lower()}_value')
                     method(key, val)
 
@@ -320,12 +321,11 @@ class FormSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value Any): The value to be written.
         """
-        primitive_types = [bool, str, int, float, UUID, datetime, timedelta, date, time, bytes]
         if key and value is not None:
             value_type = type(value)
             if isinstance(value, Enum):
                 self.write_enum_value(key, value)
-            elif value_type in primitive_types:
+            elif value_type in PRIMITIVE_TYPES:
                 method = getattr(self, f'write_{value_type.__name__.lower()}_value')
                 method(key, value)
             elif isinstance(value, list):
