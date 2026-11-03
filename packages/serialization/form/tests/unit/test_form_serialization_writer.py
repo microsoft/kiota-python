@@ -4,6 +4,7 @@ from urllib.parse import parse_qs, unquote_plus
 import pytest
 
 from datetime import datetime, timedelta, date, time
+from kiota_serialization_form.form_parse_node import FormParseNode
 from kiota_serialization_form.form_serialization_writer import FormSerializationWriter
 from ..helpers import TestEntity, TestEnum
 
@@ -356,3 +357,47 @@ def test_write_collection_of_primitive_values_bytes():
     writer = FormSerializationWriter()
     writer.write_collection_of_primitive_values("files", [b"first", b"second"])
     assert writer.get_serialized_content() == b"files=Zmlyc3Q%3D&files=c2Vjb25k"
+
+def test_write_additional_data_with_bytes():
+    writer = FormSerializationWriter()
+    writer.write_object_value(
+        None, TestEntity(additional_data={"certificate": b"sample-bytes"})
+    )
+    assert writer.get_serialized_content() == b"certificate=c2FtcGxlLWJ5dGVz"
+
+
+def test_write_additional_data_with_bytes_collection():
+    writer = FormSerializationWriter()
+    writer.write_object_value(
+        None, TestEntity(additional_data={"certs": [b"cert1", b"cert2"]})
+    )
+    assert writer.get_serialized_content() == b"certs=Y2VydDE%3D&certs=Y2VydDI%3D"
+
+
+def test_write_object_value_lifecycle_with_falsy_object():
+    class FalsyEntity(TestEntity):
+        def __bool__(self):
+            return False
+
+    writer = FormSerializationWriter()
+    events = []
+    writer.on_before_object_serialization = lambda obj: events.append("before")
+    writer.on_start_object_serialization = lambda obj, w: events.append("start")
+    writer.on_after_object_serialization = lambda obj: events.append("after")
+
+    entity = FalsyEntity(additional_data={"name": "test"})
+    writer.write_object_value(None, entity)
+    assert events == ["before", "start", "after"]
+    assert writer.get_serialized_content() == b"name=test"
+
+
+def test_zero_timedelta_entity_round_trip():
+    writer = FormSerializationWriter()
+    entity = TestEntity(work_duration=timedelta(0))
+    writer.write_object_value(None, entity)
+    content = writer.get_serialized_content()
+    assert content == b"workDuration=0%3A00%3A00"
+
+    parse_node = FormParseNode(content.decode("utf-8"))
+    deserialized = parse_node.get_object_value(TestEntity)
+    assert deserialized.work_duration == timedelta(0)
