@@ -4,7 +4,6 @@ from enum import Enum
 from uuid import UUID
 
 import pytest
-
 from kiota_serialization_text.text_parse_node import TextParseNode
 
 from ..helpers import OfficeLocation, User
@@ -116,6 +115,7 @@ def test_get_enum_value():
 
 
 def test_get_enum_value_none_member():
+
     class RiskLevel(Enum):
         Low = "low"
         None_ = "none"
@@ -135,3 +135,98 @@ def test_get_collection_of_object_values(sample_structured_data):
     with pytest.raises(Exception) as e_info:
         parse_node = TextParseNode(sample_structured_data)
         result = parse_node.get_collection_of_object_values(User)
+
+
+def test_get_empty_str_value():
+    parse_node = TextParseNode("")
+    assert parse_node.get_str_value() == ""
+
+
+def test_get_empty_bytes_value():
+    parse_node = TextParseNode("")
+    assert parse_node.get_bytes_value() == b""
+
+
+def test_get_bytes_value_none():
+    parse_node = TextParseNode(None)
+    assert parse_node.get_bytes_value() is None
+
+
+def test_get_bytes_value_invalid_base64_raises():
+    parse_node = TextParseNode("not-base64!!!")
+    with pytest.raises(Exception):
+        parse_node.get_bytes_value()
+
+
+def test_get_int_value_invalid_raises():
+    parse_node = TextParseNode("not-an-int")
+    with pytest.raises(ValueError):
+        parse_node.get_int_value()
+
+
+def test_get_float_value_invalid_raises():
+    parse_node = TextParseNode("not-a-float")
+    with pytest.raises(ValueError):
+        parse_node.get_float_value()
+
+
+def test_get_uuid_value_invalid_raises():
+    parse_node = TextParseNode("not-a-uuid")
+    with pytest.raises(ValueError):
+        parse_node.get_uuid_value()
+
+
+def test_get_datetime_value_invalid_raises():
+    parse_node = TextParseNode("not-a-datetime")
+    with pytest.raises(ValueError):
+        parse_node.get_datetime_value()
+
+
+def test_get_timedelta_value_invalid_raises():
+    parse_node = TextParseNode("not-a-timedelta")
+    with pytest.raises(Exception):
+        parse_node.get_timedelta_value()
+
+
+def test_get_date_value_invalid_raises():
+    parse_node = TextParseNode("not-a-date")
+    with pytest.raises(ValueError):
+        parse_node.get_date_value()
+
+
+def test_get_time_value_invalid_raises():
+    parse_node = TextParseNode("not-a-time")
+    with pytest.raises(ValueError):
+        parse_node.get_time_value()
+
+
+def test_get_enum_value_unknown_raises():
+    parse_node = TextParseNode("unknown_location")
+    with pytest.raises(Exception):
+        parse_node.get_enum_value(OfficeLocation)
+
+
+def test_get_scalars_empty_text_returns_none():
+    parse_node = TextParseNode("")
+    assert parse_node.get_int_value() is None
+    assert parse_node.get_float_value() is None
+    assert parse_node.get_uuid_value() is None
+    assert parse_node.get_datetime_value() is None
+    assert parse_node.get_timedelta_value() is None
+    assert parse_node.get_date_value() is None
+    assert parse_node.get_time_value() is None
+    assert parse_node.get_enum_value(OfficeLocation) is None
+
+
+def test_get_scalars_none_text_returns_none():
+    parse_node = TextParseNode(None)
+    assert parse_node.get_str_value() is None
+    assert parse_node.get_bytes_value() is None
+    assert parse_node.get_int_value() is None
+    assert parse_node.get_float_value() is None
+    assert parse_node.get_uuid_value() is None
+    assert parse_node.get_datetime_value() is None
+    assert parse_node.get_timedelta_value() is None
+    assert parse_node.get_date_value() is None
+    assert parse_node.get_time_value() is None
+    assert parse_node.get_enum_value(OfficeLocation) is None

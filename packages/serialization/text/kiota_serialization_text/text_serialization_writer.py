@@ -34,7 +34,7 @@ class TextSerializationWriter(SerializationWriter):
         if isinstance(value, str):
             if key:
                 raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
-            if self._writer:
+            if self._writer is not None:
                 raise Exception(
                     'A value was already written for this serialization writer,'
                     'text content only supports a single value'
@@ -152,9 +152,9 @@ class TextSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (bytes): The byte array to be written.
         """
-        if key and value:
+        if key and value is not None:
             raise Exception(self.NO_STRUCTURED_DATA_MESSAGE)
-        if value and not key:
+        if value is not None and not key:
             base64_bytes = base64.b64encode(value)
             base64_string = base64_bytes.decode('utf-8')
             self.write_str_value(key, base64_string)
@@ -201,7 +201,7 @@ class TextSerializationWriter(SerializationWriter):
         """
         text_string = self._writer
         self._writer = None
-        if text_string:
+        if text_string is not None:
             stream = text_string.encode('utf-8')
             return stream
 

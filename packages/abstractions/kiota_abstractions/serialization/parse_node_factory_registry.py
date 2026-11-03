@@ -33,7 +33,7 @@ class ParseNodeFactoryRegistry(ParseNodeFactory):
     def get_root_parse_node(self, content_type: str, content: bytes) -> ParseNode:
         if not content_type:
             raise Exception("Content type cannot be null")
-        if not content:
+        if content is None:
             raise Exception("Content cannot be null")
 
         vendor_specific_content_type = content_type.split(';')[0]

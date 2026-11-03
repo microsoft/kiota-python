@@ -8,7 +8,9 @@ from typing import Optional, TypeVar
 from uuid import UUID
 
 from kiota_abstractions.date_utils import (
-    parse_timedelta_string, datetime_from_iso_format_compat, time_from_iso_format_compat
+    datetime_from_iso_format_compat,
+    parse_timedelta_string,
+    time_from_iso_format_compat,
 )
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
 
@@ -40,7 +42,7 @@ class TextParseNode(ParseNode):
         Returns:
             str: The string value of the node
         """
-        if self._text:
+        if self._text is not None:
             return str(self._text)
         return None
 
@@ -185,7 +187,7 @@ class TextParseNode(ParseNode):
             bytes: The bytes value from the node
         """
         base64_string = self.get_str_value()
-        if not base64_string:
+        if base64_string is None:
             return None
         base64_bytes = base64_string.encode("utf-8")
         return base64.b64decode(base64_bytes)

@@ -249,3 +249,32 @@ def test_write_additional_data_value():
                 "businessPhones": ["+1 205 555 0108"],
             }
         )
+
+
+def test_write_empty_str_value():
+    text_serialization_writer = TextSerializationWriter()
+    text_serialization_writer.write_str_value(None, "")
+    content = text_serialization_writer.get_serialized_content()
+    assert content == b""
+
+
+def test_write_empty_str_value_duplicate_fails():
+    text_serialization_writer = TextSerializationWriter()
+    text_serialization_writer.write_str_value(None, "")
+    with pytest.raises(Exception) as exc_info:
+        text_serialization_writer.write_str_value(None, "second")
+    assert "A value was already written" in str(exc_info.value)
+
+
+def test_write_empty_bytes_value():
+    text_serialization_writer = TextSerializationWriter()
+    text_serialization_writer.write_bytes_value(None, b"")
+    content = text_serialization_writer.get_serialized_content()
+    assert content == b""
+
+
+def test_write_empty_bytes_value_with_key():
+    text_serialization_writer = TextSerializationWriter()
+    with pytest.raises(Exception) as exc_info:
+        text_serialization_writer.write_bytes_value("key", b"")
+    assert "Text does not support structured data" in str(exc_info.value)
