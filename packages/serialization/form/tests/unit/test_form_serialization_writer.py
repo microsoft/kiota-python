@@ -339,3 +339,20 @@ def test_additional_data_enum_collection_preserves_zero_and_separators():
         None, TestEntity(additional_data={"custom": [NumericEnum.ZERO, NumericEnum.ONE]})
     )
     assert writer.get_serialized_content() == b"first=present&custom=0&custom=1"
+
+def test_write_zero_timedelta_value():
+    writer = FormSerializationWriter()
+    writer.write_timedelta_value("duration", timedelta(0))
+    assert writer.get_serialized_content() == b"duration=0%3A00%3A00"
+
+
+def test_write_any_value_bytes():
+    writer = FormSerializationWriter()
+    writer.write_any_value("data", b"binary")
+    assert writer.get_serialized_content() == b"data=YmluYXJ5"
+
+
+def test_write_collection_of_primitive_values_bytes():
+    writer = FormSerializationWriter()
+    writer.write_collection_of_primitive_values("files", [b"first", b"second"])
+    assert writer.get_serialized_content() == b"files=Zmlyc3Q%3D&files=c2Vjb25k"
