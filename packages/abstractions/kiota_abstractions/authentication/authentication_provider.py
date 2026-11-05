@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 from ..request_information import RequestInformation
 
@@ -19,7 +19,7 @@ class AuthenticationProvider(ABC):
     async def authenticate_request(
         self,
         request: RequestInformation,
-        additional_authentication_context: dict[str, Any] = {}
+        additional_authentication_context: Optional[dict[str, Any]] = None
     ) -> None:
         """Authenticates the application request
 
