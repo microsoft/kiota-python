@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.16.0...microsoft-kiota-serialization-form-v1.17.0) (2026-11-05)
+
+
+### Bug Fixes
+
+* **form:** base64-decode bytes values on deserialization ([69a040a](https://github.com/microsoft/kiota-python/commit/69a040a3e083f927fcaa1af6873f4980c130c639))
+* **form:** base64-decode bytes values on deserialization ([acbf899](https://github.com/microsoft/kiota-python/commit/acbf899bb2f72db5855fe9c2848d0504481d07f7))
+* **serialization-form:** handle OverflowError safely in FormParseNode.try_get_anything ([b7eff3b](https://github.com/microsoft/kiota-python/commit/b7eff3b888ba115dcfac9c9d46d87591624d26f2))
+* **serialization-form:** refine value presence guards and lifecycle dispatch in FormSerializationWriter ([f7095f5](https://github.com/microsoft/kiota-python/commit/f7095f56c613ef3e33331eab0ac53fbc98b158e5))
+* **serialization-form:** support bytes in write_collection_of_primitive_values and write_any_value ([3cd7885](https://github.com/microsoft/kiota-python/commit/3cd7885e539ea96128142442987afe4324d88ac8))
+* **serialization-form:** support bytes serialization and zero duration handling ([99380ea](https://github.com/microsoft/kiota-python/commit/99380ea6d86d83d13d11ccb858ece485dae1d46b))
+* **serialization-form:** support zero timedelta in write_timedelta_value ([28d4497](https://github.com/microsoft/kiota-python/commit/28d44979d5fbfe8c2f640105934f1a8e5cae6964))
+
 ## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.15.0...microsoft-kiota-serialization-form-v1.16.0) (2026-10-26)
 
 

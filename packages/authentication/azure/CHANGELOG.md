@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.16.0...microsoft-kiota-authentication-azure-v1.17.0) (2026-11-05)
+
+
+### Bug Fixes
+
+* **abstractions:** improve authentication providers robustness and allowed hosts handling ([7f0ea78](https://github.com/microsoft/kiota-python/commit/7f0ea78ffe1784fabd5d7619d07227b9f9c240e1))
+* align Azure token provider authentication context ([d495009](https://github.com/microsoft/kiota-python/commit/d4950092e99617639e792bdbabc8849e078fcae3))
+
 ## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-authentication-azure-v1.15.0...microsoft-kiota-authentication-azure-v1.16.0) (2026-10-26)
 
 
