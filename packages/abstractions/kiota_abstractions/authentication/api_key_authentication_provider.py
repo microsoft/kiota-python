@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
+from ..headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
 
 from .allowed_hosts_validator import AllowedHostsValidator
@@ -65,7 +66,7 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
             raise ValueError("request can not be empty")
 
         if not self.allowed_hosts_validator.is_url_host_valid(request.url):
-            raise ValueError(f"{request.url!r} is not a valid URL")
+            return
 
         if self.key_location == KeyLocation.QueryParameter:
             url_parts = list(urlparse(request.url))
@@ -74,4 +75,6 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
             url_parts[4] = urlencode(query)
             request.url = urlunparse(url_parts)
         elif self.key_location == KeyLocation.Header:
+            if request.headers is None:
+                request.headers = HeadersCollection()
             request.headers.add(self.parameter_name, self.api_key)
