@@ -4,7 +4,7 @@
 # See License in the project root for license information.
 # ------------------------------------------------------------------------------
 
-from typing import Any
+from typing import Any, Optional
 
 from ..headers_collection import HeadersCollection
 from ..request_information import RequestInformation
@@ -24,7 +24,7 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
     async def authenticate_request(
         self,
         request: RequestInformation,
-        additional_authentication_context: dict[str, Any] = {}
+        additional_authentication_context: Optional[dict[str, Any]] = None,
     ) -> None:
         """Authenticates the provided RequestInformation instance using the provided
         authorization token
@@ -33,22 +33,23 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
             request (RequestInformation): Request information object
         """
         if not request:
-            raise Exception("Request cannot be null")
-        if all(
-            [
-                additional_authentication_context, self.CLAIMS_KEY
-                in additional_authentication_context,
-                request.headers.contains(self.AUTHORIZATION_HEADER)
-            ]
+            raise ValueError("Request cannot be null")
+
+        if request.headers is None:
+            request.headers = HeadersCollection()
+
+        if additional_authentication_context is None:
+            additional_authentication_context = {}
+
+        if (
+            self.CLAIMS_KEY in additional_authentication_context
+            and request.headers.contains(self.AUTHORIZATION_HEADER)
         ):
             request.headers.remove(self.AUTHORIZATION_HEADER)
-
-        if not request.request_headers:
-            request.headers = HeadersCollection()
 
         if not request.headers.contains(self.AUTHORIZATION_HEADER):
             token = await self.access_token_provider.get_authorization_token(
                 request.url, additional_authentication_context
             )
             if token:
-                request.headers.add(f'{self.AUTHORIZATION_HEADER}', f'Bearer {token}')
+                request.headers.add(self.AUTHORIZATION_HEADER, f'Bearer {token}')

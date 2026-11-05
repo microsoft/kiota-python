@@ -5,10 +5,11 @@
 # ------------------------------------------------------------------------------
 
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from kiota_abstractions.request_information import RequestInformation
+from ..headers_collection import HeadersCollection
+from ..request_information import RequestInformation
 
 from .allowed_hosts_validator import AllowedHostsValidator
 from .authentication_provider import AuthenticationProvider
@@ -33,7 +34,7 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
         key_location: KeyLocation,
         api_key: str,
         parameter_name: str,
-        allowed_hosts: list[str] = [],
+        allowed_hosts: Optional[list[str]] = None,
     ) -> None:
         if not isinstance(key_location, KeyLocation):
             err = "key_location can only be 'query_parameter' or 'header'"
@@ -48,6 +49,9 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
                 f"parameter_name can only be a string but you supplied {parameter_name!r}"
             )
 
+        if allowed_hosts is None:
+            allowed_hosts = []
+
         self.key_location = key_location
         self.api_key = api_key
         self.parameter_name = parameter_name
@@ -56,7 +60,7 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
     async def authenticate_request(
         self,
         request: RequestInformation,
-        additional_authentication_context: dict[str, Any] = {}
+        additional_authentication_context: Optional[dict[str, Any]] = None,
     ) -> None:
         """
         Ensures that the API key is placed in the correct location for a request.
@@ -65,13 +69,15 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
             raise ValueError("request can not be empty")
 
         if not self.allowed_hosts_validator.is_url_host_valid(request.url):
-            raise ValueError(f"{request.url!r} is not a valid URL")
+            return
 
         if self.key_location == KeyLocation.QueryParameter:
             url_parts = list(urlparse(request.url))
-            query = dict(parse_qsl(url_parts[4]))
+            query = dict(parse_qsl(url_parts[4], keep_blank_values=True))
             query.update({self.parameter_name: self.api_key})
             url_parts[4] = urlencode(query)
             request.url = urlunparse(url_parts)
         elif self.key_location == KeyLocation.Header:
+            if request.headers is None:
+                request.headers = HeadersCollection()
             request.headers.add(self.parameter_name, self.api_key)

@@ -55,15 +55,20 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
     async def get_authorization_token(
         self,
         uri: str,
-        additional_authentication_context: dict[str, Any] = {},
+        additional_authentication_context: Optional[dict[str, Any]] = None,
     ) -> str:
         """This method is called by the BaseBearerTokenAuthenticationProvider class to get the
         access token.
         Args:
             uri (str): The target URI to get an access token for.
+            additional_authentication_context (Optional[dict[str, Any]]): Additional context for
+                authentication.
         Returns:
             str: The access token to use for the request.
         """
+        if additional_authentication_context is None:
+            additional_authentication_context = {}
+
         with tracer.start_as_current_span("get_authorization_token") as span:
             if not self.get_allowed_hosts_validator().is_url_host_valid(uri):
                 span.set_attribute(self.IS_VALID_URL, False)
@@ -87,12 +92,10 @@ class AzureIdentityAccessTokenProvider(AccessTokenProvider):
             span.set_attribute(self.IS_VALID_URL, True)
 
             decoded_claim = None
-            if all(
-                [
-                    additional_authentication_context,
-                    self.CLAIMS_KEY in additional_authentication_context,
-                    isinstance(additional_authentication_context.get(self.CLAIMS_KEY), str),
-                ]
+            if (
+                additional_authentication_context
+                and self.CLAIMS_KEY in additional_authentication_context
+                and isinstance(additional_authentication_context.get(self.CLAIMS_KEY), str)
             ):
                 decoded_bytes = base64.b64decode(additional_authentication_context[self.CLAIMS_KEY])
                 decoded_claim = decoded_bytes.decode("utf-8")

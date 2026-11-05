@@ -35,7 +35,7 @@ class MockAccessTokenProvider(AccessTokenProvider):
         self.token = None
 
     async def get_authorization_token(
-        self, url: str, additional_authentication_context: dict[str, Any] = {}
+        self, url: str, additional_authentication_context: Optional[dict[str, Any]] = None
     ) -> str:
         return "SomeToken"
 
