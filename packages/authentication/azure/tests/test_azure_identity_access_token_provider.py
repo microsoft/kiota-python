@@ -1,7 +1,9 @@
 import asyncio
 
 import pytest
-from kiota_abstractions.authentication import AllowedHostsValidator
+import base64
+from typing import Any
+from kiota_abstractions.authentication import AccessTokenProvider, AllowedHostsValidator
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -261,3 +263,87 @@ async def test_derived_scope_brackets_ipv6_hostname():
     assert credential.received_scopes == [('https://[2001:db8::1]/.default',)]
 
 
+
+
+class RecordingClaimsAsyncTokenCredential(DummyAsyncAzureTokenCredential):
+    """Async credential that records calls to get_token."""
+
+    def __init__(self):
+        self.calls: list[dict[str, Any]] = []
+
+    async def get_token(self, *scopes, **kwargs):
+        self.calls.append({"scopes": scopes, "kwargs": kwargs})
+        return await super().get_token(*scopes, **kwargs)
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_with_none_additional_context():
+    """Verify that passing None as additional_authentication_context does not raise
+    TypeError and acquires a token with no claims challenge.
+    """
+    credential = RecordingClaimsAsyncTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+    token = await token_provider.get_authorization_token(
+        'https://graph.microsoft.com/v1.0/me', additional_authentication_context=None
+    )
+    assert token == "This is a dummy token"
+    assert len(credential.calls) == 1
+    assert credential.calls[0]["kwargs"].get("claims") is None
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_with_empty_additional_context():
+    """Verify that passing an empty dictionary preserves existing behavior with no claims."""
+    credential = RecordingClaimsAsyncTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+    token = await token_provider.get_authorization_token(
+        'https://graph.microsoft.com/v1.0/me', additional_authentication_context={}
+    )
+    assert token == "This is a dummy token"
+    assert len(credential.calls) == 1
+    assert credential.calls[0]["kwargs"].get("claims") is None
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_with_context_without_claims():
+    """Verify that a context without claims does not inject claims into get_token."""
+    credential = RecordingClaimsAsyncTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+    token = await token_provider.get_authorization_token(
+        'https://graph.microsoft.com/v1.0/me',
+        additional_authentication_context={"other_context_key": "other_value"},
+    )
+    assert token == "This is a dummy token"
+    assert len(credential.calls) == 1
+    assert credential.calls[0]["kwargs"].get("claims") is None
+
+
+@pytest.mark.asyncio
+async def test_get_authorization_token_with_claims_in_context():
+    """Verify that a context with base64-encoded claims decodes and passes claims to get_token."""
+    raw_claims = '{"access_token":{"nbf":{"essential":true, "value":"1652813508"}}}'
+    encoded_claims = base64.b64encode(raw_claims.encode("utf-8")).decode("utf-8")
+    credential = RecordingClaimsAsyncTokenCredential()
+    token_provider = AzureIdentityAccessTokenProvider(credential, None)
+    token = await token_provider.get_authorization_token(
+        'https://graph.microsoft.com/v1.0/me',
+        additional_authentication_context={"claims": encoded_claims},
+    )
+    assert token == "This is a dummy token"
+    assert len(credential.calls) == 1
+    assert credential.calls[0]["kwargs"].get("claims") == raw_claims
+
+
+@pytest.mark.asyncio
+async def test_azure_identity_access_token_provider_satisfies_contract():
+    """Verify that AzureIdentityAccessTokenProvider satisfies the AccessTokenProvider
+    abstract base class contract when called through a typed reference with None context.
+    """
+    token_provider: AccessTokenProvider = AzureIdentityAccessTokenProvider(
+        DummyAsyncAzureTokenCredential(), None
+    )
+    assert isinstance(token_provider, AccessTokenProvider)
+    token = await token_provider.get_authorization_token(
+        'https://graph.microsoft.com/v1.0/me', additional_authentication_context=None
+    )
+    assert token == "This is a dummy token"

@@ -44,3 +44,16 @@ async def test_adds_claim_to_the_token_context(mocker):
         claims="""{"access_token":{"nbf":{"essential":true, "value":"1652813508"}}}""",
         enable_cae=True
     )
+
+
+@pytest.mark.asyncio
+async def test_authenticate_request_with_none_additional_context():
+    """Verify that authenticate_request safely passes None additional_authentication_context."""
+    auth_provider = AzureIdentityAuthenticationProvider(DummyAsyncAzureTokenCredential())
+    request_info = RequestInformation()
+    request_info.url = "https://graph.microsoft.com"
+    await auth_provider.authenticate_request(
+        request_info, additional_authentication_context=None
+    )
+    assert 'authorization' in request_info.request_headers
+    assert request_info.request_headers['authorization'] == 'Bearer This is a dummy token'
