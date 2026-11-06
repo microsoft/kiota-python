@@ -19,6 +19,8 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
     CLAIMS_KEY = "claims"
 
     def __init__(self, access_token_provider: AccessTokenProvider) -> None:
+        if not access_token_provider:
+            raise ValueError("Access token provider cannot be null")
         self.access_token_provider = access_token_provider
 
     async def authenticate_request(
@@ -34,6 +36,10 @@ class BaseBearerTokenAuthenticationProvider(AuthenticationProvider):
         """
         if not request:
             raise ValueError("Request cannot be null")
+
+        validator = self.access_token_provider.get_allowed_hosts_validator()
+        if validator and not validator.is_url_host_valid(request.url):
+            return
 
         if request.headers is None:
             request.headers = HeadersCollection()
