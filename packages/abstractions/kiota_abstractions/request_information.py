@@ -305,9 +305,12 @@ class RequestInformation:
         if isinstance(value, (list, tuple, set)):
             if not value:
                 return []
-            if all(isinstance(x, Enum) for x in value):
-                return ','.join([str(x.value) for x in value])
-            return [self._get_sanitized_value(x) for x in value if x is not None]
+            non_null = [x for x in value if x is not None]
+            if not non_null:
+                return []
+            if all(isinstance(x, Enum) for x in non_null):
+                return ','.join([str(x.value) for x in non_null])
+            return [self._get_sanitized_value(x) for x in non_null]
 
         sanitized_value = value
         if isinstance(value, datetime):
