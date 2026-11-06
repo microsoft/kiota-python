@@ -199,6 +199,27 @@ def test_sets_enum_values_in_query_parameters():
     assert request_info.url == "https://example.com/me?dataset=value1%2Cvalue2"
 
 
+def test_sets_enum_values_with_leading_none_in_query_parameters():
+    """Tests that enum collections with leading None entries normalize to comma-joined enum values."""
+    request_info = RequestInformation(Method.GET, "https://example.com/me{?dataset}")
+    request_info.query_parameters["dataset"] = [None, TestEnum.VALUE1, TestEnum.VALUE2]
+    assert request_info.url == "https://example.com/me?dataset=value1%2Cvalue2"
+
+
+def test_sets_enum_values_with_trailing_none_in_query_parameters():
+    """Tests that enum collections with trailing None entries normalize cleanly."""
+    request_info = RequestInformation(Method.GET, "https://example.com/me{?dataset}")
+    request_info.query_parameters["dataset"] = [TestEnum.VALUE1, None]
+    assert request_info.url == "https://example.com/me?dataset=value1"
+
+
+def test_sets_enum_values_with_interleaved_none_in_path_parameters():
+    """Tests that path parameter enum collections with interleaved None normalize consistently."""
+    request_info = RequestInformation(Method.GET, "https://example.com/{dataset}")
+    request_info.path_parameters["dataset"] = [None, TestEnum.VALUE1, None, TestEnum.VALUE2]
+    assert request_info.url == "https://example.com/value1%2Cvalue2"
+
+
 def test_sets_enum_value_in_path_parameters():
     """Tests setting enum values in path parameters
     """
