@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-text-v1.16.0...microsoft-kiota-serialization-text-v1.17.0) (2026-11-05)
+
+
+### Bug Fixes
+
+* **serialization-text:** preserve empty string and bytes values and handle malformed inputs ([d277b5b](https://github.com/microsoft/kiota-python/commit/d277b5b266abdf3fe7b81550e5dbd29f74cf6704))
+* **serialization-text:** preserve empty string and bytes values and handle malformed inputs ([63ce3f4](https://github.com/microsoft/kiota-python/commit/63ce3f4d745117498c0f629b200790fa897c2ece))
+* **serialization-text:** propagate errors on malformed scalar parsing ([b90a043](https://github.com/microsoft/kiota-python/commit/b90a04381de11b87b6b3763ff027d689c65420cd))
+* **serialization-text:** validate base64 decoding and isolate factory registry test ([0368634](https://github.com/microsoft/kiota-python/commit/03686347d4ecedcae1b412de415f676249875efe))
+* **serialization:** allow empty content in factory guards and empty bytes deserialization ([8631a40](https://github.com/microsoft/kiota-python/commit/8631a405e4dea20a66efd7fb152a1907fbb8d710))
+
 ## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-text-v1.15.0...microsoft-kiota-serialization-text-v1.16.0) (2026-10-26)
 
 

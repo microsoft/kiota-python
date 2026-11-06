@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.16.0...microsoft-kiota-abstractions-v1.17.0) (2026-11-05)
+
+
+### Bug Fixes
+
+* **abstractions:** allow empty byte and string values in MultipartBody.add_or_replace_part ([ad0e411](https://github.com/microsoft/kiota-python/commit/ad0e4111c538d4d75787c3cdc1a7086c4d4bf75e))
+* **abstractions:** allow empty part values and relax adapter requirement in MultipartBody ([08d0694](https://github.com/microsoft/kiota-python/commit/08d069428eb3046b4723395e8a40cffd300d04d0))
+* **abstractions:** eliminate mutable defaults and preserve blank query params in ApiKeyAuthenticationProvider ([367c1b6](https://github.com/microsoft/kiota-python/commit/367c1b6a8dcb66d3a38aa6525b050f08843a950a))
+* **abstractions:** fix typo in _get_content_disposition and only require request_adapter for parsable parts ([dcce492](https://github.com/microsoft/kiota-python/commit/dcce49293ed08b67a8c46d36e806c045a0eaf437))
+* **abstractions:** improve authentication providers robustness and allowed hosts handling ([7f0ea78](https://github.com/microsoft/kiota-python/commit/7f0ea78ffe1784fabd5d7619d07227b9f9c240e1))
+* **abstractions:** improve headers initialization and error handling in BaseBearerTokenAuthenticationProvider ([cb507a8](https://github.com/microsoft/kiota-python/commit/cb507a8d20ac1fa55f81e09906485134ea1c4e57))
+* **abstractions:** remove private method alias _get_comtent_disposition ([3c38789](https://github.com/microsoft/kiota-python/commit/3c3878957b59f9eba6d78a9452dafb8bd3616357))
+* **abstractions:** return early on unallowed hosts in ApiKeyAuthenticationProvider ([cd3576e](https://github.com/microsoft/kiota-python/commit/cd3576e2fd614aa2dc40416d804e4e80c5a8bc02))
+* **abstractions:** safely handle missing header values and normalize return in remove_value ([99e64dd](https://github.com/microsoft/kiota-python/commit/99e64ddfa0705f638f82b2b9bd2121bf31d453cb))
+* **abstractions:** safely handle missing values and normalize return in HeadersCollection.remove_value ([ec30d23](https://github.com/microsoft/kiota-python/commit/ec30d232052648fbe21df80d6bd0edd2a59f50ba))
+* **serialization-text:** preserve empty string and bytes values and handle malformed inputs ([d277b5b](https://github.com/microsoft/kiota-python/commit/d277b5b266abdf3fe7b81550e5dbd29f74cf6704))
+* **serialization-text:** validate base64 decoding and isolate factory registry test ([0368634](https://github.com/microsoft/kiota-python/commit/03686347d4ecedcae1b412de415f676249875efe))
+* **serialization:** allow empty content in factory guards and empty bytes deserialization ([8631a40](https://github.com/microsoft/kiota-python/commit/8631a405e4dea20a66efd7fb152a1907fbb8d710))
+
 ## [1.16.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.15.0...microsoft-kiota-abstractions-v1.16.0) (2026-10-26)
 
 
