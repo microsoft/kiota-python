@@ -307,7 +307,7 @@ class RequestInformation:
                 return []
             if all(isinstance(x, Enum) for x in value):
                 return ','.join([str(x.value) for x in value])
-            return [self._get_sanitized_value(x) for x in value]
+            return [self._get_sanitized_value(x) for x in value if x is not None]
 
         sanitized_value = value
         if isinstance(value, datetime):
