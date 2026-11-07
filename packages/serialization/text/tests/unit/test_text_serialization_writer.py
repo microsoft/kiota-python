@@ -1,4 +1,5 @@
 from uuid import UUID
+from enum import Enum, IntEnum, IntFlag
 
 import pytest
 from datetime import date, datetime, timedelta
@@ -218,6 +219,28 @@ def test_write_enum_value():
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == "dunhill"
+
+
+@pytest.mark.parametrize("enum_type", [IntEnum, IntFlag])
+def test_write_falsy_enum_value(enum_type):
+    value = enum_type("State", {"None_": 0}).None_
+    writer = TextSerializationWriter()
+    writer.write_enum_value(None, value)
+    assert writer.get_serialized_content() == b"0"
+
+
+def test_write_falsy_string_enum_value():
+    value = Enum("State", {"Empty": ""}, type=str).Empty
+    writer = TextSerializationWriter()
+    writer.write_enum_value(None, value)
+    assert writer.get_serialized_content() == b""
+
+
+def test_write_none_enum_value_is_ignored():
+    writer = TextSerializationWriter()
+    writer.write_enum_value(None, None)
+    writer.write_str_value(None, "later")
+    assert writer.get_serialized_content() == b"later"
 
 
 def test_write_enum_value_with_key():
