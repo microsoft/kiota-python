@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 from kiota_serialization_text.text_serialization_writer import TextSerializationWriter
+from kiota_serialization_text.text_parse_node import TextParseNode
 
 from ..helpers import OfficeLocation, User
 
@@ -139,6 +140,14 @@ def test_write_timedelta_value():
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == "2:00:00"
+
+
+def test_timedelta_roundtrip_with_days_and_microseconds():
+    value = timedelta(days=2, microseconds=1)
+    writer = TextSerializationWriter()
+    writer.write_timedelta_value(None, value)
+    node = TextParseNode(writer.get_serialized_content().decode('utf-8'))
+    assert node.get_timedelta_value() == value
 
 
 def test_write_timedelta_value_with_key():

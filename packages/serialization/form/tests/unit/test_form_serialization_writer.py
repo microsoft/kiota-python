@@ -110,6 +110,14 @@ def test_write_datetime_value_valid_string():
     assert content_string == "updatedAt=2022-01-27T12%3A59%3A45.596117"
     
 
+def test_timedelta_roundtrip_with_days_and_microseconds():
+    value = timedelta(days=2, microseconds=1)
+    writer = FormSerializationWriter()
+    writer.write_timedelta_value("duration", value)
+    node = FormParseNode(writer.get_serialized_content().decode('utf-8')).get_child_node("duration")
+    assert node.get_timedelta_value() == value
+
+
 def test_write_timedelta_value():
     form_serialization_writer = FormSerializationWriter()
     form_serialization_writer.write_timedelta_value(
