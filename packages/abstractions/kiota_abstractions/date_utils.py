@@ -60,11 +60,15 @@ def parse_timedelta_from_iso_format(text: str) -> timedelta:
         raise ValueError(f"ISO8601 duration out of range: {text}") from exc
 
 
-_TIMEDELTA_PATTERN = re.compile(r"^(?P<hours>\d+):(?P<minutes>\d+)(?::(?P<seconds>\d+))?$")
+_TIMEDELTA_PATTERN = re.compile(
+    r"^(?:(?P<days>-?\d+) days?, )?"
+    r"(?P<hours>\d+):(?P<minutes>\d+)"
+    r"(?::(?P<seconds>\d+)(?:\.(?P<microseconds>\d{1,6}))?)?$"
+)
 
 
 def parse_timedelta_string(text: str) -> timedelta:
-    """Checks if a given string is a valid ISO8601 duration string. Or hh:mm:ss format."""
+    """Parses an ISO8601 duration, hh:mm[:ss], or a native timedelta string."""
     try:
         return parse_timedelta_from_iso_format(text)
     except ValueError as exc:
@@ -76,8 +80,13 @@ def parse_timedelta_string(text: str) -> timedelta:
         hours = int(m.group("hours"))
         minutes = int(m.group("minutes"))
         seconds = int(m.group("seconds") or 0)
+        days = int(m.group("days") or 0)
+        fraction = m.group("microseconds") or ""
+        microseconds = int(fraction.ljust(6, "0")) if fraction else 0
         try:
-            return timedelta(hours=hours, minutes=minutes, seconds=seconds)
+            return timedelta(
+                days=days, hours=hours, minutes=minutes, seconds=seconds, microseconds=microseconds
+            )
         except OverflowError as overflow:
             raise ValueError(f"Timedelta string out of range: {text}") from overflow
 

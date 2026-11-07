@@ -1,4 +1,5 @@
 import pytest
+from datetime import timedelta
 
 from kiota_abstractions.date_utils import (
     parse_timedelta_from_iso_format,
@@ -84,6 +85,34 @@ def test_parse_timedelta_string_valid(text:str, expected_hours:int):
     result = parse_timedelta_string(text)
     assert result.days == 0
     assert result.seconds == expected_hours * 3600
+
+
+@pytest.mark.parametrize("value", [
+    timedelta(days=1),
+    timedelta(days=2, hours=3, minutes=4, seconds=5, microseconds=6),
+    timedelta(microseconds=1),
+    timedelta(microseconds=-1),
+    timedelta(days=-2, seconds=3, microseconds=7),
+    timedelta.max,
+    timedelta.min,
+    timedelta(0),
+    timedelta(hours=3),
+])
+def test_parse_native_timedelta_roundtrip(value):
+    assert parse_timedelta_string(str(value)) == value
+
+
+def test_parse_fractional_native_duration():
+    assert parse_timedelta_string("0:00:01.5") == timedelta(seconds=1, milliseconds=500)
+
+
+@pytest.mark.parametrize("text", [
+    "1 day,", "1 day, 0:00:00.0000001", "1 day, -1:00:00",
+    "1 days 0:00:00", "x day, 0:00:00",
+])
+def test_parse_native_timedelta_invalid(text):
+    with pytest.raises(ValueError):
+        parse_timedelta_string(text)
 
 
 @pytest.mark.parametrize("text", ["P1000000000D", "PT24000000000H", "P" + "9" * 400 + "D"])

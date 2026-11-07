@@ -1,10 +1,11 @@
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from uuid import UUID
 
 import pytest
 
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter
+from kiota_serialization_json.json_parse_node import JsonParseNode
 
 from ..helpers import OfficeLocation, Team, User, User2
 
@@ -133,6 +134,14 @@ def test_write_timedelta_value():
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
     assert content_string == '{"diff": "2:00:00"}'
+
+
+def test_timedelta_roundtrip_with_days_and_microseconds():
+    value = timedelta(days=2, microseconds=1)
+    writer = JsonSerializationWriter()
+    writer.write_timedelta_value(None, value)
+    node = JsonParseNode(json.loads(writer.get_serialized_content()))
+    assert node.get_timedelta_value() == value
 
 
 def test_write_timedelta_value_valid_string():
