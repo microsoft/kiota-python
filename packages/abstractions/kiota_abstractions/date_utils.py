@@ -43,9 +43,13 @@ def parse_timedelta_from_iso_format(text: str) -> timedelta:
                     ) if m.group("minutes") else 0
     seconds = float(m.group("seconds").replace(",", ".").replace("S", "")
                     ) if m.group("seconds") else 0
-    _have_date = years or months or days
-    _have_time = hours or minutes or seconds
-    if weeks and (_have_date or _have_time):
+    _have_weeks = bool(m.group("weeks"))
+    _have_date = bool(m.group("years") or m.group("months") or m.group("days"))
+    _have_time = bool(m.group("hours") or m.group("minutes") or m.group("seconds"))
+    if not (_have_weeks or _have_date or _have_time):
+        raise ValueError(f"Invalid ISO8601 duration string: {text}")
+
+    if _have_weeks and (_have_date or _have_time):
         raise ValueError("Combining weeks with other date/time parts is not supported")
 
     _total_days = (years * 365) + (months * 30) + days
