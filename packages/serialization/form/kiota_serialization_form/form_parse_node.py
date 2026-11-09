@@ -12,7 +12,7 @@ from uuid import UUID
 
 from kiota_abstractions.date_utils import (
     datetime_from_iso_format_compat,
-    parse_timedelta_string,
+    parse_timedelta_from_iso_format,
     time_from_iso_format_compat,
 )
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
@@ -277,7 +277,9 @@ class FormParseNode(ParseNode):
             except ValueError:
                 pass
             try:
-                return parse_timedelta_string(value)
+                negative = value.startswith("-")
+                duration = parse_timedelta_from_iso_format(value[1:] if negative else value)
+                return -duration if negative else duration
             except (ValueError, OverflowError):
                 pass
             try:
@@ -354,7 +356,9 @@ class FormParseNode(ParseNode):
     def _get_timedelta_value(value: str) -> Optional[timedelta]:
         if value and value != "null":
             try:
-                return parse_timedelta_string(value)
+                negative = value.startswith("-")
+                duration = parse_timedelta_from_iso_format(value[1:] if negative else value)
+                return -duration if negative else duration
             except:
                 return None
         return None

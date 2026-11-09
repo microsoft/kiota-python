@@ -87,32 +87,12 @@ def test_parse_timedelta_string_valid(text:str, expected_hours:int):
     assert result.seconds == expected_hours * 3600
 
 
-@pytest.mark.parametrize("value", [
-    timedelta(days=1),
-    timedelta(days=2, hours=3, minutes=4, seconds=5, microseconds=6),
-    timedelta(microseconds=1),
-    timedelta(microseconds=-1),
-    timedelta(days=-2, seconds=3, microseconds=7),
-    timedelta.max,
-    timedelta.min,
-    timedelta(0),
-    timedelta(hours=3),
-])
-def test_parse_native_timedelta_roundtrip(value):
-    assert parse_timedelta_string(str(value)) == value
-
-
-def test_parse_fractional_native_duration():
-    assert parse_timedelta_string("0:00:01.5") == timedelta(seconds=1, milliseconds=500)
-
-
-@pytest.mark.parametrize("text", [
-    "1 day,", "1 day, 0:00:00.0000001", "1 day, -1:00:00",
-    "1 days 0:00:00", "x day, 0:00:00",
-])
-def test_parse_native_timedelta_invalid(text):
-    with pytest.raises(ValueError):
-        parse_timedelta_string(text)
+def test_legacy_timedelta_parser_is_deprecated():
+    with pytest.warns(DeprecationWarning, match="parse_timedelta_string is deprecated"):
+        assert parse_timedelta_string("2:00:00") == timedelta(hours=2)
+    with pytest.warns(DeprecationWarning):
+        with pytest.raises(ValueError):
+            parse_timedelta_string("1 day, 0:00:00")
 
 
 @pytest.mark.parametrize("text", ["P1000000000D", "PT24000000000H", "P" + "9" * 400 + "D"])

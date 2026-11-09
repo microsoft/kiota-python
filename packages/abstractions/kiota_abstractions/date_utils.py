@@ -1,6 +1,7 @@
-from sys import version_info as sys_version_info
 import re
 from datetime import datetime, time, timedelta
+from sys import version_info as sys_version_info
+from warnings import warn
 
 _ISO8601_DURATION_PATTERN = re.compile(
     "^P"  # Duration P indicator
@@ -60,15 +61,16 @@ def parse_timedelta_from_iso_format(text: str) -> timedelta:
         raise ValueError(f"ISO8601 duration out of range: {text}") from exc
 
 
-_TIMEDELTA_PATTERN = re.compile(
-    r"^(?:(?P<days>-?\d+) days?, )?"
-    r"(?P<hours>\d+):(?P<minutes>\d+)"
-    r"(?::(?P<seconds>\d+)(?:\.(?P<microseconds>\d{1,6}))?)?$"
-)
+_TIMEDELTA_PATTERN = re.compile(r"^(?P<hours>\d+):(?P<minutes>\d+)(?::(?P<seconds>\d+))?$")
 
 
 def parse_timedelta_string(text: str) -> timedelta:
-    """Parses an ISO8601 duration, hh:mm[:ss], or a native timedelta string."""
+    """Parse legacy durations. Deprecated; use parse_timedelta_from_iso_format instead."""
+    warn(
+        "parse_timedelta_string is deprecated. Use parse_timedelta_from_iso_format instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     try:
         return parse_timedelta_from_iso_format(text)
     except ValueError as exc:
@@ -80,13 +82,8 @@ def parse_timedelta_string(text: str) -> timedelta:
         hours = int(m.group("hours"))
         minutes = int(m.group("minutes"))
         seconds = int(m.group("seconds") or 0)
-        days = int(m.group("days") or 0)
-        fraction = m.group("microseconds") or ""
-        microseconds = int(fraction.ljust(6, "0")) if fraction else 0
         try:
-            return timedelta(
-                days=days, hours=hours, minutes=minutes, seconds=seconds, microseconds=microseconds
-            )
+            return timedelta(hours=hours, minutes=minutes, seconds=seconds)
         except OverflowError as overflow:
             raise ValueError(f"Timedelta string out of range: {text}") from overflow
 

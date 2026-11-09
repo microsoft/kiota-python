@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
-from kiota_abstractions.date_utils import parse_timedelta_string
+from kiota_abstractions.date_utils import parse_timedelta_from_iso_format
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 T = TypeVar("T")
@@ -137,18 +137,28 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[timedelta]): The timedelta value to be written.
         """
         if isinstance(value, timedelta):
+            unsigned = abs(value)
+            seconds = f"{unsigned.seconds}.{unsigned.microseconds:06d}".rstrip("0").rstrip(".")
+            duration = f"P{unsigned.days}D" if unsigned.days else "P"
+            if unsigned.seconds or unsigned.microseconds or not unsigned.days:
+                duration += f"T{seconds}S"
+            if value < timedelta(0):
+                duration = "-" + duration
             if key is not None:
-                self.writer[key] = str(value)
+                self.writer[key] = duration
             else:
-                self._write_root_value(str(value))
+                self._write_root_value(duration)
         elif isinstance(value, str):
             try:
-                parse_timedelta_string(value)
+                negative = value.startswith("-")
+                parsed = parse_timedelta_from_iso_format(value[1:] if negative else value)
+                if negative and parsed > -timedelta.min:
+                    raise ValueError("Duration is below timedelta.min")
                 if key is not None:
                     self.writer[key] = value
                 else:
                     self._write_root_value(value)
-            except ValueError:
+            except (ValueError, OverflowError):
                 if key is not None:
                     raise ValueError(f"Invalid timedelta string value found for property {key}")
                 raise ValueError("Invalid timedelta string value found")

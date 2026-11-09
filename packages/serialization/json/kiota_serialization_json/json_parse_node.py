@@ -12,7 +12,7 @@ from uuid import UUID
 
 from kiota_abstractions.date_utils import (
     datetime_from_iso_format_compat,
-    parse_timedelta_string,
+    parse_timedelta_from_iso_format,
     time_from_iso_format_compat,
 )
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
@@ -266,8 +266,10 @@ class JsonParseNode(ParseNode):
             return value
         if isinstance(value, str):
             try:
-                return parse_timedelta_string(value)
-            except ValueError:
+                negative = value.startswith("-")
+                duration = parse_timedelta_from_iso_format(value[1:] if negative else value)
+                return -duration if negative else duration
+            except (ValueError, OverflowError):
                 return None
         return None
 
