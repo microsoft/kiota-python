@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
+from isodate import duration_isoformat  # type: ignore[import-untyped]
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 T = TypeVar("T")
@@ -93,13 +94,7 @@ class TextSerializationWriter(SerializationWriter):
             value (Optional[timedelta]): The timedelta value to be written.
         """
         if value is not None:
-            unsigned = abs(value)
-            seconds = f"{unsigned.seconds}.{unsigned.microseconds:06d}".rstrip("0").rstrip(".")
-            duration = f"P{unsigned.days}D" if unsigned.days else "P"
-            if unsigned.seconds or unsigned.microseconds or not unsigned.days:
-                duration += f"T{seconds}S"
-            if value < timedelta(0):
-                duration = "-" + duration
+            duration = duration_isoformat(value)
             self.write_str_value(key, duration)
 
     def write_date_value(self, key: Optional[str], value: Optional[date]) -> None:

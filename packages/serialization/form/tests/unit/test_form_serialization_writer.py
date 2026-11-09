@@ -113,9 +113,9 @@ def test_write_datetime_value_valid_string():
 @pytest.mark.parametrize("value, expected", [
     (timedelta(days=2, microseconds=1), "P2DT0.000001S"),
     (timedelta(microseconds=-1), "-PT0.000001S"),
-    (timedelta.max, "P999999999DT86399.999999S"),
+    (timedelta.max, "P999999999DT23H59M59.999999S"),
     (timedelta.min, "-P999999999D"),
-    (timedelta(0), "PT0S"),
+    (timedelta(0), "P0D"),
 ])
 def test_iso_timedelta_wire_roundtrip(value, expected):
     writer = FormSerializationWriter()
@@ -132,7 +132,7 @@ def test_write_timedelta_value():
         "diff", timedelta(seconds=7200))
     content = form_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
-    assert content_string == "diff=PT7200S"
+    assert content_string == "diff=PT2H"
     
 
 def test_write_date_value():
@@ -215,7 +215,7 @@ def test_write_object_value(user_1):
         "user=id=8f841f30-e6e3-439a-a812-ebd369559c36&"
         "deviceNames=device1&deviceNames=device2&"
         "numbers=one%2Ceight&"
-        "workDuration=PT7200S&"
+        "workDuration=PT2H&"
         "birthDay=2000-09-04&"
         "startWorkTime=08%3A00%3A00&"
         "createdDateTime=2022-01-27T12%3A59%3A45.596117%2B00%3A00&"
@@ -360,7 +360,7 @@ def test_additional_data_enum_collection_preserves_zero_and_separators():
 def test_write_zero_timedelta_value():
     writer = FormSerializationWriter()
     writer.write_timedelta_value("duration", timedelta(0))
-    assert writer.get_serialized_content() == b"duration=PT0S"
+    assert writer.get_serialized_content() == b"duration=P0D"
 
 
 def test_write_any_value_bytes():
@@ -412,7 +412,7 @@ def test_zero_timedelta_entity_round_trip():
     entity = TestEntity(work_duration=timedelta(0))
     writer.write_object_value(None, entity)
     content = writer.get_serialized_content()
-    assert content == b"workDuration=PT0S"
+    assert content == b"workDuration=P0D"
 
     parse_node = FormParseNode(content.decode("utf-8"))
     deserialized = parse_node.get_object_value(TestEntity)
