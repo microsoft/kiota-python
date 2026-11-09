@@ -37,14 +37,14 @@ class ParseNodeFactoryRegistry(ParseNodeFactory):
             raise Exception("Content cannot be null")
 
         vendor_specific_content_type = content_type.split(';')[0]
-        factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(vendor_specific_content_type)
-        if factory:
-            return factory.get_root_parse_node(vendor_specific_content_type, content)
-
         cleaned_content_type = re.sub(r'[^/]+\+', '', vendor_specific_content_type)
-        factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(cleaned_content_type)
-        if factory:
-            return factory.get_root_parse_node(cleaned_content_type, content)
+        for candidate in (vendor_specific_content_type, cleaned_content_type):
+            factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(candidate)
+            if factory:
+                return factory.get_root_parse_node(candidate, content)
+            for registered_type, factory in self.CONTENT_TYPE_ASSOCIATED_FACTORIES.items():
+                if registered_type.casefold() == candidate.casefold():
+                    return factory.get_root_parse_node(registered_type, content)
 
         raise Exception(
             f"Content type {cleaned_content_type} does not have a factory registered to be parsed"
