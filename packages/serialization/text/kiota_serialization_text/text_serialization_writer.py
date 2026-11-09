@@ -177,7 +177,7 @@ class TextSerializationWriter(SerializationWriter):
             key (Optional[str]): The key to be used for the written value. May be null.
             value (Optional[K]): The enum value to be written.
         """
-        if value:
+        if value is not None:
             self.write_str_value(key, str(value.value))
 
     def write_null_value(self, key: Optional[str]) -> None:
