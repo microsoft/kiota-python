@@ -8,7 +8,6 @@ from enum import Enum
 from typing import Any, Optional, TypeVar
 from uuid import UUID
 
-from isodate import duration_isoformat  # type: ignore[import-untyped]
 from kiota_abstractions.date_utils import parse_timedelta_from_iso_format
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
@@ -138,7 +137,9 @@ class JsonSerializationWriter(SerializationWriter):
             value (Optional[timedelta]): The timedelta value to be written.
         """
         if isinstance(value, timedelta):
-            duration = duration_isoformat(value)
+            unsigned = abs(value)
+            sign = "-" if value < timedelta(0) else ""
+            duration = f"{sign}P{unsigned.days}DT{unsigned.seconds}.{unsigned.microseconds:06d}S"
             if key is not None:
                 self.writer[key] = duration
             else:

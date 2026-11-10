@@ -90,7 +90,7 @@ def test_write_float_value_with_key():
     [
         ("write_int_value", 0, "0"),
         ("write_float_value", 0.0, "0.0"),
-        ("write_timedelta_value", timedelta(0), "P0D"),
+        ("write_timedelta_value", timedelta(0), "P0DT0.000000S"),
     ],
 )
 def test_write_zero_values(method, value, expected):
@@ -140,15 +140,15 @@ def test_write_timedelta_value():
     )
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
-    assert content_string == "PT2H"
+    assert content_string == "P0DT7200.000000S"
 
 
 @pytest.mark.parametrize("value, expected", [
     (timedelta(days=2, microseconds=1), "P2DT0.000001S"),
-    (timedelta(microseconds=-1), "-PT0.000001S"),
-    (timedelta.max, "P999999999DT23H59M59.999999S"),
-    (timedelta.min, "-P999999999D"),
-    (timedelta(0), "P0D"),
+    (timedelta(microseconds=-1), "-P0DT0.000001S"),
+    (timedelta.max, "P999999999DT86399.999999S"),
+    (timedelta.min, "-P999999999DT0.000000S"),
+    (timedelta(0), "P0DT0.000000S"),
 ])
 def test_iso_timedelta_wire_roundtrip(value, expected):
     writer = TextSerializationWriter()
