@@ -36,14 +36,21 @@ class SerializationWriterFactoryRegistry(SerializationWriterFactory):
             raise Exception("Content type cannot be null")
 
         vendor_specific_content_type = content_type.split(';')[0]
-        factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(vendor_specific_content_type)
-        if factory:
-            return factory.get_serialization_writer(vendor_specific_content_type)
         cleaned_content_type = re.sub(r'[^/]+\+', '', vendor_specific_content_type)
+        # Preserve direct exact-key registrations; normal registration uses lowercase keys.
+        for candidate in (
+            vendor_specific_content_type, vendor_specific_content_type.lower(),
+            cleaned_content_type, cleaned_content_type.lower()
+        ):
+            factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(candidate)
+            if factory:
+                dispatch_type = candidate
+                if not isinstance(factory, SerializationWriterFactoryRegistry):
+                    declared_type = factory.get_valid_content_type()
+                    if declared_type.lower() == candidate.lower():
+                        dispatch_type = declared_type
+                return factory.get_serialization_writer(dispatch_type)
 
-        factory = self.CONTENT_TYPE_ASSOCIATED_FACTORIES.get(cleaned_content_type)
-        if factory:
-            return factory.get_serialization_writer(cleaned_content_type)
         raise Exception(
             f"Content type {cleaned_content_type} does not have a factory registered"
             "to be serialized"

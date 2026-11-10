@@ -18,7 +18,7 @@ def register_default_serializer(factory_class: Callable[[], SerializationWriterF
     """
     serializer = factory_class()
     SerializationWriterFactoryRegistry().CONTENT_TYPE_ASSOCIATED_FACTORIES[
-        serializer.get_valid_content_type()] = serializer
+        serializer.get_valid_content_type().lower()] = serializer
 
 
 def register_default_deserializer(factory_class: Callable[[], ParseNodeFactory]) -> None:
@@ -29,7 +29,7 @@ def register_default_deserializer(factory_class: Callable[[], ParseNodeFactory])
     """
     deserializer = factory_class()
     ParseNodeFactoryRegistry().CONTENT_TYPE_ASSOCIATED_FACTORIES[
-        deserializer.get_valid_content_type()] = deserializer
+        deserializer.get_valid_content_type().lower()] = deserializer
 
 
 def enable_backing_store_for_serialization_writer_factory(
