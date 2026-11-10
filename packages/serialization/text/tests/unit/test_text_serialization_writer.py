@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta
 from kiota_abstractions.serialization import Parsable, SerializationWriter
 
 from kiota_serialization_text.text_serialization_writer import TextSerializationWriter
+from kiota_serialization_text.text_parse_node import TextParseNode
 
 from ..helpers import OfficeLocation, User
 
@@ -89,7 +90,7 @@ def test_write_float_value_with_key():
     [
         ("write_int_value", 0, "0"),
         ("write_float_value", 0.0, "0.0"),
-        ("write_timedelta_value", timedelta(0), "0:00:00"),
+        ("write_timedelta_value", timedelta(0), "P0DT0.000000S"),
     ],
 )
 def test_write_zero_values(method, value, expected):
@@ -139,7 +140,23 @@ def test_write_timedelta_value():
     )
     content = text_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
-    assert content_string == "2:00:00"
+    assert content_string == "P0DT7200.000000S"
+
+
+@pytest.mark.parametrize("value, expected", [
+    (timedelta(days=2, microseconds=1), "P2DT0.000001S"),
+    (timedelta(microseconds=-1), "-P0DT0.000001S"),
+    (timedelta.max, "P999999999DT86399.999999S"),
+    (timedelta.min, "-P999999999DT0.000000S"),
+    (timedelta(0), "P0DT0.000000S"),
+])
+def test_iso_timedelta_wire_roundtrip(value, expected):
+    writer = TextSerializationWriter()
+    writer.write_timedelta_value(None, value)
+    content = writer.get_serialized_content()
+    assert expected.encode() in content
+    node = TextParseNode(content.decode('utf-8'))
+    assert node.get_timedelta_value() == value
 
 
 def test_write_timedelta_value_with_key():

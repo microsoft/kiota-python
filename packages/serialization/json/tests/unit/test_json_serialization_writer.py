@@ -1,10 +1,11 @@
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from uuid import UUID
 
 import pytest
 
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter
+from kiota_serialization_json.json_parse_node import JsonParseNode
 
 from ..helpers import OfficeLocation, Team, User, User2
 
@@ -132,15 +133,31 @@ def test_write_timedelta_value():
     )
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
-    assert content_string == '{"diff": "2:00:00"}'
+    assert content_string == '{"diff": "P0DT7200.000000S"}'
+
+
+@pytest.mark.parametrize("value, expected", [
+    (timedelta(days=2, microseconds=1), "P2DT0.000001S"),
+    (timedelta(microseconds=-1), "-P0DT0.000001S"),
+    (timedelta.max, "P999999999DT86399.999999S"),
+    (timedelta.min, "-P999999999DT0.000000S"),
+    (timedelta(0), "P0DT0.000000S"),
+])
+def test_iso_timedelta_wire_roundtrip(value, expected):
+    writer = JsonSerializationWriter()
+    writer.write_timedelta_value(None, value)
+    content = writer.get_serialized_content()
+    assert expected.encode() in content
+    node = JsonParseNode(json.loads(content))
+    assert node.get_timedelta_value() == value
 
 
 def test_write_timedelta_value_valid_string():
     json_serialization_writer = JsonSerializationWriter()
-    json_serialization_writer.write_timedelta_value("diff", "2:00:00")
+    json_serialization_writer.write_timedelta_value("diff", "PT2H")
     content = json_serialization_writer.get_serialized_content()
     content_string = content.decode('utf-8')
-    assert content_string == '{"diff": "2:00:00"}'
+    assert content_string == '{"diff": "PT2H"}'
 
 
 def test_write_timedelta_value_invalid_string():
@@ -375,3 +392,14 @@ def test_on_start_writes_into_the_nested_object():
     json_serialization_writer.write_object_value(None, team)
     content = json_serialization_writer.get_serialized_content()
     assert json.loads(content) == {"lead": {"is_active": None, "mobile_phone": "+1 234 567 891"}}
+
+
+def test_timedelta_writer_rejects_native_wire_string():
+    writer = JsonSerializationWriter()
+    with pytest.raises(ValueError, match="Invalid timedelta string"):
+        writer.write_timedelta_value("duration", "2:00:00")
+
+
+def test_timedelta_writer_rejects_below_native_range():
+    with pytest.raises(ValueError, match="Invalid timedelta string"):
+        JsonSerializationWriter().write_timedelta_value("duration", "-P999999999DT1S")

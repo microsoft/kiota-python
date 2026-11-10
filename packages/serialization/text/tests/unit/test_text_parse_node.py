@@ -230,3 +230,15 @@ def test_get_scalars_none_text_returns_none():
     assert parse_node.get_date_value() is None
     assert parse_node.get_time_value() is None
     assert parse_node.get_enum_value(OfficeLocation) is None
+
+
+@pytest.mark.parametrize("text", ["2:00:00", "2 days, 0:00:00.000001"])
+def test_timedelta_reader_rejects_native_wire_format(text):
+    with pytest.raises(ValueError):
+        TextParseNode(text).get_timedelta_value()
+
+
+def test_negative_iso_duration_below_native_range():
+    text = "-P999999999DT1S"
+    with pytest.raises(ValueError, match="out of range"):
+        TextParseNode(text).get_timedelta_value()

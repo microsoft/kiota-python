@@ -9,7 +9,7 @@ from uuid import UUID
 
 from kiota_abstractions.date_utils import (
     datetime_from_iso_format_compat,
-    parse_timedelta_string,
+    parse_timedelta_from_iso_format,
     time_from_iso_format_compat,
 )
 from kiota_abstractions.serialization import Parsable, ParsableFactory, ParseNode
@@ -108,7 +108,12 @@ class TextParseNode(ParseNode):
         """
         datetime_str = self.get_str_value()
         if datetime_str:
-            return parse_timedelta_string(datetime_str)
+            negative = datetime_str.startswith("-")
+            value = parse_timedelta_from_iso_format(datetime_str[1:] if negative else datetime_str)
+            try:
+                return -value if negative else value
+            except OverflowError as exc:
+                raise ValueError(f"ISO8601 duration out of range: {datetime_str}") from exc
         return None
 
     def get_date_value(self) -> Optional[date]:

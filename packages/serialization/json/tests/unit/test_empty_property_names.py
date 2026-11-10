@@ -19,7 +19,7 @@ from ..helpers import OfficeLocation, User
     ("write_datetime_value", datetime(2026, 1, 2, 3, 4), "2026-01-02T03:04:00"),
     ("write_date_value", date(2026, 1, 2), "2026-01-02"),
     ("write_time_value", time(3, 4), "03:04:00"),
-    ("write_timedelta_value", timedelta(seconds=1), "0:00:01"),
+    ("write_timedelta_value", timedelta(seconds=1), "P0DT1.000000S"),
     ("write_bytes_value", b"hello", "aGVsbG8="),
     ("write_collection_of_primitive_values", [1, 2], [1, 2]),
     ("write_enum_value", OfficeLocation.Oval, "oval"),

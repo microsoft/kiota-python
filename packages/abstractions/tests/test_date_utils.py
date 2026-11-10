@@ -1,4 +1,5 @@
 import pytest
+from datetime import timedelta
 
 from kiota_abstractions.date_utils import (
     parse_timedelta_from_iso_format, parse_timedelta_string, time_from_iso_format_compat,
@@ -93,6 +94,14 @@ def test_parse_timedelta_string_valid(text: str, expected_hours: int):
     result = parse_timedelta_string(text)
     assert result.days == 0
     assert result.seconds == expected_hours * 3600
+
+
+def test_legacy_timedelta_parser_is_deprecated():
+    with pytest.warns(DeprecationWarning, match="parse_timedelta_string is deprecated"):
+        assert parse_timedelta_string("2:00:00") == timedelta(hours=2)
+    with pytest.warns(DeprecationWarning):
+        with pytest.raises(ValueError):
+            parse_timedelta_string("1 day, 0:00:00")
 
 
 @pytest.mark.parametrize("text", ["P1000000000D", "PT24000000000H", "P" + "9" * 400 + "D"])

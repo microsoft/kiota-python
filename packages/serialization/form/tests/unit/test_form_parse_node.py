@@ -292,3 +292,13 @@ def test_try_get_anything_out_of_range_timedelta_overflow_fallback():
     parse_node = FormParseNode("extra=50001140846%3A00021")
     entity = parse_node.get_object_value(TestEntity)
     assert entity.additional_data.get("extra") == "50001140846:00021"
+
+
+@pytest.mark.parametrize("text", ["2:00:00", "2 days, 0:00:00.000001"])
+def test_timedelta_reader_rejects_native_wire_format(text):
+    assert FormParseNode("duration=" + text).get_child_node("duration").get_timedelta_value() is None
+
+
+def test_negative_iso_duration_below_native_range():
+    text = "-P999999999DT1S"
+    assert FormParseNode("duration=" + text).get_child_node("duration").get_timedelta_value() is None

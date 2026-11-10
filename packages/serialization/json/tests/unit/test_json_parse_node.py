@@ -244,7 +244,7 @@ def test_get_anythin_does_convert_date_string_to_datetime():
         "100-012863299",  # invoice number
         "23.085",  # parsed as time(23, 0, 0, 85000)
         "11.0",  # version string, parsed as time(11, 0)
-        # coerced to timedelta via parse_timedelta_string
+        # coerced to timedelta via parse_timedelta_from_iso_format
         "PT",  # country code, parsed as an empty ISO 8601 duration
         "10:30",  # parsed as hh:mm
         # microsoft/kiota-python#487: 32-hex string coerced to UUID
@@ -373,3 +373,13 @@ def test_hooks_run_for_nested_objects():
     team = parse_node.get_object_value(Team)
     assert team.lead.mobile_phone == "+1 234 567 891"
     assert seen == ["Team", "User", "User", "Team"]
+
+
+@pytest.mark.parametrize("text", ["2:00:00", "2 days, 0:00:00.000001"])
+def test_timedelta_reader_rejects_native_wire_format(text):
+    assert JsonParseNode(text).get_timedelta_value() is None
+
+
+def test_negative_iso_duration_below_native_range():
+    text = "-P999999999DT1S"
+    assert JsonParseNode(text).get_timedelta_value() is None

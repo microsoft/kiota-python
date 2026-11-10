@@ -1,6 +1,7 @@
-from sys import version_info as sys_version_info
 import re
 from datetime import datetime, time, timedelta
+from sys import version_info as sys_version_info
+from warnings import warn
 
 _ISO8601_DURATION_PATTERN = re.compile(
     "^P"  # Duration P indicator
@@ -68,7 +69,12 @@ _TIMEDELTA_PATTERN = re.compile(r"^(?P<hours>\d+):(?P<minutes>\d+)(?::(?P<second
 
 
 def parse_timedelta_string(text: str) -> timedelta:
-    """Checks if a given string is a valid ISO8601 duration string. Or hh:mm:ss format."""
+    """Parse legacy durations. Deprecated; use parse_timedelta_from_iso_format instead."""
+    warn(
+        "parse_timedelta_string is deprecated. Use parse_timedelta_from_iso_format instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     try:
         return parse_timedelta_from_iso_format(text)
     except ValueError as exc:

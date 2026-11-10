@@ -94,7 +94,10 @@ class FormSerializationWriter(SerializationWriter):
             value (Optional[timedelta]): The timedelta value to be written.
         """
         if key and value is not None:
-            self.write_str_value(key, str(value))
+            unsigned = abs(value)
+            sign = "-" if value < timedelta(0) else ""
+            duration = f"{sign}P{unsigned.days}DT{unsigned.seconds}.{unsigned.microseconds:06d}S"
+            self.write_str_value(key, duration)
 
     def write_date_value(self, key: Optional[str], value: Optional[date]) -> None:
         """Writes the specified date value to the stream with an optional given key.
