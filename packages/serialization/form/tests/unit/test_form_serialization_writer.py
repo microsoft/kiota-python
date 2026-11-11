@@ -1,4 +1,5 @@
 from enum import Enum, IntEnum, IntFlag
+from types import SimpleNamespace
 from uuid import UUID
 from urllib.parse import parse_qs, unquote_plus
 import pytest
@@ -16,6 +17,34 @@ def test_write_str_value_preserves_whitespace(value):
     writer = FormSerializationWriter()
     writer.write_str_value("label", value)
     assert parse_qs(writer.get_serialized_content().decode("utf-8"))["label"] == [value]
+
+
+@pytest.mark.parametrize("key", [" field", "field ", " \t\r\n", "\u2003field\u2003", "ordinary", "a+b&c"])
+def test_write_str_value_preserves_field_name(key):
+    writer = FormSerializationWriter()
+    writer.write_str_value("field", "first")
+    writer.write_str_value(key, "second")
+    content = writer.get_serialized_content().decode("utf-8")
+    assert parse_qs(content) == {"field": ["first"], key: ["second"]}
+    node = FormParseNode(content).get_child_node(key)
+    assert node is not None
+    assert node.get_str_value() == "second"
+
+
+@pytest.mark.parametrize("key", [" field ", "\u2003field\u2003", "field"])
+def test_write_object_value_preserves_field_name(key):
+    writer = FormSerializationWriter()
+    writer.write_object_value(key, TestEntity(office_location="desk"))
+    assert parse_qs(writer.get_serialized_content().decode("utf-8")) == {
+        key: ["officeLocation=desk"]
+    }
+
+
+@pytest.mark.parametrize("key", [" field ", "\u2003field\u2003", "field"])
+def test_write_non_parsable_object_value_preserves_field_name(key):
+    writer = FormSerializationWriter()
+    writer.write_non_parsable_object_value(key, SimpleNamespace(label="desk"))
+    assert parse_qs(writer.get_serialized_content().decode("utf-8")) == {key: ["label=desk"]}
 
 
 @pytest.mark.parametrize("value", [None, ""])
