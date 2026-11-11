@@ -68,3 +68,40 @@ def test_empty_bytes_round_trip():
     factory = TextParseNodeFactory()
     node = factory.get_root_parse_node('text/plain', content)
     assert node.get_bytes_value() == b''
+
+
+@pytest.mark.parametrize(
+    "content_type",
+    [
+        "text/plain; charset=utf-8",
+        "text/plain; charset=UTF-8",
+        "text/plain ; charset=utf-8",
+        "TEXT/PLAIN",
+        "TEXT/PLAIN; CHARSET=UTF-8",
+        "Text/plain; charset=utf-8",
+    ],
+)
+def test_get_root_parse_node_with_parameters_and_case_variants(sample_text_string, content_type):
+    factory = TextParseNodeFactory()
+    sample_text_string_bytes = sample_text_string.encode('utf-8')
+    root = factory.get_root_parse_node(content_type, sample_text_string_bytes)
+    assert isinstance(root, TextParseNode)
+    assert root.get_str_value() == sample_text_string
+
+
+@pytest.mark.parametrize(
+    "content_type",
+    [
+        ";",
+        ";;",
+        "; charset=utf-8",
+        "   ; charset=utf-8",
+    ],
+)
+def test_get_root_parse_node_delimiter_only(sample_text_string, content_type):
+    with pytest.raises(TypeError) as e_info:
+        factory = TextParseNodeFactory()
+        sample_text_string_bytes = sample_text_string.encode('utf-8')
+        factory.get_root_parse_node(content_type, sample_text_string_bytes)
+    assert str(e_info.value) == "Expected text/plain as content type"
+
