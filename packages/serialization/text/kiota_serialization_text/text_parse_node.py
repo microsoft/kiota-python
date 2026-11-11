@@ -4,7 +4,7 @@ import base64
 from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, cast
 from uuid import UUID
 
 from kiota_abstractions.date_utils import (
@@ -165,6 +165,10 @@ class TextParseNode(ParseNode):
             Optional[K]: The enum value of the node
         """
         raw_key = self.get_str_value()
+        if raw_key is not None:
+            for member in cast(type[K], enum_class):
+                if member.value == raw_key:
+                    return member
         camel_case_key = None
         if raw_key:
             if raw_key.lower() == "none":
