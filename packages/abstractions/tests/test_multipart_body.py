@@ -9,6 +9,19 @@ from kiota_abstractions.serialization import SerializationWriter
 from .conftest import MockEntity
 
 
+def test_default_boundary_is_unique_per_instance():
+    first = MultipartBody()
+    second = MultipartBody()
+
+    assert first.boundary != second.boundary
+
+
+def test_custom_boundary_is_preserved():
+    multipart = MultipartBody(boundary="custom-boundary")
+
+    assert multipart.boundary == "custom-boundary"
+
+
 def test_defensive():
     """Tests initialization of MultipartBody objects
     """
