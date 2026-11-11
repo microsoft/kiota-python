@@ -28,3 +28,39 @@ def test_get_valid_content_type():
     factory = JsonSerializationWriterFactory()
     content_type = factory.get_valid_content_type()
     assert content_type == 'application/json'
+
+
+@pytest.mark.parametrize(
+    "content_type",
+    [
+        "application/json; charset=utf-8",
+        "application/json; charset=UTF-8",
+        "application/json;odata.metadata=minimal",
+        "application/json; odata=verbose",
+        "application/json ; charset=utf-8",
+        "APPLICATION/JSON",
+        "APPLICATION/JSON; CHARSET=UTF-8",
+        "Application/json; charset=utf-8",
+    ],
+)
+def test_get_serialization_writer_with_parameters_and_case_variants(content_type):
+    factory = JsonSerializationWriterFactory()
+    writer = factory.get_serialization_writer(content_type)
+    assert isinstance(writer, JsonSerializationWriter)
+
+
+@pytest.mark.parametrize(
+    "content_type",
+    [
+        ";",
+        ";;",
+        "; charset=utf-8",
+        "   ; charset=utf-8",
+    ],
+)
+def test_get_serialization_writer_delimiter_only(content_type):
+    with pytest.raises(TypeError) as e_info:
+        factory = JsonSerializationWriterFactory()
+        factory.get_serialization_writer(content_type)
+    assert str(e_info.value) == "Expected application/json as content type"
+
