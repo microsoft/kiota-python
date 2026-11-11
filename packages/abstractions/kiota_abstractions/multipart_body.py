@@ -32,7 +32,7 @@ class MultipartBody(Parsable, Generic[T]):
         with open("output.txt", "w") as output_file:
             multipart.serialize(output_file)
     """
-    boundary: str = str(uuid.uuid4())
+    boundary: str = field(default_factory=lambda: str(uuid.uuid4()))
     parts: dict[str, tuple[str, Any, Optional[str]]] = field(default_factory=dict)
     request_adapter: Optional[RequestAdapter] = None
 
