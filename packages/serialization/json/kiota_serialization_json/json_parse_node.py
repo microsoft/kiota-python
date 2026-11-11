@@ -7,7 +7,7 @@ import warnings
 from collections.abc import Callable
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional, TypeVar, cast
 from uuid import UUID
 
 from kiota_abstractions.date_utils import (
@@ -188,6 +188,9 @@ class JsonParseNode(ParseNode):
         if self._json_node is None:
             return None
         raw_key = str(self._json_node)
+        for member in cast(type[K], enum_class):
+            if member.value == raw_key:
+                return member
         if not raw_key:
             return None
 
