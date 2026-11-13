@@ -11,6 +11,17 @@ class RetryHandlerOption(RequestOption):
         max_retries (int): number of retries after the first attempt, 0 to
             ``MAX_MAX_RETRIES``. Exposed as ``max_retry``.
         should_retry (bool): whether the handler retries at all.
+        retry_unprocessed_mutations_only (bool): whether POST and PATCH requests are retried
+            only after a response showing the server didn't process them. Defaults to False.
+            POST and PATCH aren't idempotent, so resending one the server already processed
+            can repeat its side effect, such as sending an email twice. A 504 can arrive after
+            the server processed the request. When this is True, POST and PATCH requests are
+            retried only after a 429 or 503 response, and a 504 is returned to the caller.
+            This relies on the common service convention, followed by Microsoft Graph, that a
+            429 or 503 response means the server didn't process the request. HTTP doesn't
+            guarantee this, so a service that returns 429 or 503 after acting on a request can
+            still see it repeated. PUT and DELETE also change state, but they're idempotent, so
+            they aren't affected, and neither are other methods.
     """
 
     # Default maxRetries value
@@ -35,7 +46,8 @@ class RetryHandlerOption(RequestOption):
         self,
         delay: float = DEFAULT_DELAY,
         max_retries: int = DEFAULT_MAX_RETRIES,
-        should_retry: bool = DEFAULT_SHOULD_RETRY
+        should_retry: bool = DEFAULT_SHOULD_RETRY,
+        retry_unprocessed_mutations_only: bool = False
     ) -> None:
         if delay > self.MAX_DELAY and max_retries > self.DEFAULT_MAX_RETRIES:
             raise ValueError(
@@ -58,6 +70,7 @@ class RetryHandlerOption(RequestOption):
         self._max_retry: int = min(max_retries, self.MAX_MAX_RETRIES)
         self._max_delay: float = min(delay, self.MAX_DELAY)
         self._should_retry: bool = should_retry
+        self._retry_unprocessed_mutations_only: bool = retry_unprocessed_mutations_only
 
     @property
     def max_delay(self) -> float:
@@ -92,6 +105,14 @@ class RetryHandlerOption(RequestOption):
     @should_retry.setter
     def should_retry(self, value: bool) -> None:
         self._should_retry = value
+
+    @property
+    def retry_unprocessed_mutations_only(self) -> bool:
+        return self._retry_unprocessed_mutations_only
+
+    @retry_unprocessed_mutations_only.setter
+    def retry_unprocessed_mutations_only(self, value: bool) -> None:
+        self._retry_unprocessed_mutations_only = value
 
     @staticmethod
     def get_key() -> str:

@@ -43,6 +43,15 @@ class RetryHandler(BaseMiddleware):
         ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'QUERY']
     )
 
+    # Methods that aren't idempotent, so a retry can repeat their side effect
+    NON_IDEMPOTENT_METHODS: frozenset[str] = frozenset(['POST', 'PATCH'])
+
+    # By common service convention, these status codes mean the server didn't process
+    # the request, so resending it is treated as safe for any method
+    # 429 - Too many requests
+    # 503 - Service unavailable
+    UNPROCESSED_STATUS_CODES: frozenset[int] = frozenset({429, 503})
+
     def __init__(self, options: Optional[RetryHandlerOption] = None) -> None:
         super().__init__()
         self.allowed_methods: frozenset[str] = self.DEFAULT_ALLOWED_METHODS
@@ -129,7 +138,24 @@ class RetryHandler(BaseMiddleware):
             return False
         if not self._is_request_payload_buffered(request):
             return False
+        if not self._is_retryable_for_method(request, options, response):
+            return False
         return options.max_retry > 0 and response.status_code in self.retry_on_status_codes
+
+    def _is_retryable_for_method(
+        self, request: httpx.Request, options: RetryHandlerOption, response: httpx.Response
+    ) -> bool:
+        """
+        Checks whether the response allows resending the request, given its method.
+        With retry_unprocessed_mutations_only set, POST and PATCH requests are retried
+        only after a response showing the server didn't process them, because any other
+        response may arrive after the server already acted on the request.
+        """
+        if not options.retry_unprocessed_mutations_only:
+            return True
+        if request.method.upper() not in self.NON_IDEMPOTENT_METHODS:
+            return True
+        return response.status_code in self.UNPROCESSED_STATUS_CODES
 
     def _is_method_retryable(self, request: httpx.Request) -> bool:
         """
