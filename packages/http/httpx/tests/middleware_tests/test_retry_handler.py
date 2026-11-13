@@ -444,3 +444,120 @@ async def test_retry_503_to_200_preserves_parent_span_across_attempts_and_downst
     assert len(ua_spans) == 2
     for ua_span in ua_spans:
         assert ua_span.parent.span_id == expected_parent_id
+
+
+def _status_sequence_transport(status_codes, methods):
+    """Answers each request with the next status code and records its method."""
+    remaining = list(status_codes)
+
+    def request_handler(request: httpx.Request):
+        methods.append(request.method)
+        return httpx.Response(remaining.pop(0) if remaining else 200)
+
+    return httpx.MockTransport(request_handler)
+
+
+@pytest.fixture
+def no_retry_delay(monkeypatch):
+    """Skips the wait between retries so the tests run quickly."""
+    monkeypatch.setattr(RetryHandler, "get_delay_time", lambda self, *args, **kwargs: 0)
+
+
+def test_retry_unprocessed_mutations_only_defaults_to_false():
+    assert not RetryHandlerOption().retry_unprocessed_mutations_only
+    assert RetryHandlerOption(
+        retry_unprocessed_mutations_only=True
+    ).retry_unprocessed_mutations_only
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["POST", "PATCH"])
+async def test_non_idempotent_request_retried_on_gateway_timeout_by_default(method, no_retry_delay):
+    methods = []
+    handler = RetryHandler()
+    request = httpx.Request(method, BASE_URL, json={"message": "hello"})
+
+    resp = await handler.send(request, _status_sequence_transport([GATEWAY_TIMEOUT, 200], methods))
+
+    assert resp.status_code == 200
+    assert len(methods) == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["POST", "PATCH", "post"])
+async def test_non_idempotent_request_not_retried_on_gateway_timeout_when_enabled(
+    method, no_retry_delay
+):
+    methods = []
+    handler = RetryHandler(RetryHandlerOption(retry_unprocessed_mutations_only=True))
+    request = httpx.Request(method, BASE_URL, json={"message": "hello"})
+
+    resp = await handler.send(request, _status_sequence_transport([GATEWAY_TIMEOUT, 200], methods))
+
+    assert resp.status_code == GATEWAY_TIMEOUT
+    assert len(methods) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["POST", "PATCH"])
+@pytest.mark.parametrize("status_code", [TOO_MANY_REQUESTS, SERVICE_UNAVAILABLE])
+async def test_non_idempotent_request_retried_when_not_processed_and_enabled(
+    method, status_code, no_retry_delay
+):
+    methods = []
+    handler = RetryHandler(RetryHandlerOption(retry_unprocessed_mutations_only=True))
+    request = httpx.Request(method, BASE_URL, json={"message": "hello"})
+
+    resp = await handler.send(request, _status_sequence_transport([status_code, 200], methods))
+
+    assert resp.status_code == 200
+    assert len(methods) == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["GET", "PUT", "DELETE", "QUERY"])
+async def test_idempotent_request_retried_on_gateway_timeout_when_enabled(method, no_retry_delay):
+    methods = []
+    handler = RetryHandler(RetryHandlerOption(retry_unprocessed_mutations_only=True))
+    request = httpx.Request(method, BASE_URL)
+
+    resp = await handler.send(request, _status_sequence_transport([GATEWAY_TIMEOUT, 200], methods))
+
+    assert resp.status_code == 200
+    assert len(methods) == 2
+
+
+@pytest.mark.asyncio
+async def test_non_idempotent_request_stops_when_a_later_response_leaves_outcome_unknown(
+    no_retry_delay
+):
+    methods = []
+    handler = RetryHandler(RetryHandlerOption(retry_unprocessed_mutations_only=True))
+    request = httpx.Request("POST", BASE_URL, json={"message": "hello"})
+
+    resp = await handler.send(
+        request, _status_sequence_transport([SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT, 200], methods)
+    )
+
+    assert resp.status_code == GATEWAY_TIMEOUT
+    assert len(methods) == 2
+
+
+@pytest.mark.asyncio
+async def test_retry_unprocessed_mutations_only_honoured_from_request_option(no_retry_delay):
+    methods = []
+    handler = RetryHandler()
+    request_option = RetryHandlerOption(retry_unprocessed_mutations_only=True)
+    request = httpx.Request(
+        "POST",
+        BASE_URL,
+        json={"message": "hello"},
+        extensions={REQUEST_OPTIONS_KEY: {
+            RetryHandlerOption.get_key(): request_option
+        }},
+    )
+
+    resp = await handler.send(request, _status_sequence_transport([GATEWAY_TIMEOUT, 200], methods))
+
+    assert resp.status_code == GATEWAY_TIMEOUT
+    assert len(methods) == 1
