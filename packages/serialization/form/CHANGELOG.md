@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.17.0...microsoft-kiota-serialization-form-v1.18.0) (2026-11-13)
+
+
+### Bug Fixes
+
+* **abstractions:** parse native timedelta output ([2372830](https://github.com/microsoft/kiota-python/commit/23728306d9f15ae0ee83d9ee2f7a2bb42c810d29))
+* **form:** preserve whitespace in field names ([1cc664f](https://github.com/microsoft/kiota-python/commit/1cc664f190aa0bac36eaf6902c982cb4f6b122a0))
+* **form:** preserve whitespace in field names ([ad320e1](https://github.com/microsoft/kiota-python/commit/ad320e1449e90ab3e6f6ae99323a8e669ee95060))
+* **serialization:** format ISO durations without extra dependencies ([c2ee61d](https://github.com/microsoft/kiota-python/commit/c2ee61d88816b89b9179ec938a4de2d05e7d5be3))
+* **serialization:** use ISO 8601 durations on the wire ([d6b0021](https://github.com/microsoft/kiota-python/commit/d6b0021c9d693f0cc679116a66cad264757bbbaa))
+* **serialization:** use ISO durations and deprecate legacy parsing ([433b684](https://github.com/microsoft/kiota-python/commit/433b684521dd9255cf0c0fd33db47c83950a27dc))
+
 ## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-form-v1.16.0...microsoft-kiota-serialization-form-v1.17.0) (2026-11-05)
 
 

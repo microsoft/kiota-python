@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-text-v1.17.0...microsoft-kiota-serialization-text-v1.18.0) (2026-11-13)
+
+
+### Bug Fixes
+
+* **abstractions:** parse native timedelta output ([2372830](https://github.com/microsoft/kiota-python/commit/23728306d9f15ae0ee83d9ee2f7a2bb42c810d29))
+* **serialization:** format ISO durations without extra dependencies ([c2ee61d](https://github.com/microsoft/kiota-python/commit/c2ee61d88816b89b9179ec938a4de2d05e7d5be3))
+* **serialization:** resolve declared enum wire values ([806ae5f](https://github.com/microsoft/kiota-python/commit/806ae5fe54ac18919bcfe9f573da3321fb1d47ca))
+* **serialization:** resolve declared enum wire values ([d5d90f2](https://github.com/microsoft/kiota-python/commit/d5d90f215e28dcc58a38ea13d73c6fd61a666b0a))
+* **serialization:** use ISO 8601 durations on the wire ([d6b0021](https://github.com/microsoft/kiota-python/commit/d6b0021c9d693f0cc679116a66cad264757bbbaa))
+* **serialization:** use ISO durations and deprecate legacy parsing ([433b684](https://github.com/microsoft/kiota-python/commit/433b684521dd9255cf0c0fd33db47c83950a27dc))
+* **text:** serialize falsy enum values ([c0ef1d0](https://github.com/microsoft/kiota-python/commit/c0ef1d0c74b2abf6a73347c85fecbb1979444b89))
+* **text:** serialize falsy enum values ([f1af711](https://github.com/microsoft/kiota-python/commit/f1af711dc0fdc79c9e0d0bf112789e1473c606fc))
+
 ## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-text-v1.16.0...microsoft-kiota-serialization-text-v1.17.0) (2026-11-05)
 
 
