@@ -9,6 +9,7 @@ from kiota_http.middleware import (
     PARENT_SPAN_KEY,
     REQUEST_OPTIONS_KEY,
     MiddlewarePipeline,
+    RedirectHandler,
     RetryHandler,
     UserAgentHandler,
 )
@@ -561,3 +562,58 @@ async def test_retry_unprocessed_mutations_only_honoured_from_request_option(no_
 
     assert resp.status_code == GATEWAY_TIMEOUT
     assert len(methods) == 1
+
+
+def _redirect_then_status_transport(redirect_status, final_statuses, calls):
+    """Redirects the first request to /redirected, then answers with each final status."""
+    remaining = list(final_statuses)
+
+    def request_handler(request: httpx.Request):
+        calls.append(request.method)
+        if request.url.path != "/redirected":
+            return httpx.Response(redirect_status, headers={"Location": f"{BASE_URL}/redirected"})
+        return httpx.Response(remaining.pop(0) if remaining else 200)
+
+    return httpx.MockTransport(request_handler)
+
+
+@pytest.mark.asyncio
+async def test_post_redirected_to_get_is_retried_when_enabled(no_retry_delay):
+    calls = []
+    pipeline = MiddlewarePipeline(
+        _redirect_then_status_transport(303, [GATEWAY_TIMEOUT, 200], calls)
+    )
+    pipeline.add_middleware(RedirectHandler())
+    pipeline.add_middleware(RetryHandler(RetryHandlerOption(retry_unprocessed_mutations_only=True)))
+    request = httpx.Request("POST", f"{BASE_URL}/send", json={"message": "hello"})
+
+    resp = await pipeline.send(request)
+
+    assert resp.status_code == 200
+    assert calls == ["POST", "GET", "GET"]
+
+
+@pytest.mark.asyncio
+async def test_post_redirected_as_post_is_not_retried_with_request_option(no_retry_delay):
+    calls = []
+    pipeline = MiddlewarePipeline(
+        _redirect_then_status_transport(307, [GATEWAY_TIMEOUT, 200], calls)
+    )
+    pipeline.add_middleware(RedirectHandler())
+    pipeline.add_middleware(RetryHandler())
+    request = httpx.Request(
+        "POST",
+        f"{BASE_URL}/send",
+        json={"message": "hello"},
+        extensions={
+            REQUEST_OPTIONS_KEY: {
+                RetryHandlerOption.get_key():
+                RetryHandlerOption(retry_unprocessed_mutations_only=True)
+            }
+        },
+    )
+
+    resp = await pipeline.send(request)
+
+    assert resp.status_code == GATEWAY_TIMEOUT
+    assert calls == ["POST", "POST"]
