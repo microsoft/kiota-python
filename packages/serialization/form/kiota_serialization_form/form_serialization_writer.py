@@ -37,7 +37,7 @@ class FormSerializationWriter(SerializationWriter):
         if key and value:
             if len(self.writer) > 0:
                 self.writer += "&"
-            self.writer += f"{quote_plus(key.strip())}={quote_plus(value)}"
+            self.writer += f"{quote_plus(key)}={quote_plus(value)}"
 
     def write_bool_value(self, key: Optional[str], value: Optional[bool]) -> None:
         """Writes the specified boolean value to the stream with an optional given key.
@@ -213,7 +213,7 @@ class FormSerializationWriter(SerializationWriter):
             if len(self.writer) > 0:
                 self.writer += "&"
             if key:
-                self.writer += f"{quote_plus(key.strip())}="
+                self.writer += f"{quote_plus(key)}="
             self.writer += temp_writer.writer
         self.depth -= 1
 
@@ -316,7 +316,7 @@ class FormSerializationWriter(SerializationWriter):
                     temp_writer.write_any_value(k, v)
                 if len(self.writer) > 0:
                     self.writer += "&"
-                self.writer += f"{quote_plus(key.strip())}={temp_writer.writer}"
+                self.writer += f"{quote_plus(key)}={temp_writer.writer}"
 
     def write_any_value(self, key: Optional[str], value: Any) -> Any:
         """Writes the specified value to the stream with an optional given key.
