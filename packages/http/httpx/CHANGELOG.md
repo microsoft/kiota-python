@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.17.0...microsoft-kiota-http-v1.18.0) (2026-11-13)
+
+
+### Features
+
+* **http:** add option to retry only unprocessed mutations ([17b952f](https://github.com/microsoft/kiota-python/commit/17b952f81ea2a4d46bb44b6fe6b253578a0cf481))
+* **http:** add option to retry only unprocessed mutations ([05e2b75](https://github.com/microsoft/kiota-python/commit/05e2b75915ed2014e8425d3bb18647c9da66ad00))
+
 ## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.16.0...microsoft-kiota-http-v1.17.0) (2026-11-05)
 
 

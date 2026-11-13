@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.17.0...microsoft-kiota-abstractions-v1.18.0) (2026-11-13)
+
+
+### Bug Fixes
+
+* **abstractions:** filter None elements in parameter collection sanitization ([21ba298](https://github.com/microsoft/kiota-python/commit/21ba298922094e37dd07a6a44fd7e86163c9e0b4))
+* **abstractions:** generate a new multipart boundary for each instance ([45012c1](https://github.com/microsoft/kiota-python/commit/45012c132fd9d996718e6a50fe16d507a3562b8e))
+* **abstractions:** generate a new multipart boundary for each instance ([6d274c2](https://github.com/microsoft/kiota-python/commit/6d274c2dbd73ccf79e36117451743c34d85a1b20))
+* **abstractions:** improve parameter collection sanitization and ISO duration validation ([80718a1](https://github.com/microsoft/kiota-python/commit/80718a12c1147fa5dcb29f10b0d0ee125460488c))
+* **abstractions:** match registered media types case-insensitively ([bc0f4bf](https://github.com/microsoft/kiota-python/commit/bc0f4bf272ceaf30fb16e25be2f5db5fbaeebee6))
+* **abstractions:** normalize enum collections regardless of None entries ([f452a14](https://github.com/microsoft/kiota-python/commit/f452a140e09cd3e3b773fe24b38dbd890a27dcd5))
+* **abstractions:** normalize factory registration without registry scans ([22ed9d6](https://github.com/microsoft/kiota-python/commit/22ed9d609aec5615e8d5ee3df4bd7e06acacdd6e))
+* **abstractions:** normalize media types during registration ([dff1133](https://github.com/microsoft/kiota-python/commit/dff11331b004dea9595b658dce2bd14ed4ae2118))
+* **abstractions:** parse native timedelta output ([2372830](https://github.com/microsoft/kiota-python/commit/23728306d9f15ae0ee83d9ee2f7a2bb42c810d29))
+* **abstractions:** preserve datetime fold in request parameters ([37ed438](https://github.com/microsoft/kiota-python/commit/37ed43879765136059eaa3b85a205c817ef978be))
+* **abstractions:** preserve datetime fold in request parameters ([718e81a](https://github.com/microsoft/kiota-python/commit/718e81adcbe12eb7e379b494dcffa7a5f264b7c5))
+* **abstractions:** reject duration strings without components in ISO duration parser ([0cfe6ae](https://github.com/microsoft/kiota-python/commit/0cfe6ae39559d852a7f80bb48e502cd13c96de28))
+* **abstractions:** validate allowed hosts and access token provider in BaseBearerTokenAuthenticationProvider ([b97fdd0](https://github.com/microsoft/kiota-python/commit/b97fdd0486f28db520a6f8ca9d29e90d20877fee))
+* **abstractions:** validate allowed hosts and access token provider in BaseBearerTokenAuthenticationProvider ([a1be7b6](https://github.com/microsoft/kiota-python/commit/a1be7b68ea3a0990c175227b63b4af7f10ba4fd4))
+* **serialization:** use ISO 8601 durations on the wire ([d6b0021](https://github.com/microsoft/kiota-python/commit/d6b0021c9d693f0cc679116a66cad264757bbbaa))
+* **serialization:** use ISO durations and deprecate legacy parsing ([433b684](https://github.com/microsoft/kiota-python/commit/433b684521dd9255cf0c0fd33db47c83950a27dc))
+
 ## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.16.0...microsoft-kiota-abstractions-v1.17.0) (2026-11-05)
 
 

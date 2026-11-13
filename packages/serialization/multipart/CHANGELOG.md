@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.17.0...microsoft-kiota-serialization-multipart-v1.18.0) (2026-11-13)
+
+
+### Bug Fixes
+
+* **serialization:** format ISO durations without extra dependencies ([c2ee61d](https://github.com/microsoft/kiota-python/commit/c2ee61d88816b89b9179ec938a4de2d05e7d5be3))
+* **serialization:** use ISO 8601 durations on the wire ([d6b0021](https://github.com/microsoft/kiota-python/commit/d6b0021c9d693f0cc679116a66cad264757bbbaa))
+* **serialization:** use ISO durations and deprecate legacy parsing ([433b684](https://github.com/microsoft/kiota-python/commit/433b684521dd9255cf0c0fd33db47c83950a27dc))
+
 ## [1.17.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.16.0...microsoft-kiota-serialization-multipart-v1.17.0) (2026-11-05)
 
 
