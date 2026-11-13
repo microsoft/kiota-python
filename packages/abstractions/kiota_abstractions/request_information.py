@@ -315,11 +315,7 @@ class RequestInformation:
         sanitized_value = value
         if isinstance(value, datetime):
             timezone_info = value.tzinfo if value.tzinfo is not None else timezone.utc
-            temp_date_with_tz_info = datetime(
-                value.year, value.month, value.day, value.hour, value.minute, value.second,
-                value.microsecond, timezone_info
-            )
-            sanitized_value = temp_date_with_tz_info.isoformat("T")
+            sanitized_value = value.replace(tzinfo=timezone_info).isoformat("T")
         elif isinstance(value, (UUID, date, time)):
             sanitized_value = str(value)
         return sanitized_value

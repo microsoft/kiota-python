@@ -2,7 +2,9 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+from urllib.parse import parse_qs, unquote, urlsplit
 from unittest.mock import Mock
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -260,6 +262,21 @@ def test_sets_datetime_values_in_path_parameters():
         year=2020, month=8, day=1, hour=0, minute=20, second=0, microsecond=0
     )
     assert request_info.url == "https://example.com/daysFrom/2020-08-01T00%3A20%3A00%2B00%3A00"
+
+
+@pytest.mark.parametrize("fold", [0, 1])
+@pytest.mark.parametrize("location", ["path", "query", "query_collection"])
+def test_datetime_parameters_preserve_fold(fold, location):
+    value = datetime(2020, 11, 1, 1, 30, tzinfo=ZoneInfo("America/New_York"), fold=fold)
+    if location == "path":
+        request_info = RequestInformation(Method.GET, "https://example.com/events/{at}")
+        request_info.path_parameters["at"] = value
+        actual = unquote(urlsplit(request_info.url).path).rsplit("/", 1)[-1]
+    else:
+        request_info = RequestInformation(Method.GET, "https://example.com/events{?at}")
+        request_info.query_parameters["at"] = [value] if location == "query_collection" else value
+        actual = parse_qs(urlsplit(request_info.url).query)["at"][0]
+    assert actual == value.isoformat()
 
 
 def test_sets_int_values_in_path_parameters():
