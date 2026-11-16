@@ -449,11 +449,11 @@ async def test_redirect_scheme_change_removes_auth_and_cookie():
     """Test that scheme changes remove both Authorization and Cookie headers"""
 
     def request_handler(request: httpx.Request):
-        if request.url == "http://example.com/api":  # NOSONAR
+        if request.url == "http://example.com/api":
             return httpx.Response(200, )
         return httpx.Response(
             MOVED_PERMANENTLY,
-            headers={LOCATION_HEADER: "http://example.com/api"},  # NOSONAR
+            headers={LOCATION_HEADER: "http://example.com/api"},
         )
 
     handler = RedirectHandler(RedirectHandlerOption(allow_redirect_on_scheme_change=True))
@@ -507,17 +507,17 @@ async def test_redirect_with_different_port_removes_auth_and_cookie():
     """Test that redirects to a different port remove Authorization and Cookie headers"""
 
     def request_handler(request: httpx.Request):
-        if request.url == "http://example.org:9090/bar":  # NOSONAR
+        if request.url == "http://example.org:9090/bar":
             return httpx.Response(200, )
         return httpx.Response(
             MOVED_PERMANENTLY,
-            headers={LOCATION_HEADER: "http://example.org:9090/bar"},  # NOSONAR
+            headers={LOCATION_HEADER: "http://example.org:9090/bar"},
         )
 
     handler = RedirectHandler()
     request = httpx.Request(
         'GET',
-        "http://example.org:8080/foo",  # NOSONAR
+        "http://example.org:8080/foo",
         headers={
             AUTHORIZATION_HEADER: "Bearer token",
             "Cookie": "session=SECRET"
@@ -536,17 +536,17 @@ async def test_redirect_with_same_port_keeps_auth_and_cookie():
     """Test that redirects to the same port keep Authorization and Cookie headers"""
 
     def request_handler(request: httpx.Request):
-        if request.url == "http://example.org:8080/bar":  # NOSONAR
+        if request.url == "http://example.org:8080/bar":
             return httpx.Response(200, )
         return httpx.Response(
             FOUND,
-            headers={LOCATION_HEADER: "http://example.org:8080/bar"},  # NOSONAR
+            headers={LOCATION_HEADER: "http://example.org:8080/bar"},
         )
 
     handler = RedirectHandler()
     request = httpx.Request(
         'GET',
-        "http://example.org:8080/foo",  # NOSONAR
+        "http://example.org:8080/foo",
         headers={
             AUTHORIZATION_HEADER: "Bearer token",
             "Cookie": "session=SECRET"
@@ -625,7 +625,7 @@ def test_default_scrub_sensitive_headers_removes_on_scheme_change():
     original_url = httpx.URL("https://example.com/v1/api")
     new_request = httpx.Request(
         "GET",
-        "http://example.com/v1/api",  # NOSONAR
+        "http://example.com/v1/api",
         headers={
             AUTHORIZATION_HEADER: "Bearer token",
             "Cookie": "session=SECRET",
@@ -666,10 +666,10 @@ def test_default_scrub_sensitive_headers_removes_on_port_change():
     """Test that default scrubber removes Authorization and Cookie when port changes"""
     from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
 
-    original_url = httpx.URL("http://example.org:8080/foo")  # NOSONAR
+    original_url = httpx.URL("http://example.org:8080/foo")
     new_request = httpx.Request(
         "GET",
-        "http://example.org:9090/bar",  # NOSONAR
+        "http://example.org:9090/bar",
         headers={
             AUTHORIZATION_HEADER: "Bearer token",
             "Cookie": "session=SECRET",
@@ -688,10 +688,10 @@ def test_default_scrub_sensitive_headers_keeps_on_same_port():
     """Test that default scrubber keeps headers when port is the same"""
     from kiota_http.middleware.options.redirect_handler_option import default_scrub_sensitive_headers
 
-    original_url = httpx.URL("http://example.org:8080/foo")  # NOSONAR
+    original_url = httpx.URL("http://example.org:8080/foo")
     new_request = httpx.Request(
         "GET",
-        "http://example.org:8080/bar",  # NOSONAR
+        "http://example.org:8080/bar",
         headers={
             AUTHORIZATION_HEADER: "Bearer token",
             "Cookie": "session=SECRET",
