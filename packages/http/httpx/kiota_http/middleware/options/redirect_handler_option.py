@@ -78,6 +78,10 @@ class RedirectHandlerOption(RequestOption):
     def max_redirect(self, value: int) -> None:
         if value > self.MAX_MAX_REDIRECT:
             raise ValueError("MaxLimitExceeded. Maximum value for max_redirect property exceeded")
+        if value < 0:
+            raise ValueError(
+                "MaxLimitExceeded. Negative value for max_redirect property is invalid"
+            )
         self._max_redirect = value
 
     @property
