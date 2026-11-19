@@ -355,6 +355,22 @@ def test_setting_a_raw_url_does_not_clear_another_requests_path_parameters():
     assert templated.url == "https://graph.microsoft.com/v1.0/users/bob/messages"
 
 
+def test_setting_a_raw_url_leaves_the_passed_path_parameters_intact():
+    """A request builder passes its own path parameters to every request it creates, so
+    setting a raw url on one of those requests must not empty the builder's dict."""
+    path_parameters = {"baseurl": "https://example.com", "user%2Did": "42"}
+    template = "{+baseurl}/users/{user%2Did}"
+
+    first = RequestInformation(Method.GET, template, path_parameters)
+    first.url = "https://example.com/users/42?api_key=secret"
+
+    assert first.url == "https://example.com/users/42?api_key=secret"
+    assert first.path_parameters == {}
+    assert path_parameters == {"baseurl": "https://example.com", "user%2Did": "42"}
+    second = RequestInformation(Method.GET, template, path_parameters)
+    assert second.url == "https://example.com/users/42"
+
+
 def test_sets_empty_list_in_query_parameters():
     """Tests that setting an empty list does not emit a dangling key in the expanded URL."""
     request_info = RequestInformation(Method.GET, "https://example.com/me{?dataset*}")

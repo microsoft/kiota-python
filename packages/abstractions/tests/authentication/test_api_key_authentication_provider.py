@@ -1,6 +1,8 @@
 import pytest
 
 from kiota_abstractions.authentication import ApiKeyAuthenticationProvider, AuthenticationProvider, KeyLocation
+from kiota_abstractions.method import Method
+from kiota_abstractions.request_information import RequestInformation
 
 allowed_hosts = ["example.com"]
 
@@ -140,6 +142,24 @@ async def test_query_parameter_preserves_blank_and_existing_parameters(mock_requ
     assert "flag" in mock_request_information.url
     assert "page=1" in mock_request_information.url
     assert "api_key=test_key_string" in mock_request_information.url
+
+
+@pytest.mark.asyncio
+async def test_query_parameter_location_keeps_the_path_parameters_of_a_reused_builder():
+    provider = ApiKeyAuthenticationProvider(
+        KeyLocation.QueryParameter, "test_key_string", "api_key", allowed_hosts
+    )
+    # a request builder hands its own path parameters to every request it creates
+    path_parameters = {"baseurl": "https://example.com", "user%2Did": "42"}
+
+    for _ in range(2):
+        request_information = RequestInformation(
+            Method.GET, "{+baseurl}/users/{user%2Did}", path_parameters
+        )
+        await provider.authenticate_request(request_information)
+        assert request_information.url == "https://example.com/users/42?api_key=test_key_string"
+
+    assert path_parameters == {"baseurl": "https://example.com", "user%2Did": "42"}
 
 
 def test_default_allowed_hosts_does_not_share_state():

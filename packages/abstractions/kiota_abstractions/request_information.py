@@ -128,8 +128,11 @@ class RequestInformation:
         if not url:
             raise Exception("Url cannot be undefined")
         self.__uri = url
-        self.query_parameters.clear()
-        self.path_parameters.clear()
+        # Replace the dicts rather than clearing them: a request builder passes its own
+        # path_parameters dict to every request it creates, and clearing it in place would
+        # empty the builder's parameters for all of its later requests.
+        self.query_parameters = {}
+        self.path_parameters = {}
 
     @property
     def request_headers(self) -> Optional[dict[str, str]]:
