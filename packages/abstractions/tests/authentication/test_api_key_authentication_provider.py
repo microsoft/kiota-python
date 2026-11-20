@@ -145,6 +145,40 @@ async def test_query_parameter_preserves_blank_and_existing_parameters(mock_requ
 
 
 @pytest.mark.asyncio
+async def test_query_parameter_preserves_repeated_query_parameters(mock_request_information):
+    provider = ApiKeyAuthenticationProvider(
+        KeyLocation.QueryParameter,
+        "test_key_string",
+        "api_key",
+        ["example.com"],
+    )
+    mock_request_information.url = "https://example.com/api?id=1&id=2&select=name"
+    await provider.authenticate_request(mock_request_information)
+    assert "id=1" in mock_request_information.url
+    assert "id=2" in mock_request_information.url
+    assert "select=name" in mock_request_information.url
+    assert "api_key=test_key_string" in mock_request_information.url
+
+
+@pytest.mark.asyncio
+async def test_query_parameter_replaces_existing_key_without_dropping_repeated_parameters(
+    mock_request_information
+):
+    provider = ApiKeyAuthenticationProvider(
+        KeyLocation.QueryParameter,
+        "test_key_string",
+        "api_key",
+        ["example.com"],
+    )
+    mock_request_information.url = "https://example.com/api?id=1&id=2&api_key=old_key"
+    await provider.authenticate_request(mock_request_information)
+    assert "id=1" in mock_request_information.url
+    assert "id=2" in mock_request_information.url
+    assert "api_key=test_key_string" in mock_request_information.url
+    assert "old_key" not in mock_request_information.url
+
+
+@pytest.mark.asyncio
 async def test_query_parameter_location_keeps_the_path_parameters_of_a_reused_builder():
     provider = ApiKeyAuthenticationProvider(
         KeyLocation.QueryParameter, "test_key_string", "api_key", allowed_hosts
