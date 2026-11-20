@@ -10,7 +10,6 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from ..headers_collection import HeadersCollection
 from ..request_information import RequestInformation
-
 from .allowed_hosts_validator import AllowedHostsValidator
 from .authentication_provider import AuthenticationProvider
 
@@ -73,9 +72,10 @@ class ApiKeyAuthenticationProvider(AuthenticationProvider):
 
         if self.key_location == KeyLocation.QueryParameter:
             url_parts = list(urlparse(request.url))
-            query = dict(parse_qsl(url_parts[4], keep_blank_values=True))
-            query.update({self.parameter_name: self.api_key})
-            url_parts[4] = urlencode(query)
+            query_pairs = parse_qsl(url_parts[4], keep_blank_values=True)
+            new_pairs = [(k, v) for k, v in query_pairs if k != self.parameter_name]
+            new_pairs.append((self.parameter_name, self.api_key))
+            url_parts[4] = urlencode(new_pairs)
             request.url = urlunparse(url_parts)
         elif self.key_location == KeyLocation.Header:
             if request.headers is None:
