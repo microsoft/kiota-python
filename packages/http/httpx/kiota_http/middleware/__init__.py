@@ -1,5 +1,6 @@
 from .async_kiota_transport import AsyncKiotaTransport
 from .body_inspection_handler import BodyInspectionHandler
+from .compression_handler import CompressionHandler
 from .headers_inspection_handler import HeadersInspectionHandler
 from .middleware import PARENT_SPAN_KEY, REQUEST_OPTIONS_KEY, BaseMiddleware, MiddlewarePipeline
 from .parameters_name_decoding_handler import ParametersNameDecodingHandler
@@ -11,6 +12,7 @@ from .user_agent_handler import UserAgentHandler
 __all__ = [
     "AsyncKiotaTransport",
     "BodyInspectionHandler",
+    "CompressionHandler",
     "HeadersInspectionHandler",
     "PARENT_SPAN_KEY",
     "REQUEST_OPTIONS_KEY",
