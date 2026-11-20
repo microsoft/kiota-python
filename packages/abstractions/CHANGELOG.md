@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.18.0...microsoft-kiota-abstractions-v1.18.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **abstractions:** keep the caller's path parameters when a raw url i… ([1b5e479](https://github.com/microsoft/kiota-python/commit/1b5e4798d246f2c38a5aaaa75e4bdbc32797b906))
+* **abstractions:** keep the caller's path parameters when a raw url is set ([7f054a4](https://github.com/microsoft/kiota-python/commit/7f054a4fea2815ef8922cd3afb1a057d88cfad8b))
+
 ## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.17.0...microsoft-kiota-abstractions-v1.18.0) (2026-11-16)
 
 
