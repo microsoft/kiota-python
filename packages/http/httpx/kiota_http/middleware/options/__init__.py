@@ -1,4 +1,5 @@
 from .body_inspection_handler_option import BodyInspectionHandlerOption
+from .compression_handler_option import CompressionHandlerOption
 from .headers_inspection_handler_option import HeadersInspectionHandlerOption
 from .parameters_name_decoding_handler_option import ParametersNameDecodingHandlerOption
 from .redirect_handler_option import RedirectHandlerOption
@@ -10,6 +11,7 @@ from .user_agent_handler_option import UserAgentHandlerOption
 
 __all__ = [
     "BodyInspectionHandlerOption",
+    "CompressionHandlerOption",
     "HeadersInspectionHandlerOption",
     "ParametersNameDecodingHandlerOption",
     "RedirectHandlerOption",
