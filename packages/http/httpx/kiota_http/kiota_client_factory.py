@@ -147,8 +147,8 @@ class KiotaClientFactory:
                 )
 
         return [
-            redirect_handler, retry_handler, parameters_name_decoding_handler, url_replace_handler,
-            user_agent_handler, headers_inspection_handler, body_inspection_handler
+            url_replace_handler, parameters_name_decoding_handler, user_agent_handler,
+            redirect_handler, retry_handler, headers_inspection_handler, body_inspection_handler
         ]
 
     @staticmethod

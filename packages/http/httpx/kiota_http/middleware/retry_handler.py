@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import random
 import re
+from dataclasses import dataclass
 from email.utils import parsedate_to_datetime
 from typing import Optional
 
@@ -14,6 +15,23 @@ from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import RetryHandlerOption
 
 RETRY_ATTEMPT = "Retry-Attempt"
+_RETRY_CHECKPOINT_ATTR = "_kiota_retry_checkpoint"
+
+
+@dataclass(frozen=True)
+class _RetryCheckpoint:
+    counts: dict[int, int]
+    resume: bool
+
+
+def _track_hop_retries(request: httpx.Request) -> None:
+    setattr(request, _RETRY_CHECKPOINT_ATTR, _RetryCheckpoint({}, resume=False))
+
+
+def _resume_hop_retries(request: httpx.Request, replay: httpx.Request) -> None:
+    checkpoint: Optional[_RetryCheckpoint] = getattr(request, _RETRY_CHECKPOINT_ATTR, None)
+    if checkpoint is not None and checkpoint.counts:
+        setattr(replay, _RETRY_CHECKPOINT_ATTR, _RetryCheckpoint(checkpoint.counts, resume=True))
 
 
 class RetryHandler(BaseMiddleware):
@@ -21,6 +39,7 @@ class RetryHandler(BaseMiddleware):
     methods in ``DEFAULT_ALLOWED_METHODS``, using the ``RetryHandlerOption`` of the
     request or the one given to the constructor: ``max_retry`` (retries after the first
     attempt), ``max_delay`` (a base delay, see ``get_delay_time``) and ``should_retry``.
+    Each invocation counts its own retries; ``Retry-Attempt`` is an outbound header.
 
     The delay before a retry comes from ``get_delay_time``: a ``Retry-After`` response
     header above zero is used as parsed, without a cap; otherwise
@@ -70,16 +89,16 @@ class RetryHandler(BaseMiddleware):
         response = None
         _span = self._create_observability_span(request, "RetryHandler_send")
         current_options = self._get_current_options(request)
+        request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         _span.set_attribute("com.microsoft.kiota.handler.retry.enable", True)
         _span.end()
         retry_valid = current_options.should_retry
+        checkpoint: Optional[_RetryCheckpoint] = getattr(request, _RETRY_CHECKPOINT_ATTR, None)
+        # A verified compression replay can resume this handler's budget once.
+        retry_count = checkpoint.counts.pop(id(self), 0) if checkpoint and checkpoint.resume else 0
 
         while retry_valid:
             response = await super().send(request, transport)
-            # check that max retries has not been hit
-            retry_count = 0 if RETRY_ATTEMPT not in response.request.headers else int(
-                response.request.headers[RETRY_ATTEMPT]
-            )
             _retry_span = self._create_observability_span(
                 request, f"RetryHandler_send - attempt {retry_count}"
             )
@@ -98,6 +117,9 @@ class RetryHandler(BaseMiddleware):
                 # increment the count for retries
                 retry_count += 1
                 request.headers.update({RETRY_ATTEMPT: f'{retry_count}'})
+                # The last middleware strips options before sending to the transport.
+                if request_options is not None:
+                    request.extensions[REQUEST_OPTIONS_KEY] = request_options
                 _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
                 _retry_span.set_attribute('http.request.resend_count', retry_count)
                 _retry_span.end()
@@ -106,6 +128,8 @@ class RetryHandler(BaseMiddleware):
             break
         if response is None:
             response = await super().send(request, transport)
+        if checkpoint is not None and not checkpoint.resume:
+            checkpoint.counts[id(self)] = retry_count
         return response
 
     def _get_current_options(self, request: httpx.Request) -> RetryHandlerOption:
