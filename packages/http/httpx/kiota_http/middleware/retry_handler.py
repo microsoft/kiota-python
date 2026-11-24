@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import random
 import re
+from dataclasses import dataclass
 from email.utils import parsedate_to_datetime
 from typing import Optional
 
@@ -14,6 +15,23 @@ from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import RetryHandlerOption
 
 RETRY_ATTEMPT = "Retry-Attempt"
+_RETRY_CHECKPOINT_ATTR = "_kiota_retry_checkpoint"
+
+
+@dataclass(frozen=True)
+class _RetryCheckpoint:
+    counts: dict[int, int]
+    resume: bool
+
+
+def _track_hop_retries(request: httpx.Request) -> None:
+    setattr(request, _RETRY_CHECKPOINT_ATTR, _RetryCheckpoint({}, resume=False))
+
+
+def _resume_hop_retries(request: httpx.Request, replay: httpx.Request) -> None:
+    checkpoint: Optional[_RetryCheckpoint] = getattr(request, _RETRY_CHECKPOINT_ATTR, None)
+    if checkpoint is not None and checkpoint.counts:
+        setattr(replay, _RETRY_CHECKPOINT_ATTR, _RetryCheckpoint(checkpoint.counts, resume=True))
 
 
 class RetryHandler(BaseMiddleware):
@@ -75,7 +93,9 @@ class RetryHandler(BaseMiddleware):
         _span.set_attribute("com.microsoft.kiota.handler.retry.enable", True)
         _span.end()
         retry_valid = current_options.should_retry
-        retry_count = 0
+        checkpoint: Optional[_RetryCheckpoint] = getattr(request, _RETRY_CHECKPOINT_ATTR, None)
+        # A verified compression replay can resume this handler's budget once.
+        retry_count = checkpoint.counts.pop(id(self), 0) if checkpoint and checkpoint.resume else 0
 
         while retry_valid:
             response = await super().send(request, transport)
@@ -108,6 +128,8 @@ class RetryHandler(BaseMiddleware):
             break
         if response is None:
             response = await super().send(request, transport)
+        if checkpoint is not None and not checkpoint.resume:
+            checkpoint.counts[id(self)] = retry_count
         return response
 
     def _get_current_options(self, request: httpx.Request) -> RetryHandlerOption:

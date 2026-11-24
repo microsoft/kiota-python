@@ -24,8 +24,8 @@ Each redirect hop has its own retry budget, and inspection runs on every attempt
 For a custom pipeline with request compression, put `CompressionHandler` after
 `UserAgentHandler` and before `RedirectHandler` and `RetryHandler` so requests can reuse
 the compressed body. If a hop rejects the compressed body with HTTP 415, only that
-hop is replayed uncompressed; a bodyless redirect is not replayed. HTTPX handles
-response decompression.
+hop is replayed uncompressed with its remaining retry budget. A bodyless redirect
+is not replayed. HTTPX handles response decompression.
 
 ## Contributing
 

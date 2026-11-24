@@ -11,7 +11,7 @@ import httpx
 
 from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import CompressionHandlerOption
-from .retry_handler import RETRY_ATTEMPT
+from .retry_handler import RETRY_ATTEMPT, _resume_hop_retries, _track_hop_retries
 
 COMPRESSION_ENABLE_KEY = "com.microsoft.kiota.handler.compression.enable"
 REQUEST_BODY_COMPRESSED_KEY = "http.request.body.compressed"
@@ -41,6 +41,7 @@ def _carry_compressed_body(source: httpx.Request, target: httpx.Request) -> None
     body = getattr(source, _COMPRESSED_BODY_ATTR, None)
     if body is not None and target.stream is source.stream:
         setattr(target, _COMPRESSED_BODY_ATTR, body)
+        _track_hop_retries(target)
 
 
 async def _uncompressed_retry(
@@ -78,6 +79,7 @@ async def _uncompressed_retry(
         request.method, request.url, headers=headers, content=body.original, extensions=extensions
     )
     _copy_context(request, replay)
+    _resume_hop_retries(request, replay)
     await response.aclose()
     body.span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
     body.span.set_attribute(REQUEST_BODY_COMPRESSED_KEY, False)
@@ -144,6 +146,7 @@ class CompressionHandler(BaseMiddleware):
             # Requests can outlive this invocation; don't retain the raw body on them.
             fallback_body = _CompressedBody(body, compressed_request.stream, _enable_span)
             setattr(compressed_request, _COMPRESSED_BODY_ATTR, ref(fallback_body))
+            _track_hop_retries(compressed_request)
             retry_attempt = compressed_request.headers.get(RETRY_ATTEMPT)
             _enable_span.set_attribute(REQUEST_BODY_COMPRESSED_KEY, True)
             _enable_span.set_attribute(REQUEST_BODY_SIZE_KEY, len(compressed_request.content))

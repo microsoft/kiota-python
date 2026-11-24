@@ -254,8 +254,12 @@ async def test_transforms_run_once_and_inspection_runs_per_attempt(redirect_stat
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("redirect_status", [303, 307])
-async def test_compression_fallback_is_scoped_to_the_rejected_hop(redirect_status, mocker):
+@pytest.mark.parametrize(
+    "redirect_status,retry_before_fallback", [(303, False), (307, False), (307, True)]
+)
+async def test_compression_fallback_is_scoped_to_the_rejected_hop(
+    redirect_status, retry_before_fallback, mocker
+):
     source_url = "https://example.com/start"
     target_url = "https://other.example.com/target"
     payload = b"request body"
@@ -282,6 +286,9 @@ async def test_compression_fallback_is_scoped_to_the_rejected_hop(redirect_statu
         assert "Authorization" not in request.headers
         assert "Cookie" not in request.headers
         assert request.headers["X-Custom"] == "kept"
+        assert len(attempts) <= 4, "retry budget exceeded"
+        if retry_before_fallback:
+            return httpx.Response(415 if len(attempts) == 3 else 503)
         if len(attempts) == 2:
             return httpx.Response(415)
         if len(attempts) == 3:
@@ -319,17 +326,22 @@ async def test_compression_fallback_is_scoped_to_the_rejected_hop(redirect_statu
         assert method == "GET" and not body
         assert "Content-Encoding" not in headers
     else:
-        assert response.status_code == 200
+        assert response.status_code == (503 if retry_before_fallback else 200)
         assert len(attempts) == 4
         assert method == "POST" and body == attempts[0][3]
         assert headers["Content-Encoding"] == "gzip"
-        for _, method, headers, body in attempts[2:]:
+        if retry_before_fallback:
+            assert attempts[2][2]["Content-Encoding"] == "gzip"
+            assert attempts[2][3] == attempts[0][3]
+        for _, method, headers, body in attempts[3 if retry_before_fallback else 2:]:
             assert method == "POST" and body == payload
             assert "Content-Encoding" not in headers
             assert headers["Content-Type"] == "text/plain"
             assert headers["Content-Length"] == str(len(payload))
-        assert [headers.get(RETRY_ATTEMPT)
-                for _, _, headers, _ in attempts] == [None, None, None, "1"]
+        counts = [headers.get(RETRY_ATTEMPT) for _, _, headers, _ in attempts]
+        assert counts == (
+            [None, None, "1", None] if retry_before_fallback else [None, None, None, "1"]
+        )
 
 
 @pytest.mark.asyncio
