@@ -1,4 +1,5 @@
 import gzip
+import threading
 
 import httpx
 import pytest
@@ -60,6 +61,27 @@ async def test_compresses_request_body():
     # the original request is not modified
     assert "Content-Encoding" not in request.headers
     assert request.content == BODY
+
+
+@pytest.mark.asyncio
+async def test_compresses_off_the_event_loop_thread(monkeypatch):
+    loop_thread = threading.get_ident()
+    compress_threads = []
+    original_compress = gzip.compress
+
+    def recording_compress(data, *args, **kwargs):
+        compress_threads.append(threading.get_ident())
+        return original_compress(data, *args, **kwargs)
+
+    monkeypatch.setattr(gzip, "compress", recording_compress)
+    transport, received = recording_transport()
+    request = httpx.Request("POST", BASE_URL, content=BODY)
+
+    await CompressionHandler().send(request, transport)
+
+    assert len(compress_threads) == 1
+    assert compress_threads[0] != loop_thread
+    assert gzip.decompress(received[0]["body"]) == BODY
 
 
 @pytest.mark.asyncio

@@ -1,3 +1,4 @@
+import asyncio
 import gzip
 from typing import Optional
 
@@ -64,7 +65,10 @@ class CompressionHandler(BaseMiddleware):
             if not body:
                 return await super().send(request, transport)
 
-            compressed_request = self._build_compressed_request(request, gzip.compress(body))
+            # gzip is CPU bound, compress in a worker thread so large bodies do not
+            # block the event loop
+            compressed_body = await asyncio.to_thread(gzip.compress, body)
+            compressed_request = self._build_compressed_request(request, compressed_body)
             _enable_span.set_attribute(REQUEST_BODY_COMPRESSED_KEY, True)
             _enable_span.set_attribute(REQUEST_BODY_SIZE_KEY, len(compressed_request.content))
             response = await super().send(compressed_request, transport)
