@@ -70,6 +70,7 @@ class RetryHandler(BaseMiddleware):
         response = None
         _span = self._create_observability_span(request, "RetryHandler_send")
         current_options = self._get_current_options(request)
+        request_options = request.extensions.get(REQUEST_OPTIONS_KEY)
         _span.set_attribute("com.microsoft.kiota.handler.retry.enable", True)
         _span.end()
         retry_valid = current_options.should_retry
@@ -98,6 +99,9 @@ class RetryHandler(BaseMiddleware):
                 # increment the count for retries
                 retry_count += 1
                 request.headers.update({RETRY_ATTEMPT: f'{retry_count}'})
+                # The last middleware strips options before sending to the transport.
+                if request_options is not None:
+                    request.extensions[REQUEST_OPTIONS_KEY] = request_options
                 _retry_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
                 _retry_span.set_attribute('http.request.resend_count', retry_count)
                 _retry_span.end()

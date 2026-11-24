@@ -1,11 +1,14 @@
 import asyncio
+import gzip
 
 import httpx
 import pytest
 from kiota_http.kiota_client_factory import KiotaClientFactory
 from kiota_http.middleware import (
+    REQUEST_OPTIONS_KEY,
     AsyncKiotaTransport,
     BodyInspectionHandler,
+    CompressionHandler,
     HeadersInspectionHandler,
     MiddlewarePipeline,
     ParametersNameDecodingHandler,
@@ -15,9 +18,12 @@ from kiota_http.middleware import (
 )
 from kiota_http.middleware.options import (
     BodyInspectionHandlerOption,
+    HeadersInspectionHandlerOption,
     RedirectHandlerOption,
     RetryHandlerOption,
+    UrlReplaceHandlerOption,
 )
+from kiota_http.middleware.retry_handler import RETRY_ATTEMPT
 from kiota_http.middleware.user_agent_handler import UserAgentHandler
 
 
@@ -69,8 +75,9 @@ def test_create_with_default_middleware_options():
     assert isinstance(client, httpx.AsyncClient)
     assert isinstance(client._transport, AsyncKiotaTransport)
     pipeline = client._transport.pipeline
-    assert isinstance(pipeline._first_middleware, RedirectHandler)
-    retry_handler = pipeline._first_middleware.next
+    redirect_handler = pipeline._first_middleware.next.next.next
+    assert isinstance(redirect_handler, RedirectHandler)
+    retry_handler = redirect_handler.next
     assert isinstance(retry_handler, RetryHandler)
     assert retry_handler.options.max_retry == retry_options.max_retry
 
@@ -131,14 +138,15 @@ def test_get_default_middleware():
     """Test fetching of default middleware with no custom options passed"""
     middleware = KiotaClientFactory.get_default_middleware(None)
 
-    assert len(middleware) == 7
-    assert isinstance(middleware[0], RedirectHandler)
-    assert isinstance(middleware[1], RetryHandler)
-    assert isinstance(middleware[2], ParametersNameDecodingHandler)
-    assert isinstance(middleware[3], UrlReplaceHandler)
-    assert isinstance(middleware[4], UserAgentHandler)
-    assert isinstance(middleware[5], HeadersInspectionHandler)
-    assert isinstance(middleware[6], BodyInspectionHandler)
+    assert [type(handler) for handler in middleware] == [
+        UrlReplaceHandler,
+        ParametersNameDecodingHandler,
+        UserAgentHandler,
+        RedirectHandler,
+        RetryHandler,
+        HeadersInspectionHandler,
+        BodyInspectionHandler,
+    ]
 
 
 def test_default_middleware_does_not_share_options():
@@ -163,13 +171,86 @@ def test_get_default_middleware_with_options():
     middleware = KiotaClientFactory.get_default_middleware(options=options)
 
     assert len(middleware) == 7
-    assert isinstance(middleware[0], RedirectHandler)
-    assert middleware[0].options.should_redirect is False
-    assert isinstance(middleware[1], RetryHandler)
-    assert middleware[1].options.max_retry == 7
-    assert isinstance(middleware[2], ParametersNameDecodingHandler)
+    assert isinstance(middleware[3], RedirectHandler)
+    assert middleware[3].options.should_redirect is False
+    assert isinstance(middleware[4], RetryHandler)
+    assert middleware[4].options.max_retry == 7
     assert isinstance(middleware[6], BodyInspectionHandler)
     assert middleware[6].options.inspect_request_body is True
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("redirect_status", [303, 307])
+async def test_transforms_run_once_and_inspection_runs_per_attempt(redirect_status, mocker):
+    initial_url = "https://example.com/start?plain=1"
+    transformed_url = "https://example.com/start?$filter=1"
+    redirect_url = "https://example.com/destination?%24filter=2"
+    retry_handler = RetryHandler(RetryHandlerOption(max_retries=1))
+    retry_handler.backoff_max = 0
+    header_inspection = HeadersInspectionHandlerOption()
+    body_inspection = BodyInspectionHandlerOption(inspect_request_body=True)
+    replace_option = UrlReplaceHandlerOption(
+        replacement_pairs={
+            "plain": "%24filter",
+            "destination": "rewritten"
+        }
+    )
+    request_options = {
+        option.get_key(): option
+        for option in (header_inspection, body_inspection, replace_option)
+    }
+    middleware = KiotaClientFactory.get_default_middleware(None)
+    user_agent_send = mocker.spy(middleware[2], "send")
+    retry_index = next(
+        i for i, handler in enumerate(middleware) if isinstance(handler, RetryHandler)
+    )
+    middleware[retry_index] = retry_handler
+    middleware.insert(retry_index - 1, CompressionHandler())
+    compress = mocker.spy(gzip, "compress")
+    attempts = []
+
+    def respond(request):
+        assert REQUEST_OPTIONS_KEY not in request.extensions
+        assert header_inspection.request_headers.contains("user-agent")
+        is_retry = RETRY_ATTEMPT in request.headers
+        assert header_inspection.request_headers.contains(RETRY_ATTEMPT) == is_retry
+        assert body_inspection.request_body == (request.content or None)
+        attempts.append((str(request.url), request.method, request.headers.copy(), request.content))
+        if len(attempts) in (1, 3):
+            return httpx.Response(503)
+        if len(attempts) == 2:
+            return httpx.Response(redirect_status, headers={"Location": redirect_url})
+        return httpx.Response(200)
+
+    async with KiotaClientFactory.create_with_custom_middleware(
+        middleware, httpx.AsyncClient(transport=httpx.MockTransport(respond))
+    ) as client:
+        response = await client.post(
+            initial_url,
+            content=b"request body",
+            headers={"Content-Type": "text/plain"},
+            extensions={REQUEST_OPTIONS_KEY: request_options},
+        )
+
+    assert response.status_code == 200
+    assert [url for url, _, _, _ in attempts] == [transformed_url] * 2 + [redirect_url] * 2
+    assert [headers.get(RETRY_ATTEMPT) for _, _, headers, _ in attempts] == [None, "1", None, "1"]
+    user_agent_send.assert_awaited_once()
+    compress.assert_called_once_with(b"request body")
+    encoded_body = attempts[0][3]
+    assert gzip.decompress(encoded_body) == b"request body"
+    for _, method, headers, body in attempts[:2] if redirect_status == 303 else attempts:
+        assert method == "POST"
+        assert headers["Content-Encoding"] == "gzip"
+        assert headers["Content-Length"] == str(len(encoded_body))
+        assert body == encoded_body
+    if redirect_status == 303:
+        for _, method, headers, body in attempts[2:]:
+            assert method == "GET"
+            assert "Content-Encoding" not in headers
+            assert "Content-Length" not in headers
+            assert "Content-Type" not in headers
+            assert not body
 
 
 def test_create_middleware_pipeline():

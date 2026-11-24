@@ -17,6 +17,14 @@ In order to use this library, install the package by running:
 pip install microsoft-kiota-http
 ```
 
+The default middleware runs in this outbound order: URL replacement, query parameter
+name decoding, User-Agent, redirect, retry, headers inspection, and body inspection.
+The first three handlers prepare the initial request; redirect targets are not rewritten.
+Each redirect hop has its own retry budget, and inspection runs on every attempt.
+For a custom pipeline with request compression, put `CompressionHandler` after
+`UserAgentHandler` and before `RedirectHandler` and `RetryHandler` so requests can reuse
+the compressed body. HTTPX handles response decompression.
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

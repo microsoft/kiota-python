@@ -20,8 +20,8 @@ class CompressionHandler(BaseMiddleware):
     If the server answers a compressed request with 415 Unsupported Media Type, the
     request is sent once more with the original, uncompressed body.
 
-    The handler is not part of the default middleware. Add it before the RetryHandler
-    so a retried request is not compressed again.
+    The handler is not part of the default middleware. Add it before RedirectHandler
+    and RetryHandler so redirects that preserve the body and retries can reuse it.
     """
 
     CONTENT_ENCODING_HEADER = "Content-Encoding"

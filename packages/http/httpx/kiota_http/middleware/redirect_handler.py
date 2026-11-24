@@ -8,6 +8,7 @@ import httpx
 from .._exceptions import RedirectError
 from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import RedirectHandlerOption
+from .retry_handler import RETRY_ATTEMPT
 
 REDIRECT_ENABLE_KEY = "com.microsoft.kiota.handler.redirect.enable"
 REDIRECT_COUNT_KEY = "com.microsoft.kiota.handler.redirect.count"
@@ -154,6 +155,7 @@ class RedirectHandler(BaseMiddleware):
 
         # Scrub sensitive headers before following the redirect
         options.scrub_sensitive_headers(new_request, request.url)
+        new_request.headers.pop(RETRY_ATTEMPT, None)
 
         # Update the Host header if not same origin
         if not self._same_origin(url, request.url):
@@ -165,6 +167,9 @@ class RedirectHandler(BaseMiddleware):
             # are only relevant to the request body.
             new_request.headers.pop("Content-Length", None)
             new_request.headers.pop("Transfer-Encoding", None)
+            new_request.headers.pop("Content-Encoding", None)
+            new_request.headers.pop("Content-Type", None)
+            new_request.headers.pop("Content-Range", None)
 
         if hasattr(request, "context"):
             new_request.context = request.context  #type: ignore
