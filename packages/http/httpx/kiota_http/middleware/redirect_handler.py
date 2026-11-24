@@ -6,6 +6,7 @@ from opentelemetry.semconv.attributes.http_attributes import HTTP_RESPONSE_STATU
 import httpx
 
 from .._exceptions import RedirectError
+from .compression_handler import _carry_compressed_body, _uncompressed_retry
 from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import RedirectHandlerOption
 from .retry_handler import RETRY_ATTEMPT
@@ -80,7 +81,7 @@ class RedirectHandler(BaseMiddleware):
                 request, f"RedirectHandler_send - redirect {len(history)}"
             )
             try:
-                response = await super().send(request, transport)
+                request, response = await self._send_hop(request, transport)
                 _redirect_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
                 redirect_location = self.get_redirect_location(response)
 
@@ -105,6 +106,17 @@ class RedirectHandler(BaseMiddleware):
                 _redirect_span.end()
 
         return response
+
+    async def _send_hop(
+        self, request: httpx.Request, transport: httpx.AsyncBaseTransport
+    ) -> tuple[httpx.Request, httpx.Response]:
+        retry_attempt = request.headers.get(RETRY_ATTEMPT)
+        hop_options = request.extensions.get(REQUEST_OPTIONS_KEY)
+        response = await super().send(request, transport)
+        replay = await _uncompressed_retry(request, response, hop_options, retry_attempt)
+        if replay is not None:
+            return replay, await super().send(replay, transport)
+        return request, response
 
     def _get_current_options(self, request: httpx.Request) -> RedirectHandlerOption:
         """Returns the options to use for the request.Overries default options if
@@ -173,6 +185,7 @@ class RedirectHandler(BaseMiddleware):
 
         if hasattr(request, "context"):
             new_request.context = request.context  #type: ignore
+        _carry_compressed_body(request, new_request)
         return new_request
 
     def _redirect_method(self, request: httpx.Request, response: httpx.Response) -> str:

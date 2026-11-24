@@ -253,6 +253,107 @@ async def test_transforms_run_once_and_inspection_runs_per_attempt(redirect_stat
             assert not body
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("redirect_status", [303, 307])
+async def test_compression_fallback_is_scoped_to_the_rejected_hop(redirect_status, mocker):
+    source_url = "https://example.com/start"
+    target_url = "https://other.example.com/target"
+    payload = b"request body"
+    body_inspection = BodyInspectionHandlerOption(inspect_request_body=True)
+    retry = RetryHandler(RetryHandlerOption(max_retries=0))
+    retry.backoff_max = 0
+    retry_option = RetryHandlerOption(max_retries=1)
+    options = {option.get_key(): option for option in (retry_option, body_inspection)}
+    compress = mocker.spy(gzip, "compress")
+    attempts = []
+    context = object()
+
+    def respond(request):
+        assert REQUEST_OPTIONS_KEY not in request.extensions
+        assert request.extensions["custom"] == "metadata"
+        assert request.context is context
+        assert body_inspection.request_body == (request.content or None)
+        attempts.append((str(request.url), request.method, request.headers.copy(), request.content))
+        if str(request.url) == source_url:
+            assert len(attempts) == 1
+            return httpx.Response(redirect_status, headers={"Location": target_url})
+        assert str(request.url) == target_url
+        assert request.headers["Host"] == "other.example.com"
+        assert "Authorization" not in request.headers
+        assert "Cookie" not in request.headers
+        assert request.headers["X-Custom"] == "kept"
+        if len(attempts) == 2:
+            return httpx.Response(415)
+        if len(attempts) == 3:
+            return httpx.Response(503)
+        return httpx.Response(200)
+
+    middleware = [CompressionHandler(), RedirectHandler(), retry, BodyInspectionHandler()]
+    async with KiotaClientFactory.create_with_custom_middleware(
+        middleware, httpx.AsyncClient(transport=httpx.MockTransport(respond))
+    ) as client:
+        request = client.build_request(
+            "POST",
+            source_url,
+            content=payload,
+            headers={
+                "Authorization": "Bearer example",
+                "Cookie": "example=value",
+                "Content-Type": "text/plain",
+                "X-Custom": "kept",
+            },
+            extensions={
+                REQUEST_OPTIONS_KEY: options,
+                "custom": "metadata"
+            },
+        )
+        request.context = context
+        response = await client.send(request)
+
+    compress.assert_called_once_with(payload)
+    assert gzip.decompress(attempts[0][3]) == payload
+    _, method, headers, body = attempts[1]
+    if redirect_status == 303:
+        assert response.status_code == 415
+        assert len(attempts) == 2
+        assert method == "GET" and not body
+        assert "Content-Encoding" not in headers
+    else:
+        assert response.status_code == 200
+        assert len(attempts) == 4
+        assert method == "POST" and body == attempts[0][3]
+        assert headers["Content-Encoding"] == "gzip"
+        for _, method, headers, body in attempts[2:]:
+            assert method == "POST" and body == payload
+            assert "Content-Encoding" not in headers
+            assert headers["Content-Type"] == "text/plain"
+            assert headers["Content-Length"] == str(len(payload))
+        assert [headers.get(RETRY_ATTEMPT)
+                for _, _, headers, _ in attempts] == [None, None, None, "1"]
+
+
+@pytest.mark.asyncio
+async def test_retry_before_redirect_stops_at_max_retries():
+    retry = RetryHandler(RetryHandlerOption(max_retries=1))
+    retry.backoff_max = 0
+    attempts = []
+
+    def respond(request):
+        attempts.append((request.url.path, request.headers.get(RETRY_ATTEMPT)))
+        assert len(attempts) <= 4, "retry budget exceeded"
+        if request.url.path == "/start":
+            return httpx.Response(307, headers={"Location": "/target"})
+        return httpx.Response(503)
+
+    async with KiotaClientFactory.create_with_custom_middleware(
+        [retry, RedirectHandler()], httpx.AsyncClient(transport=httpx.MockTransport(respond))
+    ) as client:
+        response = await client.get("https://example.com/start")
+
+    assert response.status_code == 503
+    assert attempts == [("/start", None), ("/target", None), ("/start", "1"), ("/target", None)]
+
+
 def test_create_middleware_pipeline():
 
     middleware = KiotaClientFactory.get_default_middleware(None)

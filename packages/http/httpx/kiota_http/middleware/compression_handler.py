@@ -1,27 +1,99 @@
 import asyncio
 import gzip
+from dataclasses import dataclass
 from typing import Optional
+from weakref import ReferenceType, ref
 
 from opentelemetry.semconv.attributes.http_attributes import HTTP_RESPONSE_STATUS_CODE
+from opentelemetry.trace import Span
 
 import httpx
 
 from .middleware import REQUEST_OPTIONS_KEY, BaseMiddleware
 from .options import CompressionHandlerOption
+from .retry_handler import RETRY_ATTEMPT
 
 COMPRESSION_ENABLE_KEY = "com.microsoft.kiota.handler.compression.enable"
 REQUEST_BODY_COMPRESSED_KEY = "http.request.body.compressed"
 REQUEST_BODY_SIZE_KEY = "http.request.body.size"
+_COMPRESSED_BODY_ATTR = "_kiota_compressed_body"
+
+
+@dataclass(frozen=True)
+class _CompressedBody:
+    original: bytes
+    compressed_stream: httpx.AsyncByteStream | httpx.SyncByteStream
+    span: Span
+
+    def matches(self, request: httpx.Request) -> bool:
+        return (
+            request.headers.get(CompressionHandler.CONTENT_ENCODING_HEADER) == "gzip"
+            and request.stream is self.compressed_stream
+        )
+
+
+def _copy_context(source: httpx.Request, target: httpx.Request) -> None:
+    if hasattr(source, "context"):
+        target.context = source.context  # type: ignore[attr-defined]
+
+
+def _carry_compressed_body(source: httpx.Request, target: httpx.Request) -> None:
+    body = getattr(source, _COMPRESSED_BODY_ATTR, None)
+    if body is not None and target.stream is source.stream:
+        setattr(target, _COMPRESSED_BODY_ATTR, body)
+
+
+async def _uncompressed_retry(
+    request: httpx.Request,
+    response: httpx.Response,
+    request_options: Optional[dict[str, object]],
+    retry_attempt: Optional[str],
+) -> Optional[httpx.Request]:
+    if response.status_code != CompressionHandler.UNSUPPORTED_MEDIA_TYPE:
+        return None
+    body_ref: Optional[ReferenceType[_CompressedBody]]
+    body_ref = getattr(request, _COMPRESSED_BODY_ATTR, None)
+    body = body_ref() if body_ref is not None else None
+    if body is None:
+        return None
+    try:
+        actual_request = response.request
+    except RuntimeError:
+        return None
+    if actual_request is not request or not body.matches(request):
+        return None
+
+    headers = request.headers.copy()
+    headers.pop(CompressionHandler.CONTENT_ENCODING_HEADER, None)
+    headers.pop(CompressionHandler.TRANSFER_ENCODING_HEADER, None)
+    headers[CompressionHandler.CONTENT_LENGTH_HEADER] = str(len(body.original))
+    if retry_attempt is None:
+        headers.pop(RETRY_ATTEMPT, None)
+    else:
+        headers[RETRY_ATTEMPT] = retry_attempt
+    extensions = request.extensions.copy()
+    if request_options is not None:
+        extensions[REQUEST_OPTIONS_KEY] = request_options
+    replay = httpx.Request(
+        request.method, request.url, headers=headers, content=body.original, extensions=extensions
+    )
+    _copy_context(request, replay)
+    await response.aclose()
+    body.span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
+    body.span.set_attribute(REQUEST_BODY_COMPRESSED_KEY, False)
+    body.span.set_attribute(REQUEST_BODY_SIZE_KEY, len(body.original))
+    return replay
 
 
 class CompressionHandler(BaseMiddleware):
     """Middleware that gzip compresses request bodies.
 
     If the server answers a compressed request with 415 Unsupported Media Type, the
-    request is sent once more with the original, uncompressed body.
+    same hop is sent once more with the original, uncompressed body if the
+    rejected compressed request can be identified.
 
-    The handler is not part of the default middleware. Add it after RedirectHandler
-    and before RetryHandler so 415 fallback stays within the current redirect hop.
+    The handler is not part of the default middleware. Add it before RedirectHandler
+    and RetryHandler to reuse the compressed body across redirects and retries.
     """
 
     CONTENT_ENCODING_HEADER = "Content-Encoding"
@@ -69,18 +141,18 @@ class CompressionHandler(BaseMiddleware):
             # block the event loop
             compressed_body = await asyncio.to_thread(gzip.compress, body)
             compressed_request = self._build_compressed_request(request, compressed_body)
+            # Requests can outlive this invocation; don't retain the raw body on them.
+            fallback_body = _CompressedBody(body, compressed_request.stream, _enable_span)
+            setattr(compressed_request, _COMPRESSED_BODY_ATTR, ref(fallback_body))
+            retry_attempt = compressed_request.headers.get(RETRY_ATTEMPT)
             _enable_span.set_attribute(REQUEST_BODY_COMPRESSED_KEY, True)
             _enable_span.set_attribute(REQUEST_BODY_SIZE_KEY, len(compressed_request.content))
             response = await super().send(compressed_request, transport)
-            if response.status_code != self.UNSUPPORTED_MEDIA_TYPE:
-                return response
-
-            # The server does not accept compressed bodies, send the original request
-            await response.aclose()
-            _enable_span.set_attribute(HTTP_RESPONSE_STATUS_CODE, response.status_code)
-            _enable_span.set_attribute(REQUEST_BODY_COMPRESSED_KEY, False)
-            _enable_span.set_attribute(REQUEST_BODY_SIZE_KEY, len(body))
-            return await super().send(request, transport)
+            replay = await _uncompressed_retry(
+                compressed_request, response, request.extensions.get(REQUEST_OPTIONS_KEY),
+                retry_attempt
+            )
+            return await super().send(replay, transport) if replay is not None else response
         except Exception as exc:
             _enable_span.record_exception(exc)
             raise
@@ -125,10 +197,12 @@ class CompressionHandler(BaseMiddleware):
         headers.pop(self.TRANSFER_ENCODING_HEADER, None)
         headers[self.CONTENT_ENCODING_HEADER] = "gzip"
         headers[self.CONTENT_LENGTH_HEADER] = str(len(body))
-        return httpx.Request(
+        compressed_request = httpx.Request(
             method=request.method,
             url=request.url,
             headers=headers,
             content=body,
             extensions=request.extensions.copy(),
         )
+        _copy_context(request, compressed_request)
+        return compressed_request

@@ -10,6 +10,7 @@ from kiota_http.middleware import (
     MiddlewarePipeline,
     RetryHandler,
 )
+from kiota_http.middleware.middleware import BaseMiddleware
 from kiota_http.middleware.options import CompressionHandlerOption, RetryHandlerOption
 
 BASE_URL = "https://graph.microsoft.com/v1.0/me/sendMail"
@@ -211,6 +212,26 @@ async def test_sends_uncompressed_body_only_once():
 
     assert response.status_code == 415
     assert len(received) == 2
+
+
+@pytest.mark.asyncio
+async def test_does_not_resend_when_the_rejected_hop_is_unverifiable():
+
+    class ReplacesRequest(BaseMiddleware):
+
+        async def send(self, request, transport):
+            target = httpx.Request(
+                request.method, request.url, headers=request.headers, content=request.content
+            )
+            return await super().send(target, transport)
+
+    transport, received = recording_transport([415])
+    handler = CompressionHandler()
+    handler.next = ReplacesRequest()
+    response = await handler.send(httpx.Request("POST", BASE_URL, content=BODY), transport)
+
+    assert response.status_code == 415
+    assert len(received) == 1
 
 
 @pytest.mark.asyncio

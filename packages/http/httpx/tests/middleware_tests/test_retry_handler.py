@@ -276,26 +276,21 @@ async def test_returns_same_status_code_if_delay_greater_than_max_delay():
 
 
 @pytest.mark.asyncio
-async def test_max_retries_respected():
-    """Test that a request is not retried more than max_retries configured"""
+@pytest.mark.parametrize("stale_attempt", ["5", "not-a-number"])
+async def test_retry_budget_does_not_depend_on_the_incoming_header(stale_attempt):
+    attempts = []
 
     def request_handler(request: httpx.Request):
-        if RETRY_ATTEMPT in request.headers:
-            return httpx.Response(200, )
-        return httpx.Response(TOO_MANY_REQUESTS, )
+        attempts.append(request.headers[RETRY_ATTEMPT])
+        return httpx.Response(TOO_MANY_REQUESTS)
 
-    # Retry-after value takes precedence over the RetryHandlerOption value specified here
-    handler = RetryHandler(RetryHandlerOption(10, 3, True))
-    request = httpx.Request(
-        'GET',
-        BASE_URL,
-        headers={RETRY_ATTEMPT: '5'}  # value exceeds max retries configured
-    )
+    handler = RetryHandler(RetryHandlerOption(max_retries=1))
+    handler.backoff_max = 0
+    request = httpx.Request('GET', BASE_URL, headers={RETRY_ATTEMPT: stale_attempt})
     mock_transport = httpx.MockTransport(request_handler)
     resp = await handler.send(request, mock_transport)
-    assert resp.status_code == 200
-    assert RETRY_ATTEMPT in resp.request.headers
-    assert resp.request.headers[RETRY_ATTEMPT] == '5'
+    assert resp.status_code == TOO_MANY_REQUESTS
+    assert attempts == [stale_attempt, '1']
 
 
 @pytest.mark.asyncio

@@ -21,6 +21,7 @@ class RetryHandler(BaseMiddleware):
     methods in ``DEFAULT_ALLOWED_METHODS``, using the ``RetryHandlerOption`` of the
     request or the one given to the constructor: ``max_retry`` (retries after the first
     attempt), ``max_delay`` (a base delay, see ``get_delay_time``) and ``should_retry``.
+    Each invocation counts its own retries; ``Retry-Attempt`` is an outbound header.
 
     The delay before a retry comes from ``get_delay_time``: a ``Retry-After`` response
     header above zero is used as parsed, without a cap; otherwise
@@ -74,13 +75,10 @@ class RetryHandler(BaseMiddleware):
         _span.set_attribute("com.microsoft.kiota.handler.retry.enable", True)
         _span.end()
         retry_valid = current_options.should_retry
+        retry_count = 0
 
         while retry_valid:
             response = await super().send(request, transport)
-            # check that max retries has not been hit
-            retry_count = 0 if RETRY_ATTEMPT not in response.request.headers else int(
-                response.request.headers[RETRY_ATTEMPT]
-            )
             _retry_span = self._create_observability_span(
                 request, f"RetryHandler_send - attempt {retry_count}"
             )
