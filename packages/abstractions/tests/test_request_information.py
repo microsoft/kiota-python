@@ -477,3 +477,10 @@ def test_create_parent_span_name():
 
     request_info_none = RequestInformation(Method.GET)
     assert request_info_none._create_parent_span_name("GET") == "GET"
+
+
+@pytest.mark.parametrize("value", ["", [""]], ids=["scalar", "list"])
+def test_request_headers_preserve_empty_value(value):
+    request_info = RequestInformation()
+    request_info.headers.add("X-Label", value)
+    assert request_info.request_headers == {"x-label": ""}

@@ -114,11 +114,11 @@ class HeadersCollection():
             raise ValueError("Header name cannot be null")
         if header_values is None:
             raise ValueError("Header values cannot be null")
+        if not isinstance(header_values, list):
+            header_values = [header_values]
         if not header_values:  # empty list
             return
         header_name = header_name.lower()
-        if not isinstance(header_values, list):
-            header_values = [header_values]
         if header_name in self.SINGLE_VALUE_HEADERS:
             self._headers[header_name] = {header_values[0]}
         elif values := self.try_get(header_name):
