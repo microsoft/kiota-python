@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.18.0...microsoft-kiota-http-v1.19.0) (2026-11-26)
+
+
+### Features
+
+* **http:** add a compression handler for request bodies ([ddba4b4](https://github.com/microsoft/kiota-python/commit/ddba4b46f9b28dbff783f5f3d818dc37b54aa570))
+* **http:** add a compression handler for request bodies ([d222f13](https://github.com/microsoft/kiota-python/commit/d222f136ab884f79e3d0c38164e38b70bffb8ac7))
+
+
+### Bug Fixes
+
+* **http:** align middleware order and redirect retry scope ([f3d5769](https://github.com/microsoft/kiota-python/commit/f3d57695105ac2637d404f4d98a4490c7073517f))
+* **http:** align middleware order and redirect retry scope ([eec204a](https://github.com/microsoft/kiota-python/commit/eec204a9079b4e53d860562e002b0b864b99d39c))
+* **http:** compress request bodies off the event loop ([ca79728](https://github.com/microsoft/kiota-python/commit/ca79728b9250e050685b9c35baeb3b39ad67f3e0))
+* **http:** retain retry budget in compression fallback ([7864e7c](https://github.com/microsoft/kiota-python/commit/7864e7cb9ecedb9737a6db4f6c1440f841670940))
+* **http:** scope compression fallback and retry budgets ([a72ce88](https://github.com/microsoft/kiota-python/commit/a72ce8801c295a6b860450440fb6b4f74e29dd9b))
+
 ## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-http-v1.17.0...microsoft-kiota-http-v1.18.0) (2026-11-16)
 
 
