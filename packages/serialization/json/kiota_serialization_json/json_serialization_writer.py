@@ -314,10 +314,10 @@ class JsonSerializationWriter(SerializationWriter):
             additional_values_to_merge (tuple[Parsable]): The additional values to merge to the
             main value when serializing an intersection wrapper.
         """
-        if value or additional_values_to_merge:
+        if value is not None or additional_values_to_merge:
             temp_writer = self._create_new_writer()
 
-            if value:
+            if value is not None:
                 self._serialize_value(temp_writer, value)
 
             if additional_values_to_merge:
@@ -326,7 +326,7 @@ class JsonSerializationWriter(SerializationWriter):
                     if on_after := self.on_after_object_serialization:
                         on_after(additional_value)  # type: ignore
 
-            if value and self._on_after_object_serialization:
+            if value is not None and self._on_after_object_serialization:
                 self._on_after_object_serialization(value)
 
             # Use temp_writer.value if available (for composed types like oneOf wrappers),
