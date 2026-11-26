@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.19.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.18.0...microsoft-kiota-serialization-multipart-v1.19.0) (2026-11-26)
+
+
+### Bug Fixes
+
+* **abstractions:** keep the original part name in multipart bodies ([da31e65](https://github.com/microsoft/kiota-python/commit/da31e654802af6c4c60a678fdefcc1f57b410b26))
+* **abstractions:** keep the original part name in multipart bodies ([ec93289](https://github.com/microsoft/kiota-python/commit/ec932892e89c11f70253eccca145ceab63a01cdb))
+
 ## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-multipart-v1.17.0...microsoft-kiota-serialization-multipart-v1.18.0) (2026-11-16)
 
 

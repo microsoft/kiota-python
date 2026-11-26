@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.18.0...microsoft-kiota-serialization-json-v1.19.0) (2026-11-26)
+
+
+### Bug Fixes
+
+* **json:** serialize falsy Parsable models ([b14a0a4](https://github.com/microsoft/kiota-python/commit/b14a0a4882cdd6146d9ca85c9bfdb589bf1d0d81))
+* **json:** serialize falsy Parsable models ([b941221](https://github.com/microsoft/kiota-python/commit/b941221646e0edff5ea930413e752cac77c2b9a4))
+
 ## [1.18.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-serialization-json-v1.17.0...microsoft-kiota-serialization-json-v1.18.0) (2026-11-16)
 
 
