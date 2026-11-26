@@ -35,6 +35,7 @@ class MultipartBody(Parsable, Generic[T]):
     boundary: str = field(default_factory=lambda: str(uuid.uuid4()))
     parts: dict[str, tuple[str, Any, Optional[str]]] = field(default_factory=dict)
     request_adapter: Optional[RequestAdapter] = None
+    _original_names: dict[str, str] = field(default_factory=dict, init=False, repr=False)
 
     def add_or_replace_part(
         self,
@@ -61,7 +62,9 @@ class MultipartBody(Parsable, Generic[T]):
         if part_value is None:
             raise ValueError("Part value cannot be null")
         value: tuple[str, Any, Optional[str]] = (content_type, part_value, filename)
-        self.parts[self._normalize_part_name(part_name)] = value
+        normalized_name = self._normalize_part_name(part_name)
+        self.parts[normalized_name] = value
+        self._original_names[normalized_name] = part_name
 
     def get_part_value(self, part_name: str) -> Optional[T]:
         """Gets the value of a part from the multipart body."""
@@ -81,7 +84,9 @@ class MultipartBody(Parsable, Generic[T]):
         """
         if not part_name:
             raise ValueError("Part name cannot be null")
-        return self.parts.pop(self._normalize_part_name(part_name), None) is not None
+        normalized_name = self._normalize_part_name(part_name)
+        self._original_names.pop(normalized_name, None)
+        return self.parts.pop(normalized_name, None) is not None
 
     def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """Gets the deserialization information for this object.
@@ -119,7 +124,10 @@ class MultipartBody(Parsable, Generic[T]):
             writer.write_str_value("", f"--{self.boundary}")
             writer.write_str_value("Content-Type", f"{part_value[0]}")
             writer.write_str_value(
-                "Content-Disposition", self._get_content_disposition(part_name, part_value)
+                "Content-Disposition",
+                self._get_content_disposition(
+                    self._original_names.get(part_name, part_name), part_value
+                )
             )
             self._add_new_line(writer)
 

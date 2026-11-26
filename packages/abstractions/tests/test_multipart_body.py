@@ -73,6 +73,43 @@ def test_remove_part():
     assert not multipart.remove_part("text")
 
 
+def test_serialize_keeps_part_name_casing():
+    """Part lookups ignore case, but the part is sent with the name it was added with."""
+    multipart = MultipartBody()
+    multipart.add_or_replace_part("fileName", "text/plain", "report.pdf")
+    multipart.add_or_replace_part("metadata", "text/plain", "old")
+    multipart.add_or_replace_part("MetaData", "text/plain", "new")
+    multipart.add_or_replace_part("Content", "application/octet-stream", b"123", "Report.pdf")
+
+    assert multipart.get_part_value("FILENAME") == "report.pdf"
+    assert multipart.get_part_value("metadata") == "new"
+    assert len(multipart.parts) == 3
+
+    mock_writer = Mock(spec=SerializationWriter)
+    multipart.serialize(mock_writer)
+
+    dispositions = [
+        args[1] for args, _ in mock_writer.write_str_value.call_args_list
+        if args[0] == "Content-Disposition"
+    ]
+    assert dispositions == [
+        'form-data; name="fileName"',
+        'form-data; name="MetaData"',
+        'form-data; name="Content"; filename="Report.pdf"',
+    ]
+
+
+def test_remove_part_ignores_case():
+    multipart = MultipartBody()
+    multipart.add_or_replace_part("Text", "text/plain", "Hello")
+    assert multipart.remove_part("TEXT")
+    multipart.add_or_replace_part("text", "text/plain", "Hello")
+
+    mock_writer = Mock(spec=SerializationWriter)
+    multipart.serialize(mock_writer)
+    mock_writer.write_str_value.assert_any_call("Content-Disposition", 'form-data; name="text"')
+
+
 def test_add_or_replace_part_empty_values():
     """Tests adding empty byte and string parts to the multipart body."""
     multipart = MultipartBody()

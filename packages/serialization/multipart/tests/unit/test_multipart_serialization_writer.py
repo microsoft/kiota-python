@@ -148,6 +148,22 @@ def test_write_object_value_with_multiple_string_parts(
     assert content_string == f'--{mock_multipart_body.boundary}' + '\r\nContent-Type: text/plain\r\nContent-Disposition: form-data; name="message1"\r\n\r\nHello world\r\n' + f'--{mock_multipart_body.boundary}' + '\r\nContent-Type: text/plain\r\nContent-Disposition: form-data; name="message2"\r\n\r\nGoodbye world\r\n' + f'--{mock_multipart_body.boundary}--\r\n'
 
 
+def test_write_object_value_keeps_part_name_casing(
+    mock_request_adapter, mock_serialization_writer_factory, mock_multipart_body
+):
+    mock_request_adapter.get_serialization_writer_factory = Mock(
+        return_value=mock_serialization_writer_factory
+    )
+    mock_multipart_body.request_adapter = mock_request_adapter
+    mock_multipart_body.add_or_replace_part("displayName", "text/plain", "Hello world")
+
+    serialization_writer = MultipartSerializationWriter()
+    serialization_writer.write_object_value("", mock_multipart_body, None)
+    content = serialization_writer.get_serialized_content()
+    content_string = content.decode('utf-8')
+    assert content_string == f'--{mock_multipart_body.boundary}' + '\r\nContent-Type: text/plain\r\nContent-Disposition: form-data; name="displayName"\r\n\r\nHello world\r\n' + f'--{mock_multipart_body.boundary}--\r\n'
+
+
 def test_write_str_value_omits_nil_value():
     serialization_writer = MultipartSerializationWriter()
     serialization_writer.write_str_value("Content-Type", None)
