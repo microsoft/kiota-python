@@ -333,3 +333,33 @@ def test_remove_header_return_semantics():
     assert removed == {"value1", "value2"}
     assert not headers.contains("header1")
     assert headers.remove("header1") is False
+
+
+@pytest.mark.parametrize("value", ["", [""]], ids=["scalar", "list"])
+def test_add_empty_header_value(value):
+    headers = HeadersCollection()
+    headers.add("X-Label", value)
+    assert headers.get("x-label") == {""}
+    assert headers.count() == 1
+
+
+@pytest.mark.parametrize("value", ["", [""]], ids=["scalar", "list"])
+def test_init_with_empty_header_value(value):
+    headers = HeadersCollection({"X-Label": value})
+    assert headers.get("x-label") == {""}
+    assert headers.count() == 1
+
+
+@pytest.mark.parametrize("value", ["", [""]], ids=["scalar", "list"])
+def test_add_all_empty_header_value(value):
+    headers = HeadersCollection({"X-Label": "present"})
+    headers.add_all({"x-LABEL": value})
+    assert headers.get("x-label") == {"present", ""}
+    assert headers.count() == 1
+
+
+@pytest.mark.parametrize("existing", [False, True])
+def test_add_empty_list_is_noop(existing):
+    headers = HeadersCollection({"X-Label": "present"}) if existing else HeadersCollection()
+    headers.add("X-Label", [])
+    assert headers.get_all() == ({"x-label": {"present"}} if existing else {})
