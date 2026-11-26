@@ -321,6 +321,13 @@ class RequestInformation:
             sanitized_value = value.replace(tzinfo=timezone_info).isoformat("T")
         elif isinstance(value, (UUID, date, time)):
             sanitized_value = str(value)
+        elif isinstance(value, timedelta):
+            # ISO 8601 duration, matching the format the serialization writers use
+            unsigned = abs(value)
+            sign = "-" if value < timedelta(0) else ""
+            sanitized_value = (
+                f"{sign}P{unsigned.days}DT{unsigned.seconds}.{unsigned.microseconds:06d}S"
+            )
         return sanitized_value
 
     def _decode_uri_string(self, uri: Optional[str]) -> str:
