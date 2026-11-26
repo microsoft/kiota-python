@@ -10,6 +10,63 @@ from kiota_serialization_json.json_parse_node import JsonParseNode
 from ..helpers import OfficeLocation, Team, User, User2
 
 
+class FalseBoolUser(User):
+    def __bool__(self):
+        return False
+
+
+class ZeroLengthUser(User):
+    def __len__(self):
+        return 0
+
+
+@pytest.mark.parametrize("model_type", [FalseBoolUser, ZeroLengthUser])
+@pytest.mark.parametrize("location", ["root", "nested", "collection", "merge"])
+def test_write_falsy_object_value(model_type, location):
+    model = model_type(mobile_phone="+1 234 567 891")
+    writer = JsonSerializationWriter()
+    callbacks = []
+    writer.on_before_object_serialization = lambda value: callbacks.append(("before", value))
+    writer.on_start_object_serialization = lambda value, target: callbacks.append(("start", value))
+    writer.on_after_object_serialization = lambda value: callbacks.append(("after", value))
+    expected = {"mobile_phone": "+1 234 567 891"}
+
+    if location == "root":
+        writer.write_object_value(None, model)
+    elif location == "nested":
+        writer.write_object_value("profile", model)
+        expected = {"profile": expected}
+    elif location == "collection":
+        writer.write_collection_of_object_values("profiles", [model])
+        expected = {"profiles": [expected]}
+    else:
+        writer.write_object_value(None, model, User(is_active=True))
+        expected["is_active"] = True
+
+    assert json.loads(writer.get_serialized_content()) == expected
+    assert [event for event, value in callbacks if value is model] == ["before", "start", "after"]
+
+
+@pytest.mark.parametrize("model_type", [FalseBoolUser, ZeroLengthUser])
+def test_write_falsy_additional_object_value(model_type):
+    writer = JsonSerializationWriter()
+    writer.write_object_value(None, None, model_type(mobile_phone="+1 234 567 891"))
+    assert json.loads(writer.get_serialized_content()) == {"mobile_phone": "+1 234 567 891"}
+
+
+@pytest.mark.parametrize("key", [None, "profile"])
+def test_write_none_object_does_not_serialize_or_invoke_callbacks(key):
+    writer = JsonSerializationWriter()
+    callbacks = []
+    writer.on_before_object_serialization = lambda value: callbacks.append("before")
+    writer.on_start_object_serialization = lambda value, target: callbacks.append("start")
+    writer.on_after_object_serialization = lambda value: callbacks.append("after")
+    writer.write_object_value(key, None)
+
+    assert json.loads(writer.get_serialized_content()) == {}
+    assert callbacks == []
+
+
 @pytest.fixture
 def user_1():
     user = User()
