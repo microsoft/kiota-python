@@ -111,6 +111,23 @@ def test_custom_options():
     assert not handler.options.should_redirect
 
 
+def test_max_redirect_limits_are_enforced_by_the_constructor_and_the_setter():
+    """A negative max_redirect is rejected by the setter as it is by the constructor, otherwise
+    the handler's redirect loop never runs and send() fails with an UnboundLocalError."""
+    with pytest.raises(ValueError, match="Negative value for max_redirect"):
+        RedirectHandlerOption(max_redirect=-1)
+
+    options = RedirectHandlerOption(max_redirect=2)
+    with pytest.raises(ValueError, match="Negative value for max_redirect"):
+        options.max_redirect = -1
+    with pytest.raises(ValueError, match="Maximum value for max_redirect"):
+        options.max_redirect = RedirectHandlerOption.MAX_MAX_REDIRECT + 1
+    assert options.max_redirect == 2
+
+    options.max_redirect = 0
+    assert options.max_redirect == 0
+
+
 def test_increment_redirects():
     """
     Tests that redirect are incremented
