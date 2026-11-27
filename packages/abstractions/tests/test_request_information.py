@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from urllib.parse import parse_qs, unquote, urlsplit
 from unittest.mock import Mock
@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from kiota_abstractions.base_request_configuration import RequestConfiguration
+from kiota_abstractions.date_utils import parse_timedelta_from_iso_format
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
@@ -305,6 +306,28 @@ def test_sets_time_only_values_in_path_parameters():
         year=2020, month=8, day=1, hour=0, minute=20, second=0, microsecond=0
     ).time()
     assert request_info.url == "https://example.com/daysFrom/00%3A20%3A00"
+
+
+def test_sets_timedelta_values_in_path_parameters():
+    """Tests setting duration values in path parameters
+    """
+    request_info = RequestInformation(Method.GET, "https://example.com/reports(period={period})")
+    request_info.path_parameters["period"] = timedelta(days=7)
+    assert request_info.url == "https://example.com/reports(period=P7DT0.000000S)"
+
+
+def test_sets_timedelta_values_in_query_parameters():
+    """Tests setting duration values in query parameters
+    """
+    request_info = RequestInformation(Method.GET, "https://example.com/reports{?period,since*}")
+    request_info.query_parameters["period"] = timedelta(hours=1, microseconds=5)
+    request_info.query_parameters["since"] = [timedelta(days=1), timedelta(minutes=-30)]
+    assert request_info.url == (
+        "https://example.com/reports?period=P0DT3600.000005S"
+        "&since=P1DT0.000000S&since=-P0DT1800.000000S"
+    )
+    period = parse_qs(urlsplit(request_info.url).query)["period"][0]
+    assert parse_timedelta_from_iso_format(period) == timedelta(hours=1, microseconds=5)
 
 
 def test_each_request_information_gets_its_own_path_parameters():
