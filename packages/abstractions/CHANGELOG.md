@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.1](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.19.0...microsoft-kiota-abstractions-v1.19.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* **abstractions:** preserve empty string header values ([044ca4c](https://github.com/microsoft/kiota-python/commit/044ca4c44c572d8d87f9d9b749df55c8197f114c))
+* **abstractions:** serialize timedelta path and query parameters as ISO 8601 durations ([d26d813](https://github.com/microsoft/kiota-python/commit/d26d8134f96568b745236667de2ac85ec324cdd6))
+* **abstractions:** serialize timedelta path and query parameters as ISO 8601 durations ([cc56c11](https://github.com/microsoft/kiota-python/commit/cc56c113e0f8b882679748212aa69e657d83be7c)), closes [#924](https://github.com/microsoft/kiota-python/issues/924)
+
 ## [1.19.0](https://github.com/microsoft/kiota-python/compare/microsoft-kiota-abstractions-v1.18.0...microsoft-kiota-abstractions-v1.19.0) (2026-11-26)
 
 
