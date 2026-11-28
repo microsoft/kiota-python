@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 import warnings
-from datetime import datetime
+from datetime import date, datetime, time, timedelta
 from typing import Any, Optional, TypeVar, Union
 from urllib import parse
 
@@ -371,7 +371,8 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
                 root_node = await self.get_root_parse_node(response, parent_span, parent_span)
                 if not root_node:
                     return None
-                value: Optional[Union[str, int, float, bool, datetime, bytes]] = None
+                value: Optional[Union[str, int, float, bool, datetime, date, time, timedelta,
+                                      bytes]] = None
                 if response_type == "str":
                     value = root_node.get_str_value()
                 if response_type == "int":
@@ -380,8 +381,15 @@ class HttpxRequestAdapter(RequestAdapter[httpx.Request]):
                     value = root_node.get_float_value()
                 if response_type == "bool":
                     value = root_node.get_bool_value()
-                if response_type == "datetime":
+                # generated request builders pass "datetime.datetime", "datetime.date", etc.
+                if response_type in ("datetime", "datetime.datetime"):
                     value = root_node.get_datetime_value()
+                if response_type == "datetime.date":
+                    value = root_node.get_date_value()
+                if response_type == "datetime.time":
+                    value = root_node.get_time_value()
+                if response_type == "datetime.timedelta":
+                    value = root_node.get_timedelta_value()
                 if value is not None:
                     parent_span.set_attribute(DESERIALIZED_MODEL_NAME_KEY, value.__class__.__name__)
                     return value  # type: ignore
