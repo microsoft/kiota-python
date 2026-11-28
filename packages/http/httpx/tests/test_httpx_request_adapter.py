@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import warnings
+from datetime import date, datetime, time, timedelta, timezone
 from unittest.mock import AsyncMock, Mock, call, patch
 from urllib.parse import unquote
 
@@ -11,6 +12,7 @@ from kiota_abstractions.method import Method
 from kiota_abstractions.native_response_handler import NativeResponseHandler
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import (
+    ParseNode,
     ParseNodeFactoryRegistry,
     SerializationWriterFactoryRegistry,
 )
@@ -561,6 +563,33 @@ async def test_send_primitive_async_bytes(
     )
     final_result = await request_adapter.send_primitive_async(request_info, "bytes", {})
     assert final_result == b"Hello World"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "response_type, getter, expected",
+    [
+        (
+            "datetime.datetime", "get_datetime_value",
+            datetime(2024, 2, 3, 4, 5, 6, tzinfo=timezone.utc)
+        ),
+        ("datetime", "get_datetime_value", datetime(2024, 2, 3, 4, 5, 6, tzinfo=timezone.utc)),
+        ("datetime.date", "get_date_value", date(2024, 2, 3)),
+        ("datetime.time", "get_time_value", time(4, 5, 6)),
+        ("datetime.timedelta", "get_timedelta_value", timedelta(hours=1, minutes=30)),
+    ],
+)
+async def test_send_primitive_async_date_and_time_types(
+    request_adapter, request_info, mock_primitive_response, response_type, getter, expected
+):
+    # Generated request builders pass the annotated type name, e.g. "datetime.date"
+    root_node = Mock(spec=ParseNode)
+    getattr(root_node, getter).return_value = expected
+    request_adapter.get_http_response_message = AsyncMock(return_value=mock_primitive_response)
+    request_adapter.get_root_parse_node = AsyncMock(return_value=root_node)
+    final_result = await request_adapter.send_primitive_async(request_info, response_type, {})
+    assert final_result == expected
+    getattr(root_node, getter).assert_called_once_with()
 
 
 @pytest.mark.asyncio
